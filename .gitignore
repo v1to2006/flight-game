@@ -1,0 +1,67 @@
+# OS shit
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor shit
+.vscode/
+.idea/
+*.swp
+*.suo
+*.user
+
+# Env / secret shit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets/
+
+# Logs
+*.log
+logs/
+
+# Node / web shit
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+.svelte-kit/
+.astro/
+.vercel/
+.netlify/
+.cache/
+coverage/
+*.tsbuildinfo
+
+# Python shit
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+instance/
+*.sqlite3
+
+# Docker / DB shit
+docker-compose.override.yml
+mysql-data/
+mariadb-data/
+postgres-data/
+*.db
+*.sqlite
+*.sql
+
+# Temp shit
+tmp/
+temp/
+*.tmp
+*.bak
