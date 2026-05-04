@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<title>Login | Flight Game</title>
+
+	<link rel="stylesheet" href="./static/css/variables.css">
+	<link rel="stylesheet" href="./static/css/base.css">
+	<link rel="stylesheet" href="./static/css/pages/auth.css">
+	<script type="module" src="./static/js/auth/login.js" defer></script>
+</head>
+
+<body>
+	<header class="auth-navbar">
+		<a class="auth-logo" href="./index.html" aria-label="Flight Game home">
+			<span class="auth-logo__icon">✦</span>
+			<span>Flight Game</span>
+		</a>
+
+		<nav class="auth-nav" aria-label="Authentication navigation">
+			<a class="auth-nav__link auth-nav__link--active" href="./login.html">Login</a>
+			<a class="auth-nav__link" href="./signup.html">Sign up</a>
+		</nav>
+	</header>
+
+	<main class="auth-page">
+		<section class="auth-card" aria-labelledby="login-title">
+			<div class="auth-card__header">
+				<p class="auth-eyebrow">Pilot access</p>
+
+				<h1 class="auth-card__title" id="login-title">
+					Login
+				</h1>
+
+				<p class="auth-card__text">
+					Enter your username and password to continue.
+				</p>
+			</div>
+
+			<form class="auth-form" data-login-form>
+				<p class="status-message" data-status-message role="alert"></p>
+
+				<label class="form-field">
+					<span class="form-label">Username</span>
+
+					<input
+						class="form-input"
+						type="text"
+						name="username"
+						autocomplete="username"
+						placeholder="e.g. acepilot"
+						required
+						minlength="3"
+					>
+				</label>
+
+				<label class="form-field">
+					<span class="form-label">Password</span>
+
+					<input
+						class="form-input"
+						type="password"
+						name="password"
+						autocomplete="current-password"
+						placeholder="Your password"
+						required
+						minlength="8"
+					>
+				</label>
+
+				<button class="button button--primary" type="submit" data-submit-button>
+					Login
+				</button>
+			</form>
+
+			<p class="auth-switch">
+				No account?
+				<a href="./signup.html">Create one</a>
+			</p>
+		</section>
+	</main>
+</body>
+
+</html>
