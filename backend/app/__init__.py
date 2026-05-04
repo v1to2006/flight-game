@@ -17,7 +17,7 @@ def create_app():
         app,
         resources={
             r"/api/*": {
-                "origins": [app.config["FRONTEND_ORIGIN"]],
+                "origins": app.config["FRONTEND_ORIGINS"],
             }
         },
         supports_credentials=True,
