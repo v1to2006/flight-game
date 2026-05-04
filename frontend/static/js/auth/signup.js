@@ -9,15 +9,17 @@ signupForm.addEventListener("submit", async (event) => {
 	event.preventDefault()
 
 	clearMessage(statusMessage)
-	setFormLoading(signupForm, true)
 
 	const username = getInputValue(signupForm, "username").toLowerCase()
 	const password = getInputValue(signupForm, "password")
 	const confirmPassword = getInputValue(signupForm, "confirmPassword")
 
 	if (password !== confirmPassword) {
-		throw new Error("Passwords do not match.")
+		showMessage(statusMessage, "Passwords do not match");
+		return;
 	}
+
+	setFormLoading(signupForm, true)
 
 	try {
 		await signupUser({ username, password })
