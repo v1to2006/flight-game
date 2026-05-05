@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<title>Iron Skies - Main Menu</title>
+
+	<link rel="stylesheet" href="static/css/variables.css" />
+	<link rel="stylesheet" href="static/css/mainMenu.css" />
+	<link rel="stylesheet" href="static/css/loading.css" />
+	<script type="module" src="./static/js/auth/pageGuard.js"></script>
+</head>
+
+<body>
+
+	<div class="background-layer">
+
+		<video autoplay muted playsinline id="bgVideo1">
+			<source src="static/assets/videos/PlaneGray.mp4" type="video/mp4" />
+		</video>
+
+		<video autoplay muted playsinline id="bgVideo2">
+			<source src="static/assets/videos/PlaneGray.mp4" type="video/mp4" />
+		</video>
+
+		<canvas id="backgroundCanvas"></canvas>
+
+		<div class="dark-overlay"></div>
+		<div class="vignette"></div>
+		<div class="flicker"></div>
+	</div>
+
+	<audio id="bgMusic" loop>
+		<source src="static/assets/audio/Ambient.wav" type="audio/mpeg" />
+	</audio>
+
+	<div id="audioHint">Click anywhere to enable sound</div>
+
+	<main class="main-menu">
+		<section class="title-area">
+			<p class="small-title">Flight-Game</p>
+			<h1 class="game-title">IRON SKIES</h1>
+			<p class="subtitle">"You are about to embark upon the Great Crusade, toward which we have striven these many
+				months"</p>
+		</section>
+
+		<section class="menu-buttons">
+			<button class="menu-btn" onclick="continueGame()">Continue</button>
+			<button class="menu-btn primary" onclick="newGame()">New Game</button>
+			<button class="menu-btn" onclick="goToPage('settings.html')">Settings</button>
+			<button class="menu-btn danger" onclick="signOut()">Sign Out</button>
+		</section>
+	</main>
+
+	<script src="static/js/loading.js"></script>
+	<script type="module" src="static/js/mainMenu.js"></script>
+</body>
+
+</html>
