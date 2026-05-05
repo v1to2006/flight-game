@@ -1,23 +1,52 @@
 :root {
   /* Color palette */
-  --color-bg: #0f1a24;
-  --color-surface: #24313d;
-  --color-primary: #556b2f;
-  --color-secondary: #c2b280;
-  --color-danger: #8b2e1f;
-  --color-text: #e8e1d0;
-  --color-muted: #9a9a8e;
+  --color-bg: #07090d;
+  --color-surface: #1a222b;
+  --color-primary: #d6ad62;
+  --color-secondary: #cfd6dc;
+  --color-danger: #7a2118;
+  --color-text: #f4f0e8;
+  --color-muted: #8d949b;
   --color-success: #4f6d7a;
 
   /* Extended UI colors */
-  --color-bg-deep: #0a1118;
-  --color-surface-light: #2f3e4c;
-  --color-border: rgba(194, 178, 128, 0.22);
-  --color-input-bg: rgba(15, 26, 36, 0.72);
-  --color-overlay: rgba(15, 26, 36, 0.78);
+  --color-bg-deep: #111820;
+  --color-surface-light: #2f3740;
+  --color-border: rgba(214, 173, 98, 0.35);
+  --color-input-bg: rgba(10, 14, 20, 0.78);
+  --color-overlay: rgba(0, 0, 0, 0.65);
+
+  /* Extra theme colors */
+  --color-steel: #2f3740;
+  --color-steel-dark: #111820;
+  --color-steel-light: #707a83;
+  --color-steel-bright: #cfd6dc;
+
+  --color-gold: #d6ad62;
+  --color-gold-light: #ffcc7a;
+  --color-gold-soft: rgba(214, 173, 98, 0.65);
+
+  --color-red-dark: #250908;
+  --color-red: #7a2118;
+
+  --color-text-soft: #c6ccd2;
+  --color-text-bright: #ffffff;
+
+  /* Gradients */
+  --gradient-steel: linear-gradient(135deg, #2f3740, #111820);
+  --gradient-red: linear-gradient(135deg, #7a2118, #250908);
+  --gradient-title-metal: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    #cfd6dc 25%,
+    #727b84 48%,
+    #f0d38b 58%,
+    #e7edf0 72%,
+    #8d949b 100%
+  );
 
   /* Typography */
-  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-main: Georgia, "Times New Roman", serif;
 
   /* Spacing */
   --space-xs: 0.4rem;
@@ -34,12 +63,16 @@
   --radius-xl: 1.75rem;
 
   /* Shadow */
-  --shadow-card: 0 24px 80px rgba(0, 0, 0, 0.38);
-  --shadow-button: 0 10px 30px rgba(85, 107, 47, 0.35);
+  --shadow-card: 0 24px 80px rgba(0, 0, 0, 0.6);
+  --shadow-button: 0 10px 30px rgba(214, 173, 98, 0.25);
+  --shadow-gold: 0 0 22px rgba(255, 197, 100, 0.28);
+  --shadow-dark: 0 14px 30px rgba(0, 0, 0, 0.62);
 
   /* Layout */
   --container-width: 1120px;
 
   /* Animation */
   --transition-fast: 160ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 800ms ease;
 }

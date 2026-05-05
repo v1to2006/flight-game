@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Iron Skies - Landing</title>
+
+  <link rel="stylesheet" href="static/css/variables.css" />
+  <link rel="stylesheet" href="static/css/loading.css" />
+  <link rel="stylesheet" href="static/css/Landing.css" />
+</head>
+<body>
+
+  <video autoplay muted loop playsinline id="bgVideo">
+    <source src="static/assets/videos/BurningCity.mp4" type="video/mp4" />
+  </video>
+
+  <div class="overlay"></div>
+  <canvas id="particles"></canvas>
+  <div class="cinematic-bars"></div>
+
+  <audio id="bgMusic" loop>
+    <source src="static/assets/audio/tea_war.wav" type="audio/mpeg" />
+  </audio>
+
+  <main class="landing">
+    <p class="small-title">Flight-Game presents</p>
+    <h1 class="title">IRON SKIES</h1>
+    <p class="tagline">"Never in the field of human conflict was so much owed by so many to so few."</p>
+
+    <button class="play-btn" onclick="playGame()">
+      PLAY
+    </button>
+  </main>
+
+  <div id="audioHint">Click anywhere to enable sound</div>
+
+  <script src="static/js/loading.js"></script>
+  <script src="static/js/Landing.js"></script>
+</body>
+</html>

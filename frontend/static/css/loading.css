@@ -1,0 +1,127 @@
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at center, rgba(40, 45, 50, 0.35), rgba(0, 0, 0, 0.92)),
+    rgba(0, 0, 0, 0.9);
+
+  color: var(--color-text);
+  font-family: var(--font-main);
+}
+
+#loadingScreen.active {
+  display: flex;
+}
+
+.loading-box {
+  width: min(560px, 88vw);
+  padding: 34px 38px;
+
+  text-align: center;
+
+  border: 1px solid var(--color-gold-soft);
+  background: var(--color-overlay);
+
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 22px rgba(255, 220, 150, 0.05);
+}
+
+.loading-small {
+  color: var(--color-gold);
+  letter-spacing: 5px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.loading-title {
+  font-size: 34px;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+}
+
+.loading-quote {
+  min-height: 54px;
+  color: var(--color-text-soft);
+  font-size: 17px;
+  line-height: 1.5;
+  margin-bottom: 26px;
+}
+
+/* Spinner */
+.loading-propeller {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 24px;
+
+  border: 2px solid var(--color-gold-soft);
+  border-radius: 50%;
+
+  position: relative;
+  animation: spinPropeller 0.7s linear infinite;
+}
+
+.loading-propeller::before,
+.loading-propeller::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  width: 8px;
+  height: 48px;
+
+  background: var(--color-gold);
+  border-radius: 50%;
+
+  transform-origin: center;
+}
+
+.loading-propeller::before {
+  transform: translate(-50%, -50%);
+}
+
+.loading-propeller::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* Progress bar */
+.loading-bar {
+  width: 100%;
+  height: 9px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.loading-fill {
+  width: 0%;
+  height: 100%;
+
+  background: linear-gradient(
+    to right,
+    var(--color-red),
+    var(--color-gold),
+    var(--color-text-bright)
+  );
+
+  transition: width linear;
+}
+
+@keyframes spinPropeller {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
