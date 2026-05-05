@@ -1,102 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<title>Sign Up | Flight Game</title>
+  <title>Sign Up | Iron Skies</title>
 
-	<link rel="stylesheet" href="./static/css/variables.css">
-	<link rel="stylesheet" href="./static/css/base.css">
-	<link rel="stylesheet" href="./static/css/pages/auth.css">
-	<link rel="icon" type="image/x-icon" href="../favicon.ico">
-	<script type="module" src="./static/js/auth/signup.js" defer></script>
+  <link rel="stylesheet" href="./static/css/variables.css" />
+  <link rel="stylesheet" href="./static/css/base.css" />
+  <link rel="stylesheet" href="./static/css/loading.css" />
+  <link rel="stylesheet" href="./static/css/pages/auth.css" />
+
+  <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+
+  <script src="./static/js/loading.js" defer></script>
+  <script src="./static/js/auth/authMusic.js" defer></script>
+  <script type="module" src="./static/js/auth/signup.js" defer></script>
 </head>
 
 <body>
-	<header class="auth-navbar">
-		<a class="auth-logo" href="./index.html" aria-label="Flight Game home">
-			<span class="auth-logo__icon">✦</span>
-			<span>Flight Game</span>
-		</a>
+  <div class="auth-background">
+    <video autoplay muted loop playsinline class="auth-bg-video">
+      <source src="./static/assets/videos/GroundFog.mp4" type="video/mp4" />
+    </video>
 
-		<nav class="auth-nav" aria-label="Authentication navigation">
-			<a class="auth-nav__link" href="./login.html">Login</a>
-			<a class="auth-nav__link auth-nav__link--active" href="./signup.html">Sign up</a>
-		</nav>
-	</header>
+    <div class="auth-bg-overlay"></div>
+    <div class="auth-bg-vignette"></div>
+  </div>
 
-	<main class="auth-page">
-		<section class="auth-card" aria-labelledby="signup-title">
-			<div class="auth-card__header">
-				<p class="auth-eyebrow">New pilot</p>
+  <audio id="bgMusic" loop>
+    <source src="./static/assets/audio/tea_war.wav" type="audio/wav" />
+  </audio>
 
-				<h1 class="auth-card__title" id="signup-title">
-					Sign up
-				</h1>
+  <div id="audioHint">Click anywhere to enable sound</div>
 
-				<p class="auth-card__text">
-					Create your account using only username and password.
-				</p>
-			</div>
+  <header class="auth-navbar">
+    <a class="auth-logo" href="./index.html" aria-label="Iron Skies home">
+      <span class="auth-logo__icon">✦</span>
+      <span>Iron Skies</span>
+    </a>
 
-			<form class="auth-form" data-signup-form>
-				<p class="status-message" data-status-message role="alert"></p>
+    <nav class="auth-nav" aria-label="Authentication navigation">
+      <a class="auth-nav__link" href="./login.html">Login</a>
+      <a class="auth-nav__link auth-nav__link--active" href="./signup.html">Sign up</a>
+    </nav>
+  </header>
 
-				<label class="form-field">
-					<span class="form-label">Username</span>
+  <main class="auth-page">
+    <section class="auth-card" aria-labelledby="signup-title">
+      <div class="auth-card__header">
+        <p class="auth-eyebrow">New pilot registration</p>
 
-					<input
-						class="form-input"
-						type="text"
-						name="username"
-						autocomplete="username"
-						placeholder="e.g. spitfire07"
-						required
-						minlength="3"
-					>
-				</label>
+        <h1 class="auth-card__title" id="signup-title">
+          Sign Up
+        </h1>
 
-				<label class="form-field">
-					<span class="form-label">Password</span>
+        <p class="auth-card__text">
+          Create your pilot account and prepare for deployment.
+        </p>
+      </div>
 
-					<input
-						class="form-input"
-						type="password"
-						name="password"
-						autocomplete="new-password"
-						placeholder="At least 8 characters"
-						required
-						minlength="8"
-					>
-				</label>
+      <form class="auth-form" data-signup-form>
+        <p class="status-message" data-status-message role="alert"></p>
 
-				<label class="form-field">
-					<span class="form-label">Confirm password</span>
+        <label class="form-field">
+          <span class="form-label">Username</span>
 
-					<input
-						class="form-input"
-						type="password"
-						name="confirmPassword"
-						autocomplete="new-password"
-						placeholder="Repeat password"
-						required
-						minlength="8"
-					>
-				</label>
+          <input
+            class="form-input"
+            type="text"
+            name="username"
+            autocomplete="username"
+            placeholder="e.g. spitfire07"
+            required
+            minlength="3"
+          />
+        </label>
 
-				<button class="button button--primary" type="submit" data-submit-button>
-					Create account
-				</button>
-			</form>
+        <label class="form-field">
+          <span class="form-label">Password</span>
 
-			<p class="auth-switch">
-				Already have an account?
-				<a href="./login.html">Login</a>
-			</p>
-		</section>
-	</main>
+          <input
+            class="form-input"
+            type="password"
+            name="password"
+            autocomplete="new-password"
+            placeholder="At least 8 characters"
+            required
+            minlength="8"
+          />
+        </label>
+
+        <label class="form-field">
+          <span class="form-label">Confirm Password</span>
+
+          <input
+            class="form-input"
+            type="password"
+            name="confirmPassword"
+            autocomplete="new-password"
+            placeholder="Repeat password"
+            required
+            minlength="8"
+          />
+        </label>
+
+        <button class="button button--primary" type="submit" data-submit-button>
+          Create Account
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account?
+        <a href="./login.html">Login</a>
+      </p>
+    </section>
+  </main>
 </body>
-
 </html>
