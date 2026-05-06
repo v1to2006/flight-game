@@ -3,9 +3,11 @@ const canvas = document.getElementById("mapCanvas");
 const ctx = canvas.getContext("2d")
 let nodes = [];
 let currentNode = null;
+let hoveredNode = null;
 
 
 //hardcoded lentokentät aluksi
+
 const airports = [
   { name: "Helsinki", icao: "EFHK", lat: 60.32, lon: 24.96 },
   { name: "Stockholm", icao: "ESSA", lat: 59.65, lon: 17.92 },
@@ -48,6 +50,20 @@ function drawConnections(nodes) {
   for (let node of nodes) {
     for (let id of node.connections) {
       let target = nodes.find(n => n.id === id);
+
+      if (
+          hoveredNode &&
+          currentNode &&
+          currentNode.connections.includes(hoveredNode.id) &&
+          node === currentNode &&
+          target === hoveredNode
+      ) {
+        ctx.strokeStyle = "yellow";
+        ctx.lineWidth = 3;
+      } else {
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 1;
+      }
 
       ctx.beginPath();
       ctx.moveTo(node.x, node.y);
@@ -124,15 +140,32 @@ function redraw() {
     else ctx.fillStyle = "red";
 
     if (node.type === "Start") ctx.fillStyle = "green";
-    if (node.type === "Exit") ctx.fillStyle = "purple";
+    else if (node.type === "Exit") ctx.fillStyle = "purple";
+    else if (node.type === "Shop") ctx.fillStyle = "blue";
+    else ctx.fillStyle = "red"; // else combat
 
     ctx.beginPath();
     ctx.arc(node.x, node.y, 5, 0, Math.PI * 2);
     ctx.fill();
 
+    if (node === currentNode) {
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 3;
+    } else if (currentNode && currentNode.connections.includes(node.id)) {
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+    } else {
+      ctx.strokeStyle = "transparent";
+    }
+
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, 7, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "white";
     ctx.fillText(
         `${node.airport.name} (${node.airport.icao})`,
-        node.x + 8,
+        node.x + 10,
         node.y
     );
   }
@@ -169,6 +202,25 @@ zone1map.onload = () => {
 
   redraw();
 };
+
+canvas.addEventListener("mousemove", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  hoveredNode = null;
+
+  for (let node of nodes) {
+    let d = Math.hypot(mx - node.x, my - node.y);
+
+    if (d < 8) {
+      hoveredNode = node;
+      break;
+    }
+  }
+  redraw();
+});
+
 
 canvas.addEventListener("click", (e) => {
   if (!currentNode) return;
