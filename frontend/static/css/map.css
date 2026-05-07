@@ -1,0 +1,123 @@
+{
+    margin : 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: #111;
+    font-family: 'Press Start 2P', monospace;
+}
+
+
+/* !!!!!!!!
+Peli mapin config
+!!!!!!!!!!!!!
+ */
+
+
+#mapCanvas {
+
+    display: block;
+
+    width: 100vw;
+    height: 100vh;
+
+    image-rendering: pixelated;
+    cursor: pointer;
+}
+
+/* bänneri
+ */
+
+#airportPopup {
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%,-50%);
+
+    width: 520px;
+
+    background: rgba(10,10,15,0.97);
+
+    border: 4px solid #666;
+    padding: 28px;
+    color: white;
+    z-index: 999;
+    text-align: center;
+
+    image-rendering: pixelated;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* tekstiä
+
+ */
+
+#popupName {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #ffffff;
+    line-height: 1.6;
+}
+#popupType {
+    font-size: 15px;
+    margin-bottom: 20px;
+    color: #ff6666;
+    line-height: 1.6;
+}
+#popupICAO,
+#popupCoords {
+
+    font-size: 14px;
+
+    margin-bottom: 16px;
+
+    color: #bbbbbb;
+    line-height: 1.8;
+
+}
+
+.popupButtons {
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+
+.popupButtons button {
+
+    font-family: 'Press Start 2P', monospace;
+
+  font-size: 10px;
+
+  padding: 18px;
+
+  border: 3px solid #666;
+
+  background: #222;
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: 0.15s;
+}
+
+
+/* hover */
+.popupButtons button:hover {
+
+  background: #444;
+
+  transform: scale(1.03);
+}
