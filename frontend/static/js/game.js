@@ -30,38 +30,38 @@ const DIFFICULTY_CONFIGS = {
     timeMax: 230,
     killsMin: 10,
     killsMax: 15,
-    spawnDelayMin: 70,
-    spawnDelayMax: 105,
+    spawnDelayMin: 120,
+    spawnDelayMax: 150,
     enemyPool: ["fighter", "heavy"],
   },
 
   medium: {
     timeMin: 200,
     timeMax: 280,
-    killsMin: 24,
-    killsMax: 38,
-    spawnDelayMin: 55,
-    spawnDelayMax: 85,
+    killsMin: 15,
+    killsMax: 20,
+    spawnDelayMin: 90,
+    spawnDelayMax: 120,
     enemyPool: ["fighter", "heavy", "fast", "shotgun"],
   },
 
   hard: {
     timeMin: 230,
     timeMax: 340,
-    killsMin: 34,
-    killsMax: 52,
-    spawnDelayMin: 38,
-    spawnDelayMax: 70,
+    killsMin: 20,
+    killsMax: 30,
+    spawnDelayMin: 60,
+    spawnDelayMax: 90,
     enemyPool: ["fighter", "heavy", "fast", "shotgun", "rocketHeavy", "stealthRam"],
   },
 
   miniboss: {
     timeMin: 300,
     timeMax: 360,
-    killsMin: 8,
-    killsMax: 12,
+    killsMin: 10,
+    killsMax: 15,
     spawnDelayMin: 70,
-    spawnDelayMax: 95,
+    spawnDelayMax: 100,
     enemyPool: ["fighter", "heavy"],
     hasMiniBoss: true,
   },
@@ -69,10 +69,10 @@ const DIFFICULTY_CONFIGS = {
   boss: {
     timeMin: 420,
     timeMax: 480,
-    killsMin: 8,
-    killsMax: 12,
+    killsMin: 10,
+    killsMax: 15,
     spawnDelayMin: 60,
-    spawnDelayMax: 85,
+    spawnDelayMax: 100,
     enemyPool: ["fighter", "heavy", "fast"],
     hasBoss: true,
   },
@@ -114,7 +114,7 @@ const ENEMY_TYPES = {
     scoreValue: 150,
     image: "enemyFast",
     shootDelay: 165,
-    bulletSpeed: 5.2,
+    bulletSpeed: 5,
     pattern: "single",
   },
 
@@ -123,11 +123,11 @@ const ENEMY_TYPES = {
     width: 66,
     height: 66,
     hp: 3,
-    speed: 2.1,
+    speed: 1.2,
     scoreValue: 260,
     image: "enemyShotgun",
-    shootDelay: 135,
-    bulletSpeed: 4.6,
+    shootDelay: 140,
+    bulletSpeed: 4.0,
     pattern: "shotgun",
   },
 
@@ -136,11 +136,11 @@ const ENEMY_TYPES = {
     width: 86,
     height: 86,
     hp: 6,
-    speed: 1.5,
+    speed: 1.2,
     scoreValue: 360,
     image: "enemyRocketHeavy",
-    shootDelay: 115,
-    bulletSpeed: 4.2,
+    shootDelay: 150,
+    bulletSpeed: 4.0,
     pattern: "rocket",
   },
 
@@ -149,7 +149,7 @@ const ENEMY_TYPES = {
     width: 58,
     height: 58,
     hp: 2,
-    speed: 4.4,
+    speed: 3.0,
     scoreValue: 320,
     image: "enemyStealth",
     shootDelay: 9999,
@@ -180,8 +180,8 @@ const ENEMY_TYPES = {
     speed: 1.0,
     scoreValue: 8000,
     image: "enemyBoss",
-    shootDelay: 60,
-    bulletSpeed: 4.8,
+    shootDelay: 80,
+    bulletSpeed: 4.2,
     pattern: "boss",
     boss: true,
     finalBoss: true,
@@ -1037,7 +1037,7 @@ function updateBackground() {
 async function completeMission() {
   game.rewardGiven = true
   game.state = "win"
-  apiResultMessage = "Saving liberation..."
+  apiResultMessage = "saved"
 
   if (!airportIdent) {
     apiResultMessage = "Could not save: missing airport ident."
@@ -2293,10 +2293,10 @@ function drawWinScreen() {
       : "MISSION COMPLETE"
 
   const subtitle = isFinalBoss
-    ? "Berlin command aircraft is destroyed. Saving liberation..."
+    ? "Berlin command aircraft is destroyed. This is it... VICTORY!"
     : isMiniBoss
-      ? "Wolfsschanze has been neutralized. Saving liberation..."
-      : "Objective complete. Saving airport liberation..."
+      ? "Wolfsschanze has been neutralized."
+      : "Objective complete."
 
   drawOverlayBox(title, subtitle)
 

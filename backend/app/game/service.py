@@ -428,7 +428,7 @@ def liberate_airport(user_id, airport_ident):
                 progress = get_game_progress(session["id"])
 
                 return {
-                    "message": "Airport already liberated",
+                    "message": "Airport liberated",
                     "airportIdent": airport_ident,
                     "remainingAirports": progress["remainingAirports"],
                     "reward": {

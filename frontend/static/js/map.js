@@ -346,7 +346,6 @@ function drawNodes() {
 
     drawNodeIcon(node, screenPosition)
     drawSelectedRing(node, screenPosition)
-    drawNodeLabel(node, screenPosition)
   }
 }
 
@@ -406,20 +405,6 @@ function drawSelectedRing(node, position) {
   ctx.beginPath()
   ctx.arc(position.x, position.y, 24, 0, Math.PI * 2)
   ctx.stroke()
-}
-
-function drawNodeLabel(node, position) {
-  ctx.save()
-
-  ctx.fillStyle = getNodeColor(node)
-  ctx.shadowColor = "black"
-  ctx.shadowBlur = 6
-
-  const label = node.isBase ? "BASE" : node.airport.airportIdent ?? "???"
-
-  ctx.fillText(label, position.x, position.y + 38)
-
-  ctx.restore()
 }
 
 function getNodeColor(node) {

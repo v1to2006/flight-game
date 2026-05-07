@@ -26,25 +26,25 @@ const UPGRADE_DEFS = [
     id: "hp",
     label: "HP",
     levelKey: "hpLevel",
-    fallbackBasePrice: 400,
+    fallbackBasePrice: 120,
   },
   {
     id: "speed",
     label: "Speed",
     levelKey: "speedLevel",
-    fallbackBasePrice: 450,
+    fallbackBasePrice: 100,
   },
   {
     id: "firerate",
     label: "Fire Rate",
     levelKey: "firerateLevel",
-    fallbackBasePrice: 500,
+    fallbackBasePrice: 200,
   },
   {
     id: "damage",
     label: "Damage",
     levelKey: "damageLevel",
-    fallbackBasePrice: 650,
+    fallbackBasePrice: 220,
   },
 ];
 
