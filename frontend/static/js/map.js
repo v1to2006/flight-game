@@ -8,6 +8,11 @@ const GAME_PAGE = "./game.html"
 const SHOP_PAGE = "./shop.html"
 
 const HELSINKI_AIRPORT_IDENT = "EFHK"
+const MINIBOSS_AIRPORT_IDENT = "EPKE"
+const BOSS_AIRPORT_IDENT = "EDDB"
+
+const DIFFICULTY_MINIBOSS_ID = 4
+const DIFFICULTY_BOSS_ID = 5
 
 const ACTIVE_GAME_SESSION_KEY = "ironSkiesActiveGameSessionId"
 const SELECTED_AIRPORT_KEY = "ironSkiesSelectedAirport"
@@ -48,6 +53,7 @@ const CAMERA = {
 const NODE_TYPES = {
   BASE: "BASE",
   COMBAT: "COMBAT",
+  MINIBOSS: "MINIBOSS",
   FINAL_BOSS: "FINAL_BOSS",
 }
 
@@ -60,6 +66,7 @@ const icons = {
   easy: createImage(`${ASSET_BASE}/easy.png`),
   medium: createImage(`${ASSET_BASE}/medium.png`),
   hard: createImage(`${ASSET_BASE}/hard.png`),
+  miniboss: createImage(`${ASSET_BASE}/miniboss.png`),
   boss: createImage(`${ASSET_BASE}/boss.png`),
 }
 
@@ -128,7 +135,9 @@ async function loadMapData() {
     ? data.airports
     : []
 
-  const helsinkiAirport = allAirports.find((airport) => airport.airportIdent === HELSINKI_AIRPORT_IDENT)
+  const helsinkiAirport = allAirports.find(
+    (airport) => airport.airportIdent === HELSINKI_AIRPORT_IDENT
+  )
 
   if (!helsinkiAirport) {
     nodes = []
@@ -242,8 +251,12 @@ function getNodeType(airport) {
 
   const difficultyId = Number(airport?.difficulty?.id ?? 0)
 
-  if (difficultyId === 4 || airport.airportIdent === "EDDB") {
+  if (difficultyId === DIFFICULTY_BOSS_ID || airport.airportIdent === BOSS_AIRPORT_IDENT) {
     return NODE_TYPES.FINAL_BOSS
+  }
+
+  if (difficultyId === DIFFICULTY_MINIBOSS_ID || airport.airportIdent === MINIBOSS_AIRPORT_IDENT) {
+    return NODE_TYPES.MINIBOSS
   }
 
   return NODE_TYPES.COMBAT
@@ -347,7 +360,7 @@ function drawNodeIcon(node, position) {
       ctx.globalAlpha = 0.45
     }
 
-    const size = node.isBase ? 42 : 32
+    const size = node.isBase ? 42 : 34
 
     ctx.drawImage(icon, position.x - size / 2, position.y - size / 2, size, size)
 
@@ -360,6 +373,7 @@ function drawNodeIcon(node, position) {
 
 function getNodeIcon(node) {
   if (node.type === NODE_TYPES.BASE) return icons.base
+  if (node.type === NODE_TYPES.MINIBOSS) return icons.miniboss
   if (node.type === NODE_TYPES.FINAL_BOSS) return icons.boss
 
   const difficultyName = getDifficultyName(node)
@@ -411,7 +425,8 @@ function drawNodeLabel(node, position) {
 function getNodeColor(node) {
   if (node.isBase) return "#8aff8a"
   if (node.liberated) return "#aaaaaa"
-  if (node.type === NODE_TYPES.FINAL_BOSS) return "#ff4444"
+  if (node.type === NODE_TYPES.MINIBOSS) return "#ff8a00"
+  if (node.type === NODE_TYPES.FINAL_BOSS) return "#ff2222"
 
   const difficultyName = getDifficultyName(node)
 
@@ -454,6 +469,10 @@ function getPopupTypeText(node) {
     return "FINAL BATTLE - BERLIN"
   }
 
+  if (node.type === NODE_TYPES.MINIBOSS) {
+    return "MINIBOSS - WOLFSSCHANZE"
+  }
+
   return `COMBAT - ${String(node.airport.difficulty.name).toUpperCase()}`
 }
 
@@ -471,7 +490,9 @@ function setupPrimaryButton(node) {
   primaryButton.textContent =
     node.type === NODE_TYPES.FINAL_BOSS
       ? "START FINAL BATTLE"
-      : "START COMBAT"
+      : node.type === NODE_TYPES.MINIBOSS
+        ? "START MINIBOSS"
+        : "START COMBAT"
 
   primaryButton.onclick = () => startCombat(node)
 }
@@ -508,7 +529,8 @@ function getGameDifficultyFromAirport(airport) {
   const difficultyId = Number(airport?.difficulty?.id ?? 1)
   const name = String(airport?.difficulty?.name ?? "easy").toLowerCase()
 
-  if (difficultyId === 4 || airport.airportIdent === "EDDB") return "boss"
+  if (difficultyId === DIFFICULTY_BOSS_ID || airport.airportIdent === BOSS_AIRPORT_IDENT) return "boss"
+  if (difficultyId === DIFFICULTY_MINIBOSS_ID || airport.airportIdent === MINIBOSS_AIRPORT_IDENT) return "miniboss"
   if (name === "hard") return "hard"
   if (name === "medium") return "medium"
 

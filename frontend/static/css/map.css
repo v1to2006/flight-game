@@ -145,6 +145,10 @@ body {
   background: #ff6666;
 }
 
+.legend-dot--miniboss {
+  background: #ff8a00;
+}
+
 .legend-dot--boss {
   background: #ff2222;
 }

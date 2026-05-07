@@ -28,8 +28,8 @@ const DIFFICULTY_CONFIGS = {
   easy: {
     timeMin: 170,
     timeMax: 230,
-    killsMin: 15,
-    killsMax: 24,
+    killsMin: 10,
+    killsMax: 15,
     spawnDelayMin: 70,
     spawnDelayMax: 105,
     enemyPool: ["fighter", "heavy"],
@@ -55,6 +55,17 @@ const DIFFICULTY_CONFIGS = {
     enemyPool: ["fighter", "heavy", "fast", "shotgun", "rocketHeavy", "stealthRam"],
   },
 
+  miniboss: {
+    timeMin: 300,
+    timeMax: 360,
+    killsMin: 8,
+    killsMax: 12,
+    spawnDelayMin: 70,
+    spawnDelayMax: 95,
+    enemyPool: ["fighter", "heavy"],
+    hasMiniBoss: true,
+  },
+
   boss: {
     timeMin: 420,
     timeMax: 480,
@@ -73,11 +84,11 @@ const ENEMY_TYPES = {
     width: 64,
     height: 64,
     hp: 2,
-    speed: 2.4,
+    speed: 1,
     scoreValue: 100,
     image: "enemy",
     shootDelay: 125,
-    bulletSpeed: 4.8,
+    bulletSpeed: 2,
     pattern: "single",
   },
 
@@ -147,6 +158,20 @@ const ENEMY_TYPES = {
     stealth: true,
   },
 
+  miniboss: {
+    type: "miniboss",
+    width: 150,
+    height: 120,
+    hp: 45,
+    speed: 1.4,
+    scoreValue: 2500,
+    image: "enemyMiniBoss",
+    shootDelay: 75,
+    bulletSpeed: 4.8,
+    pattern: "miniboss",
+    boss: true,
+  },
+
   boss: {
     type: "boss",
     width: 320,
@@ -207,6 +232,12 @@ const game = {
   rewardGiven: false,
   backendLiberationDone: false,
   backendLiberationLoading: false,
+
+  miniBossStarted: false,
+  miniBossDefeated: false,
+  waitingForMiniBoss: false,
+  miniBossIntroTimer: 0,
+
   bossStarted: false,
   bossDefeated: false,
   waitingForBoss: false,
@@ -255,6 +286,8 @@ const MUSIC_TRACKS = {
   easy: AUDIO_BASE + "easy.wav",
   medium: AUDIO_BASE + "medium.wav",
   hard: AUDIO_BASE + "hard.wav",
+  minibossStage: AUDIO_BASE + "easy.wav",
+  minibossFight: AUDIO_BASE + "miniboss.wav",
   bossStage: AUDIO_BASE + "hard.wav",
   bossFight: AUDIO_BASE + "finalboss.wav",
 }
@@ -280,6 +313,7 @@ const images = {
   enemyShotgun: loadImage("static/assets/planes/enemy_shotgun.png"),
   enemyRocketHeavy: loadImage("static/assets/planes/enemy_rocket_heavy.png"),
   enemyStealth: loadImage("static/assets/planes/enemy_stealth.png"),
+  enemyMiniBoss: loadImage("static/assets/planes/miniboss.png"),
   enemyBoss: loadImage("static/assets/planes/final_boss.png"),
 
   cloud1: loadImage("static/assets/clouds/cloud1.png"),
@@ -334,10 +368,6 @@ const clouds = [
 initGame()
 gameLoop()
 
-/* -----------------------------
-   INIT
------------------------------ */
-
 async function initGame() {
   if (!airportIdent) {
     game.state = "error"
@@ -386,6 +416,7 @@ function normalizeDifficulty(value) {
   const normalized = String(value).toLowerCase()
 
   if (normalized === "boss") return "boss"
+  if (normalized === "miniboss") return "miniboss"
   if (normalized === "hard") return "hard"
   if (normalized === "medium") return "medium"
 
@@ -447,11 +478,11 @@ function loadImage(src) {
   return img
 }
 
-/* -----------------------------
-   MUSIC
------------------------------ */
-
 function getStartingMusicPath() {
+  if (CURRENT_DIFFICULTY === "miniboss") {
+    return MUSIC_TRACKS.minibossStage
+  }
+
   if (CURRENT_DIFFICULTY === "boss") {
     return MUSIC_TRACKS.bossStage
   }
@@ -494,10 +525,6 @@ function switchMusic(newPath, volume = 0.32) {
     })
   }
 }
-
-/* -----------------------------
-   INPUT
------------------------------ */
 
 window.addEventListener("keydown", (event) => {
   startMusic()
@@ -558,10 +585,6 @@ canvas.addEventListener("click", (event) => {
   }
 })
 
-/* -----------------------------
-   RESTART
------------------------------ */
-
 function restartGame() {
   game.score = 0
   game.wave = 1
@@ -578,6 +601,12 @@ function restartGame() {
   game.rewardGiven = false
   game.backendLiberationDone = false
   game.backendLiberationLoading = false
+
+  game.miniBossStarted = false
+  game.miniBossDefeated = false
+  game.waitingForMiniBoss = false
+  game.miniBossIntroTimer = 0
+
   game.bossStarted = false
   game.bossDefeated = false
   game.waitingForBoss = false
@@ -601,10 +630,6 @@ function restartGame() {
   explosions.length = 0
   warnings.length = 0
 }
-
-/* -----------------------------
-   UPDATE
------------------------------ */
 
 function update() {
   if (game.state === "loading" || game.state === "error") {
@@ -766,11 +791,20 @@ function updateEnemyBullets() {
 }
 
 function updateEnemies() {
+  if (difficultyConfig.hasMiniBoss) {
+    handleMiniBossFlow()
+  }
+
   if (difficultyConfig.hasBoss) {
     handleBossFlow()
   }
 
-  if (game.waitingForBoss || game.bossStarted) {
+  if (difficultyConfig.hasMiniBoss && (game.waitingForMiniBoss || game.miniBossStarted)) {
+    updateExistingEnemiesOnly()
+    return
+  }
+
+  if (difficultyConfig.hasBoss && (game.waitingForBoss || game.bossStarted)) {
     updateExistingEnemiesOnly()
     return
   }
@@ -801,6 +835,8 @@ function updateExistingEnemiesOnly() {
 
     if (enemy.type === "boss") {
       updateBoss(enemy)
+    } else if (enemy.type === "miniboss") {
+      updateMiniBoss(enemy)
     } else if (enemy.type === "stealthRam") {
       updateStealthRam(enemy)
     } else {
@@ -837,6 +873,62 @@ function updateExistingEnemiesOnly() {
   }
 }
 
+function handleMiniBossFlow() {
+  if (game.miniBossStarted || game.miniBossDefeated) return
+
+  if (game.kills >= game.targetKills && !game.waitingForMiniBoss) {
+    game.waitingForMiniBoss = true
+    game.miniBossIntroTimer = 120
+
+    enemies.length = 0
+    enemyBullets.length = 0
+    bullets.length = 0
+
+    createWarning("MINIBOSS APPROACHING", GAME_WIDTH / 2, 205, 120)
+  }
+
+  if (game.waitingForMiniBoss) {
+    game.miniBossIntroTimer--
+
+    if (game.miniBossIntroTimer <= 0) {
+      spawnMiniBoss()
+      game.waitingForMiniBoss = false
+      game.miniBossStarted = true
+      game.wave = "MINIBOSS"
+    }
+  }
+}
+
+function handleBossFlow() {
+  if (game.bossStarted || game.bossDefeated) return
+
+  if (game.kills >= game.targetKills && !game.waitingForBoss) {
+    game.waitingForBoss = true
+    game.bossIntroTimer = 160
+
+    enemies.length = 0
+    enemyBullets.length = 0
+    bullets.length = 0
+
+    createWarning("UNKNOWN HEAVY SIGNAL", GAME_WIDTH / 2, 205, 140)
+  }
+
+  if (game.waitingForBoss) {
+    game.bossIntroTimer--
+
+    if (game.bossIntroTimer === 80) {
+      createWarning("BOSS APPROACHING", GAME_WIDTH / 2, 205, 100)
+    }
+
+    if (game.bossIntroTimer <= 0) {
+      spawnBoss()
+      game.waitingForBoss = false
+      game.bossStarted = true
+      game.wave = "BOSS"
+    }
+  }
+}
+
 function updateCollisions() {
   for (let e = enemies.length - 1; e >= 0; e--) {
     const enemy = enemies[e]
@@ -864,6 +956,9 @@ function updateCollisions() {
           if (enemy.type === "boss" || enemy.finalBoss) {
             game.bossDefeated = true
             createWarning("BOSS DESTROYED", GAME_WIDTH / 2, 205, 150)
+          } else if (enemy.type === "miniboss") {
+            game.miniBossDefeated = true
+            createWarning("MINIBOSS DESTROYED", GAME_WIDTH / 2, 205, 120)
           } else {
             game.kills++
           }
@@ -874,6 +969,14 @@ function updateCollisions() {
         break
       }
     }
+  }
+
+  if (difficultyConfig.hasMiniBoss) {
+    if (game.miniBossDefeated && !game.rewardGiven) {
+      completeMission()
+    }
+
+    return
   }
 
   if (difficultyConfig.hasBoss) {
@@ -931,10 +1034,6 @@ function updateBackground() {
   }
 }
 
-/* -----------------------------
-   MISSION COMPLETE API
------------------------------ */
-
 async function completeMission() {
   game.rewardGiven = true
   game.state = "win"
@@ -958,6 +1057,10 @@ async function completeMission() {
     game.backendLiberationDone = true
     apiResultMessage = result?.message || "Airport liberated."
 
+    if (result?.event?.type === "miniboss_defeated") {
+      apiResultMessage = result.event.subtitle || "Miniboss defeated."
+    }
+
     if (result?.gameCompleted) {
       apiResultMessage = result?.ending?.subtitle || "Campaign completed."
     }
@@ -969,10 +1072,6 @@ async function completeMission() {
     game.backendLiberationLoading = false
   }
 }
-
-/* -----------------------------
-   COMBAT HELPERS
------------------------------ */
 
 function shootBullet() {
   player.shotCounter++
@@ -1150,34 +1249,32 @@ function spawnSpecificEnemy(type, x, y) {
   })
 }
 
-function handleBossFlow() {
-  if (game.bossStarted || game.bossDefeated) return
+function spawnMiniBoss() {
+  switchMusic(MUSIC_TRACKS.minibossFight, 0.34)
 
-  if (game.kills >= game.targetKills && !game.waitingForBoss) {
-    game.waitingForBoss = true
-    game.bossIntroTimer = 160
+  const data = ENEMY_TYPES.miniboss
 
-    enemies.length = 0
-    enemyBullets.length = 0
-    bullets.length = 0
-
-    createWarning("UNKNOWN HEAVY SIGNAL", GAME_WIDTH / 2, 205, 140)
-  }
-
-  if (game.waitingForBoss) {
-    game.bossIntroTimer--
-
-    if (game.bossIntroTimer === 80) {
-      createWarning("BOSS APPROACHING", GAME_WIDTH / 2, 205, 100)
-    }
-
-    if (game.bossIntroTimer <= 0) {
-      spawnBoss()
-      game.waitingForBoss = false
-      game.bossStarted = true
-      game.wave = "BOSS"
-    }
-  }
+  enemies.push({
+    type: data.type,
+    x: GAME_WIDTH / 2,
+    y: -120,
+    width: data.width,
+    height: data.height,
+    hp: data.hp,
+    maxHp: data.hp,
+    speed: data.speed,
+    scoreValue: data.scoreValue,
+    image: data.image,
+    pattern: data.pattern,
+    bulletSpeed: data.bulletSpeed,
+    shootTimer: 90,
+    shootDelay: data.shootDelay,
+    drift: 1.7,
+    boss: true,
+    entranceDone: false,
+    rocketTimer: 130,
+    summonTimer: 90,
+  })
 }
 
 function spawnBoss() {
@@ -1207,6 +1304,43 @@ function spawnBoss() {
     rocketTimer: 150,
     autoCannonTimer: 95,
   })
+}
+
+function updateMiniBoss(enemy) {
+  if (!enemy.entranceDone) {
+    enemy.y += 1.3
+
+    if (enemy.y >= 115) {
+      enemy.y = 115
+      enemy.entranceDone = true
+      enemy.summonTimer = 70
+    }
+
+    return
+  }
+
+  enemy.x += enemy.drift
+
+  if (
+    enemy.x < enemy.width / 2 + 40 ||
+    enemy.x > GAME_WIDTH - enemy.width / 2 - 40
+  ) {
+    enemy.drift *= -1
+  }
+
+  enemy.rocketTimer--
+
+  if (enemy.rocketTimer <= 0) {
+    shootMiniBossRockets(enemy)
+    enemy.rocketTimer = 130 + Math.floor(Math.random() * 60)
+  }
+
+  enemy.summonTimer--
+
+  if (enemy.summonTimer <= 0) {
+    summonMiniBossAdds()
+    enemy.summonTimer = 160 + Math.floor(Math.random() * 70)
+  }
 }
 
 function updateBoss(enemy) {
@@ -1346,6 +1480,32 @@ function enemyShoot(enemy) {
     })
   }
 
+  if (enemy.pattern === "miniboss") {
+    shootEnemyProjectile({
+      x: enemy.x,
+      y: enemy.y + enemy.height / 2 - 6,
+      vx: 0,
+      vy: enemy.bulletSpeed,
+      type: "bullet",
+    })
+
+    shootEnemyProjectile({
+      x: enemy.x - 26,
+      y: enemy.y + enemy.height / 2 - 6,
+      vx: -1.4,
+      vy: enemy.bulletSpeed,
+      type: "bullet",
+    })
+
+    shootEnemyProjectile({
+      x: enemy.x + 26,
+      y: enemy.y + enemy.height / 2 - 6,
+      vx: 1.4,
+      vy: enemy.bulletSpeed,
+      type: "bullet",
+    })
+  }
+
   if (enemy.pattern === "boss") {
     const y = enemy.y + enemy.height / 2 - 12
 
@@ -1379,6 +1539,62 @@ function shootEnemyProjectile(options) {
     width: options.width || 7,
     height: options.height || 18,
     damage: options.damage || 1,
+  })
+}
+
+function shootMiniBossRockets(enemy) {
+  shootEnemyProjectile({
+    x: enemy.x - 42,
+    y: enemy.y + enemy.height / 2,
+    vx: -2.2,
+    vy: 3.8,
+    type: "rocket",
+    width: 12,
+    height: 28,
+    damage: 2,
+  })
+
+  shootEnemyProjectile({
+    x: enemy.x + 42,
+    y: enemy.y + enemy.height / 2,
+    vx: 2.2,
+    vy: 3.8,
+    type: "rocket",
+    width: 12,
+    height: 28,
+    damage: 2,
+  })
+}
+
+function summonMiniBossAdds() {
+  spawnSideAdd("fighter", "left")
+  spawnSideAdd("fighter", "right")
+
+  createWarning("REINFORCEMENTS", GAME_WIDTH / 2, 205, 90)
+}
+
+function spawnSideAdd(type, side) {
+  const data = ENEMY_TYPES[type] || ENEMY_TYPES.fighter
+
+  enemies.push({
+    type: data.type,
+    x: side === "left" ? 45 : GAME_WIDTH - 45,
+    y: 180 + Math.random() * 160,
+    width: data.width,
+    height: data.height,
+    hp: data.hp,
+    maxHp: data.hp,
+    speed: 1.25,
+    scoreValue: data.scoreValue,
+    image: data.image,
+    pattern: data.pattern,
+    bulletSpeed: data.bulletSpeed,
+    shootTimer: 60 + Math.floor(Math.random() * 50),
+    shootDelay: data.shootDelay,
+    drift: side === "left" ? 1.9 : -1.9,
+    stealth: false,
+    stealthAlpha: 1,
+    summoned: true,
   })
 }
 
@@ -1462,10 +1678,6 @@ function createExplosion(x, y, size) {
   })
 }
 
-/* -----------------------------
-   COLLISION
------------------------------ */
-
 function rectsCollide(a, b) {
   return (
     a.x < b.x + b.width &&
@@ -1510,10 +1722,6 @@ function getEnemyBulletRect(bullet) {
     height: bullet.height - 6,
   }
 }
-
-/* -----------------------------
-   DRAW
------------------------------ */
 
 function draw() {
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
@@ -1799,7 +2007,7 @@ function drawFallbackEnemy(enemy) {
   ctx.translate(enemy.x, enemy.y)
   ctx.rotate(Math.PI)
 
-  if (enemy.type === "heavy" || enemy.type === "rocketHeavy" || enemy.type === "boss") {
+  if (enemy.type === "heavy" || enemy.type === "rocketHeavy" || enemy.type === "boss" || enemy.type === "miniboss") {
     ctx.fillStyle = "#7a2118"
   } else if (enemy.type === "fast") {
     ctx.fillStyle = "#4F6D7A"
@@ -1999,12 +2207,12 @@ function drawHpBar(x, y, width, height) {
 }
 
 function drawBossHpBar() {
-  const boss = enemies.find((enemy) => enemy.boss || enemy.type === "boss")
+  const boss = enemies.find((enemy) => enemy.boss || enemy.type === "boss" || enemy.type === "miniboss")
 
   if (!boss) return
 
-  const barWidth = 760
-  const barHeight = 26
+  const barWidth = boss.type === "boss" ? 760 : 620
+  const barHeight = boss.type === "boss" ? 26 : 22
   const x = GAME_WIDTH / 2 - barWidth / 2
   const y = 28
 
@@ -2019,9 +2227,14 @@ function drawBossHpBar() {
   ctx.strokeRect(x, y, barWidth, barHeight)
 
   ctx.fillStyle = "#f4f0e8"
-  ctx.font = "17px Arial"
+  ctx.font = boss.type === "boss" ? "17px Arial" : "16px Arial"
   ctx.textAlign = "center"
-  ctx.fillText(`HEAVY STEALTH BOMBER - PHASE ${game.bossPhase}`, GAME_WIDTH / 2, y + 18)
+
+  const label = boss.type === "boss"
+    ? `HEAVY STEALTH BOMBER - PHASE ${game.bossPhase}`
+    : "MINIBOSS"
+
+  ctx.fillText(label, GAME_WIDTH / 2, y + 18)
   ctx.textAlign = "left"
 }
 
@@ -2052,7 +2265,7 @@ function drawPauseMenu() {
 }
 
 function drawLoseScreen() {
-  drawOverlayBox("MISSION FAILED", "Try again or return to map.")
+  drawOverlayBox("MISSION FAILED", "Nothing was saved to backend. Try again or return to map.")
 
   const buttonX = GAME_WIDTH / 2 - 140
   const startY = GAME_HEIGHT / 2 - 48
@@ -2071,11 +2284,19 @@ function drawLoseScreen() {
 
 function drawWinScreen() {
   const isFinalBoss = CURRENT_DIFFICULTY === "boss"
+  const isMiniBoss = CURRENT_DIFFICULTY === "miniboss"
 
-  const title = isFinalBoss ? "FINAL TARGET DESTROYED" : "MISSION COMPLETE"
+  const title = isFinalBoss
+    ? "FINAL TARGET DESTROYED"
+    : isMiniBoss
+      ? "MINIBOSS DESTROYED"
+      : "MISSION COMPLETE"
+
   const subtitle = isFinalBoss
-    ? "Berlin command aircraft is destroyed. This is it... VICTORY!"
-    : "Objective complete. Airport liberated"
+    ? "Berlin command aircraft is destroyed. Saving liberation..."
+    : isMiniBoss
+      ? "Wolfsschanze has been neutralized. Saving liberation..."
+      : "Objective complete. Saving airport liberation..."
 
   drawOverlayBox(title, subtitle)
 
@@ -2155,17 +2376,9 @@ function drawMenuButton(text, x, y, width, height, action) {
   ctx.textAlign = "left"
 }
 
-/* -----------------------------
-   NAVIGATION
------------------------------ */
-
 function goToMap() {
   window.location.href = MAP_PAGE
 }
-
-/* -----------------------------
-   LOOP
------------------------------ */
 
 function gameLoop() {
   update()

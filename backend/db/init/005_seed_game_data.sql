@@ -1,11 +1,14 @@
-INSERT IGNORE INTO difficulty_levels (id, name) VALUES
+INSERT INTO difficulty_levels (id, name) VALUES
 (1, 'EASY'),
 (2, 'MEDIUM'),
 (3, 'HARD'),
-(4, 'BOSS');
+(4, 'MINIBOSS'),
+(5, 'BOSS')
+ON DUPLICATE KEY UPDATE
+name = VALUES(name);
 
 
-INSERT IGNORE INTO campaign_country_rules (
+INSERT INTO campaign_country_rules (
     iso_country,
     difficulty_id,
     min_airports,
@@ -22,19 +25,35 @@ INSERT IGNORE INTO campaign_country_rules (
 
 ('DE', 3, 2, 3),
 ('PL', 3, 2, 3),
-('CZ', 3, 2, 3);
+('CZ', 3, 2, 3)
+ON DUPLICATE KEY UPDATE
+difficulty_id = VALUES(difficulty_id),
+min_airports = VALUES(min_airports),
+max_airports = VALUES(max_airports);
 
 
 -- Helsinki-Vantaa
-INSERT IGNORE INTO campaign_fixed_airports (airport_ident, difficulty_id) VALUES
-('EFHK', 1);
-
--- Berlin Brandenburg
-INSERT IGNORE INTO campaign_fixed_airports (airport_ident, difficulty_id) VALUES
-('EDDB', 4);
+INSERT INTO campaign_fixed_airports (airport_ident, difficulty_id) VALUES
+('EFHK', 1)
+ON DUPLICATE KEY UPDATE
+difficulty_id = VALUES(difficulty_id);
 
 
-INSERT IGNORE INTO planes (
+-- Wolfsschanze miniboss
+INSERT INTO campaign_fixed_airports (airport_ident, difficulty_id) VALUES
+('EPKE', 4)
+ON DUPLICATE KEY UPDATE
+difficulty_id = VALUES(difficulty_id);
+
+
+-- Berlin Brandenburg final boss
+INSERT INTO campaign_fixed_airports (airport_ident, difficulty_id) VALUES
+('EDDB', 5)
+ON DUPLICATE KEY UPDATE
+difficulty_id = VALUES(difficulty_id);
+
+
+INSERT INTO planes (
     id,
     name,
     default_hp,
@@ -43,6 +62,13 @@ INSERT IGNORE INTO planes (
     default_firerate,
     price
 ) VALUES
-(1, 'Starter Fighter', 100, 250, 20, 1.00, 0),
-(2, 'Heavy Fighter', 150, 210, 35, 0.80, 500),
-(3, 'Light Fighter', 80, 320, 16, 1.30, 700);
+(1, 'Starter Fighter', 100, 50, 10, 0.4, 0),
+(2, 'Heavy Fighter', 150, 100, 20, 0.80, 2000),
+(3, 'Light Fighter', 80, 150, 30, 1.30, 5000)
+ON DUPLICATE KEY UPDATE
+name = VALUES(name),
+default_hp = VALUES(default_hp),
+default_speed = VALUES(default_speed),
+default_damage = VALUES(default_damage),
+default_firerate = VALUES(default_firerate),
+price = VALUES(price);

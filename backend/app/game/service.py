@@ -9,18 +9,28 @@ AIRPORT_TYPES_FOR_CAMPAIGN = (
     "large_airport",
 )
 
+HELSINKI_AIRPORT_IDENT = "EFHK"
+MINIBOSS_AIRPORT_IDENT = "EPKE"
 BOSS_AIRPORT_IDENT = "EDDB"
 
+DIFFICULTY_EASY_ID = 1
+DIFFICULTY_MEDIUM_ID = 2
+DIFFICULTY_HARD_ID = 3
+DIFFICULTY_MINIBOSS_ID = 4
+DIFFICULTY_BOSS_ID = 5
+
 REWARDS_BY_DIFFICULTY_ID = {
-    1: 100,
-    2: 200,
-    3: 350,
-    4: 1000,
+    DIFFICULTY_EASY_ID: 100,
+    DIFFICULTY_MEDIUM_ID: 200,
+    DIFFICULTY_HARD_ID: 350,
+    DIFFICULTY_MINIBOSS_ID: 650,
+    DIFFICULTY_BOSS_ID: 1000,
 }
 
 
 def start_new_game(user_id):
     player = get_or_create_player(user_id)
+
     if player is None:
         raise RuntimeError("Failed to get player")
 
@@ -69,6 +79,7 @@ def add_fixed_airports(cursor, game_session_id, selected_airports):
         """
         SELECT airport_ident, difficulty_id
         FROM campaign_fixed_airports
+        ORDER BY difficulty_id, airport_ident
         """
     )
 
@@ -183,6 +194,7 @@ def get_airport_count(cursor, game_session_id):
 
 def get_active_game_session(user_id):
     player = get_or_create_player(user_id)
+
     if player is None:
         raise RuntimeError("Failed to get player")
 
@@ -216,7 +228,11 @@ def continue_game(user_id):
             "message": "No active game found",
         }
 
-    airports = get_game_airports(session["id"], include_liberated=True)
+    airports = get_game_airports(
+        game_session_id=session["id"],
+        include_liberated=True,
+    )
+
     progress = get_game_progress(session["id"])
 
     return {
@@ -346,8 +362,9 @@ def get_game_progress(game_session_id):
             row = cursor.fetchone()
     finally:
         db.close()
+
     if row is None:
-        raise RuntimeError("Failed to fetch row")
+        raise RuntimeError("Failed to fetch game progress")
 
     total_airports = int(row["total_airports"] or 0)
     liberated_airports = int(row["liberated_airports"] or 0)
@@ -367,10 +384,10 @@ def liberate_airport(user_id, airport_ident):
         raise ValueError("airportIdent is required")
 
     player = get_or_create_player(user_id)
-    
+
     if player is None:
         raise RuntimeError("Failed to get player")
-    
+
     session = get_active_game_session(user_id)
 
     if session is None:
@@ -449,9 +466,10 @@ def liberate_airport(user_id, airport_ident):
             )
 
             remaining_row = cursor.fetchone()
+
             if remaining_row is None:
                 raise RuntimeError("Failed to fetch remaining row")
-            
+
             remaining_airports = int(remaining_row["remaining_airports"] or 0)
 
             game_completed = (
@@ -481,6 +499,13 @@ def liberate_airport(user_id, airport_ident):
         },
         "gameCompleted": game_completed,
     }
+
+    if airport_ident == MINIBOSS_AIRPORT_IDENT:
+        response["event"] = {
+            "type": "miniboss_defeated",
+            "title": "Miniboss defeated",
+            "subtitle": "Wolfsschanze neutralized",
+        }
 
     if game_completed:
         response["ending"] = {
