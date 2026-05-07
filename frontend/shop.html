@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Aircraft Shop | WW2 Plane Game</title>
+
+<link rel="stylesheet" href="../static/css/variables.css" />
+<link rel="stylesheet" href="../static/css/loading.css" />
+<link rel="stylesheet" href="../static/css/shop.css" />
+</head>
+<body>
+
+  <main class="shop-page">
+    <div class="shop-video-background">
+  <video autoplay muted loop playsinline>
+    <source src="../static/assets/videos/Hangar.mp4" type="video/mp4">
+  </video>
+</div>
+
+    <section class="shop-hero">
+
+      <div class="top-left-menu">
+        <a class="menu-button" href="map.html">Return to Map</a>
+        <a class="menu-button" href="settings.html">Settings</a>
+      </div>
+
+      <header class="shop-title">
+        <p class="eyebrow">Airfield Supply Point</p>
+        <h1>Shop</h1>
+        <p id="moneyText" class="money-text">Money: 0</p>
+      </header>
+
+<aside class="stats-card">
+  <div class="stats-card-header">
+    <h2 id="statsPanelTitle">Aircraft Stats</h2>
+    <button id="toggleUpgradeButton" class="stats-toggle-button" type="button">
+      Upgrades
+    </button>
+  </div>
+
+  <div id="statsFlipCard" class="stats-flip-card">
+
+    <!-- ETUPUOLI -->
+    <div class="stats-face stats-front">
+      <div class="stat-row">
+        <span>HP</span>
+        <strong id="statHp">5 x1.00</strong>
+      </div>
+
+      <div class="stat-row">
+        <span>Speed</span>
+        <strong id="statSpeed">6 x1.00</strong>
+      </div>
+
+      <div class="stat-row">
+        <span>Fire Rate</span>
+        <strong id="statFireRate">x1.00</strong>
+      </div>
+
+      <div class="stat-row">
+        <span>Damage</span>
+        <strong id="statDamage">1 x1.00</strong>
+      </div>
+
+      <div class="stat-row">
+        <span>Status</span>
+        <strong id="statStatus">Selected</strong>
+      </div>
+    </div>
+
+    <!-- TAKAPUOLI -->
+    <div class="stats-face stats-back">
+      <div class="upgrade-panel">
+        <h3>Upgrade Multipliers</h3>
+        <div id="upgradeRows" class="upgrade-rows"></div>
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+      <section class="main-showcase">
+        <div class="showcase-bg-rings"></div>
+
+        <div class="showcase-plane">
+          <img id="previewImage" src="../static/assets/planes/player_fighter1.png" alt="Selected plane preview">
+        </div>
+
+        <div class="showcase-text">
+          <h2 id="previewName">Hawk Fighter</h2>
+          <p id="previewDescription">Balanced starter fighter.</p>
+        </div>
+      </section>
+
+    </section>
+
+    <section class="bottom-shop">
+      <div id="planeCards" class="plane-cards"></div>
+    </section>
+
+    <button id="resetButton" class="reset-button">Reset test save</button>
+
+  </main>
+
+<script src="../static/js/loading.js"></script>
+<script src="../static/js/settingsManager.js"></script>
+<script src="../static/js/state.js"></script>
+<script src="../static/js/planes.js"></script>
+<script src="../static/js/shop.js"></script>
+<script src="../static/js/shopmusic.js"></script>
+</body>
+</html>
