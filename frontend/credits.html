@@ -1,98 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Credits | Iron Skies</title>
+	<title>Credits | Iron Skies</title>
 
-  <link rel="stylesheet" href="static/css/variables.css" />
-  <link rel="stylesheet" href="static/css/loading.css" />
-  <link rel="stylesheet" href="static/css/credits.css" />
+	<link rel="stylesheet" href="static/css/variables.css" />
+	<link rel="stylesheet" href="static/css/loading.css" />
+	<link rel="stylesheet" href="static/css/credits.css" />
+
+	<script type="module" src="./static/js/auth/pageGuard.js"></script>
 </head>
+
 <body>
 
-  <div class="credits-background">
-    <video autoplay muted loop playsinline id="bgVideo">
-      <source src="static/assets/videos/PlaneFly.mp4" type="video/mp4" />
-    </video>
+	<div class="credits-background">
+		<video autoplay muted loop playsinline id="bgVideo">
+			<source src="static/assets/videos/PlaneFly.mp4" type="video/mp4" />
+		</video>
 
-    <canvas id="creditsCanvas"></canvas>
+		<canvas id="creditsCanvas"></canvas>
 
-    <div class="credits-overlay"></div>
-    <div class="credits-vignette"></div>
-  </div>
+		<div class="credits-overlay"></div>
+		<div class="credits-vignette"></div>
+	</div>
 
-  <audio id="bgMusic" loop>
-    <source src="static/assets/audio/Ambient.wav" type="audio/wav" />
-  </audio>
+	<audio id="bgMusic" loop>
+		<source src="static/assets/audio/Ambient.wav" type="audio/wav" />
+	</audio>
 
-  <div id="audioHint">Click anywhere to enable sound</div>
+	<div id="audioHint">Click anywhere to enable sound</div>
 
-  <button class="back-button" onclick="returnToMenu()">
-    ← Return to Main Menu
-  </button>
+	<button class="back-button" onclick="returnToMenu()">
+		← Return to Main Menu
+	</button>
 
-  <main class="credits-page">
+	<main class="credits-page">
 
-    <section class="credits-title-area">
-      <p class="small-title">MISSION REPORT ARCHIVE</p>
-      <h1 class="credits-title">IRON SKIES</h1>
-      <p class="credits-subtitle">Flight-Game Credits by the Masterminds of Metropolia</p>
-    </section>
+		<section class="credits-title-area">
+			<p class="small-title">MISSION REPORT ARCHIVE</p>
+			<h1 class="credits-title">IRON SKIES</h1>
+			<p class="credits-subtitle">Flight-Game Credits by the Masterminds of Metropolia</p>
+		</section>
 
-    <section class="credits-window">
-      <div class="credits-scroll">
+		<section class="credits-window">
+			<div class="credits-scroll">
 
-        <div class="credit-group">
-            <h2>Game Project</h2>
-            <p>Iron Skies</p>
-        </div>
+				<div class="credit-group">
+					<h2>Game Project</h2>
+					<p>Iron Skies</p>
+				</div>
 
-        <div class="credit-group">
-            <h2>Developpers</h2>
-            <p>Joonas Haka</p>
-            <p>Juho Haka</p>
-            <p>Miio Kyllinen</p>
-            <p>Aleksei Alehin</p>
-        </div>
+				<div class="credit-group">
+					<h2>Developpers</h2>
+					<p>Joonas Haka</p>
+					<p>Juho Haka</p>
+					<p>Miio Kyllinen</p>
+					<p>Aleksei Alehin</p>
+				</div>
 
-        <div class="credit-group">
-            <h2>Game Design</h2>
-            <p>Masterminds of Metropolia</p>
-        </div>
+				<div class="credit-group">
+					<h2>Game Design</h2>
+					<p>Masterminds of Metropolia</p>
+				</div>
 
-        <div class="credit-group">
-            <h2>UI & Visual Theme</h2>
-            <p>Custom CSS accents & UI</p>
-            <p>Downloaded Background Picture Assets</p>
-        </div>
+				<div class="credit-group">
+					<h2>UI & Visual Theme</h2>
+					<p>Custom CSS accents & UI</p>
+					<p>Downloaded Background Picture Assets</p>
+				</div>
 
-        <div class="credit-group">
-            <h2>Music & Ambience</h2>
-            <p>Custom Ambient Track</p>
-            <p>Suno Development</p>
-        </div>
+				<div class="credit-group">
+					<h2>Music & Ambience</h2>
+					<p>Custom Ambient Track</p>
+					<p>Suno Development</p>
+				</div>
 
-        <div class="credit-group">
-            <h2>Special Thanks</h2>
-            <p>Teachers</p>
-            <p>Classmates</p>
-            <p>Amazing Team</p>
-        </div>
+				<div class="credit-group">
+					<h2>Special Thanks</h2>
+					<p>Teachers</p>
+					<p>Classmates</p>
+					<p>Amazing Team</p>
+				</div>
 
-        <div class="credit-group">
-            <h2>Final Transmission</h2>
-            <p>Hope you enjoyed your flight!</p>
-            <p>Thank you for playing!</p>
-        </div>
+				<div class="credit-group">
+					<h2>Final Transmission</h2>
+					<p>Hope you enjoyed your flight!</p>
+					<p>Thank you for playing!</p>
+				</div>
 
-      </div>
-    </section>
+			</div>
+		</section>
 
-  </main>
-  <script src="static/js/settingsManager.js" defer></script>
-  <script src="static/js/loading.js" defer></script>
-  <script src="static/js/credits.js" defer></script>
+	</main>
+	<script src="static/js/settingsManager.js" defer></script>
+	<script src="static/js/loading.js" defer></script>
+	<script src="static/js/credits.js" defer></script>
 </body>
+
 </html>
