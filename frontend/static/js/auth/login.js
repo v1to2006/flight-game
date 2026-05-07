@@ -1,26 +1,37 @@
 import { APP_CONFIG } from "../config.js"
-import { loginUser } from "../authApi.js"
+import { getCurrentUser, loginUser } from "../authApi.js"
 import { clearMessage, getInputValue, setFormLoading, showMessage } from "../formUtils.js"
 
 const loginForm = document.querySelector("[data-login-form]")
 const statusMessage = document.querySelector("[data-status-message]")
 
-loginForm.addEventListener("submit", async (event) => {
-	event.preventDefault()
+redirectIfAlreadyLoggedIn()
 
-	clearMessage(statusMessage)
-	setFormLoading(loginForm, true)
+loginForm?.addEventListener("submit", async (event) => {
+  event.preventDefault()
 
-	const username = getInputValue(loginForm, "username").toLowerCase()
-	const password = getInputValue(loginForm, "password")
+  clearMessage(statusMessage)
+  setFormLoading(loginForm, true)
 
-	try {
-		await loginUser({ username, password })
+  try {
+    const username = getInputValue(loginForm, "username").toLowerCase()
+    const password = getInputValue(loginForm, "password")
 
-		window.location.href = APP_CONFIG.routes.mainMenu
-	} catch (error) {
-		showMessage(statusMessage, error.message)
-	} finally {
-		setFormLoading(loginForm, false)
-	}
+    await loginUser({ username, password })
+
+    window.location.replace(APP_CONFIG.routes.mainMenu)
+  } catch (error) {
+    showMessage(statusMessage, error.message || "Login failed")
+  } finally {
+    setFormLoading(loginForm, false)
+  }
 })
+
+async function redirectIfAlreadyLoggedIn() {
+  try {
+    await getCurrentUser()
+    window.location.replace(APP_CONFIG.routes.mainMenu)
+  } catch {
+    // User is not logged in. Stay on login page.
+  }
+}
