@@ -18,6 +18,13 @@ def create_user(username, password):
                 """,
                 (username, password_hash),
             )
+
+            user_id = cursor.lastrowid
+
+        from app.player.service import create_player_profile
+
+        create_player_profile(user_id)
+
     finally:
         db.close()
 
