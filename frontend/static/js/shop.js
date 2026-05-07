@@ -24,25 +24,22 @@ const MAX_UPGRADE_LEVEL = 5;
 const UPGRADE_DEFS = [
   {
     id: "hp",
-    label: "HP",
     levelKey: "hpLevel",
     fallbackBasePrice: 120,
   },
   {
     id: "speed",
-    label: "Speed",
     levelKey: "speedLevel",
     fallbackBasePrice: 100,
   },
   {
-    id: "firerate",
-    label: "Fire Rate",
+    id: "fireRate",
+    apiStat: "firerate",
     levelKey: "firerateLevel",
     fallbackBasePrice: 200,
   },
   {
     id: "damage",
-    label: "Damage",
     levelKey: "damageLevel",
     fallbackBasePrice: 220,
   },
@@ -76,11 +73,15 @@ let selectedPreviewPlaneId = null;
 let upgradePanelOpen = false;
 let isBusy = false;
 
+function tr(key) {
+  return typeof window.t === "function" ? window.t(key) : key;
+}
+
 async function initShop() {
   try {
     setupUpgradeFlipButton();
 
-    planeCards.innerHTML = `<p class="shop-loading-text">Loading shop...</p>`;
+    planeCards.innerHTML = `<p class="shop-loading-text">${tr("loadingShop")}</p>`;
 
     await loadShopData();
     renderShop();
@@ -88,8 +89,8 @@ async function initShop() {
     console.error(error);
 
     planeCards.innerHTML = "";
-    previewName.textContent = "Shop unavailable";
-    previewDescription.textContent = "Could not load shop data.";
+    previewName.textContent = tr("shopUnavailable");
+    previewDescription.textContent = tr("couldNotLoadShop");
 
     showMessage(error.message);
   }
@@ -121,7 +122,11 @@ async function loadShopData() {
   if (!Array.isArray(shopPlanes)) shopPlanes = [];
 
   const selectedPlane = ownedPlanes.find((plane) => plane.selected);
-  const fallbackPlane = selectedPlane || ownedPlanes[0] || shopPlanes[0];
+  const currentPlane = ownedPlanes.find(
+    (plane) => Number(plane.playerPlaneId) === Number(player.currentPlayerPlaneId)
+  );
+
+  const fallbackPlane = currentPlane || selectedPlane || ownedPlanes[0] || shopPlanes[0];
 
   if (!selectedPreviewPlaneId && fallbackPlane) {
     selectedPreviewPlaneId = fallbackPlane.planeId;
@@ -131,19 +136,31 @@ async function loadShopData() {
 function renderShop() {
   if (!player) return;
 
-  moneyText.textContent = `Money: ${player.money}`;
+  moneyText.textContent = `${tr("money")}: ${player.money}`;
 
   renderPreview();
   renderPlaneCards();
   renderUpgradePanel();
+
+  if (upgradePanelOpen) {
+    toggleUpgradeButton.textContent = tr("stats");
+    statsPanelTitle.textContent = tr("upgradeStats");
+  } else {
+    toggleUpgradeButton.textContent = tr("upgrades");
+    statsPanelTitle.textContent = tr("aircraftStats");
+  }
+
+  if (typeof window.applySavedLanguage === "function") {
+    window.applySavedLanguage();
+  }
 }
 
 function renderPreview() {
   const shopPlane = getPreviewShopPlane();
 
   if (!shopPlane) {
-    previewName.textContent = "No aircraft found";
-    previewDescription.textContent = "No aircraft data was returned by the API.";
+    previewName.textContent = tr("noAircraftFound");
+    previewDescription.textContent = tr("noAircraftData");
 
     statHp.textContent = "-";
     statSpeed.textContent = "-";
@@ -174,11 +191,11 @@ function renderPreview() {
   statDamage.textContent = `${formatNumber(stats.damage)} x${formatMultiplier(multipliers.damage)}`;
 
   if (isSelected) {
-    statStatus.textContent = "Selected";
+    statStatus.textContent = tr("selected");
   } else if (ownedPlane) {
-    statStatus.textContent = "Owned";
+    statStatus.textContent = tr("owned");
   } else {
-    statStatus.textContent = `Locked - ${shopPlane.price}`;
+    statStatus.textContent = `${tr("locked")} - ${shopPlane.price}`;
   }
 }
 
@@ -186,7 +203,7 @@ function renderPlaneCards() {
   planeCards.innerHTML = "";
 
   if (shopPlanes.length === 0) {
-    planeCards.innerHTML = `<p class="shop-loading-text">No planes found.</p>`;
+    planeCards.innerHTML = `<p class="shop-loading-text">${tr("noPlanesFound")}</p>`;
     return;
   }
 
@@ -228,38 +245,40 @@ function renderPlaneCards() {
     const price = document.createElement("p");
     price.className = "card-price";
     price.textContent =
-      Number(shopPlane.price) === 0 ? "Starter plane" : `Price: ${shopPlane.price}`;
+      Number(shopPlane.price) === 0
+        ? tr("starterPlane")
+        : `${tr("price")}: ${shopPlane.price}`;
 
     const statsText = document.createElement("p");
     statsText.className = "card-stats";
     statsText.textContent =
-      `HP ${formatNumber(stats.hp)} | ` +
-      `Speed ${formatNumber(stats.speed)} | ` +
-      `DMG ${formatNumber(stats.damage)}`;
+      `${tr("hp")} ${formatNumber(stats.hp)} | ` +
+      `${tr("speed")} ${formatNumber(stats.speed)} | ` +
+      `${tr("damage")} ${formatNumber(stats.damage)}`;
 
     const status = document.createElement("p");
     status.className = "card-status";
 
     if (isSelected) {
-      status.textContent = "Currently selected";
+      status.textContent = tr("currentlySelected");
     } else if (isOwned) {
-      status.textContent = "Owned";
+      status.textContent = tr("owned");
     } else if (canAfford) {
-      status.textContent = "Can be purchased";
+      status.textContent = tr("canBePurchased");
     } else {
-      status.textContent = "Locked";
+      status.textContent = tr("locked");
     }
 
     const button = document.createElement("button");
     button.className = "card-button";
 
     if (isSelected) {
-      button.textContent = "Selected";
+      button.textContent = tr("selected");
       button.disabled = true;
     } else if (isOwned) {
-      button.textContent = "Select";
+      button.textContent = tr("select");
     } else {
-      button.textContent = canAfford ? "Buy" : "Not enough money";
+      button.textContent = canAfford ? tr("buy") : tr("notEnoughMoney");
       button.disabled = !canAfford;
     }
 
@@ -287,15 +306,17 @@ function renderUpgradePanel() {
   if (!ownedPlane) {
     const lockedMessage = document.createElement("p");
     lockedMessage.className = "upgrade-empty-message";
-    lockedMessage.textContent = "Buy this aircraft before upgrading it.";
+    lockedMessage.textContent = tr("buyAircraftBeforeUpgrading");
 
     upgradeRows.appendChild(lockedMessage);
     return;
   }
 
   for (const upgrade of UPGRADE_DEFS) {
+    const statKey = upgrade.apiStat || upgrade.id;
+
     const level = Number(ownedPlane.upgrades?.[upgrade.levelKey] || 0);
-    const multiplier = Number(ownedPlane.multipliers?.[upgrade.id] || 1);
+    const multiplier = Number(ownedPlane.multipliers?.[statKey] || 1);
 
     const isMaxed = level >= MAX_UPGRADE_LEVEL;
     const upgradePrice = getUpgradePrice(ownedPlane, upgrade, level);
@@ -310,11 +331,11 @@ function renderUpgradePanel() {
 
     const name = document.createElement("span");
     name.className = "upgrade-name";
-    name.textContent = `${upgrade.label} x${formatMultiplier(multiplier)}`;
+    name.textContent = `${tr(upgrade.id)} x${formatMultiplier(multiplier)}`;
 
     const levelText = document.createElement("span");
     levelText.className = "upgrade-level";
-    levelText.textContent = `Lvl ${level}/${MAX_UPGRADE_LEVEL}`;
+    levelText.textContent = `${tr("levelShort")} ${level}/${MAX_UPGRADE_LEVEL}`;
 
     top.appendChild(name);
     top.appendChild(levelText);
@@ -337,21 +358,21 @@ function renderUpgradePanel() {
     button.className = "upgrade-buy-button";
 
     if (isMaxed) {
-      button.textContent = "Maxed";
+      button.textContent = tr("maxed");
       button.disabled = true;
     } else if (upgradePrice === null) {
-      button.textContent = "Upgrade";
+      button.textContent = tr("upgrade");
       button.disabled = false;
     } else {
       button.textContent = canAfford
-        ? `Upgrade - ${upgradePrice}`
-        : `Need ${upgradePrice}`;
+        ? `${tr("upgrade")} - ${upgradePrice}`
+        : `${tr("need")} ${upgradePrice}`;
 
       button.disabled = !canAfford;
     }
 
     button.addEventListener("click", async () => {
-      await handleUpgradeClick(ownedPlane.playerPlaneId, upgrade.id);
+      await handleUpgradeClick(ownedPlane.playerPlaneId, statKey);
     });
 
     row.appendChild(top);
@@ -372,7 +393,7 @@ async function handlePlaneButtonClick(shopPlane, ownedPlane) {
       await selectOwnedPlane(ownedPlane.playerPlaneId);
 
       selectedPreviewPlaneId = shopPlane.planeId;
-      showMessage("Plane selected.", "success");
+      showMessage(tr("planeSelected"), "success");
 
       await refreshShop();
       return;
@@ -395,7 +416,7 @@ async function handlePlaneButtonClick(shopPlane, ownedPlane) {
 
     selectedPreviewPlaneId = shopPlane.planeId;
 
-    showMessage("Plane purchased.", "success");
+    showMessage(tr("planePurchased"), "success");
     await refreshShop();
   } catch (error) {
     showMessage(error.message);
@@ -427,7 +448,7 @@ async function handleUpgradeClick(playerPlaneId, stat) {
       }),
     });
 
-    showMessage("Upgrade purchased.", "success");
+    showMessage(tr("upgradePurchased"), "success");
     await refreshShop();
   } catch (error) {
     showMessage(error.message);
@@ -449,12 +470,12 @@ function setupUpgradeFlipButton() {
 
     if (upgradePanelOpen) {
       statsFlipCard.classList.add("flipped");
-      toggleUpgradeButton.textContent = "Stats";
-      statsPanelTitle.textContent = "Upgrade Stats";
+      toggleUpgradeButton.textContent = tr("stats");
+      statsPanelTitle.textContent = tr("upgradeStats");
     } else {
       statsFlipCard.classList.remove("flipped");
-      toggleUpgradeButton.textContent = "Upgrades";
-      statsPanelTitle.textContent = "Aircraft Stats";
+      toggleUpgradeButton.textContent = tr("upgrades");
+      statsPanelTitle.textContent = tr("aircraftStats");
     }
   });
 }
@@ -530,9 +551,14 @@ function getPlaneMultipliersForDisplay(ownedPlane) {
 }
 
 function getUpgradePrice(ownedPlane, upgrade, currentLevel) {
+  const statKey = upgrade.apiStat || upgrade.id;
+
   const directPrice =
+    ownedPlane.nextUpgradePrices?.[statKey] ??
     ownedPlane.nextUpgradePrices?.[upgrade.id] ??
+    ownedPlane.upgradePrices?.[statKey] ??
     ownedPlane.upgradePrices?.[upgrade.id] ??
+    ownedPlane.upgradeCosts?.[statKey] ??
     ownedPlane.upgradeCosts?.[upgrade.id];
 
   if (directPrice !== undefined && directPrice !== null) {
@@ -579,4 +605,4 @@ function formatMultiplier(value) {
   return Number(value || 1).toFixed(2);
 }
 
-initShop();
+document.addEventListener("DOMContentLoaded", initShop);

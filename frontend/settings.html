@@ -1,104 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<title>Settings | Iron Skies</title>
+  <title>Settings | Iron Skies</title>
 
-	<link rel="stylesheet" href="static/css/variables.css" />
-	<link rel="stylesheet" href="static/css/loading.css" />
-	<link rel="stylesheet" href="static/css/settings.css" />
-
-	<script type="module" src="./static/js/auth/pageGuard.js"></script>
+  <link rel="stylesheet" href="./static/css/variables.css" />
+  <link rel="stylesheet" href="./static/css/loading.css" />
+  <link rel="stylesheet" href="./static/css/settings.css" />
 </head>
-
 <body>
 
-	<div class="settings-bg">
-		<video autoplay muted loop playsinline id="bgVideo">
-			<source src="static/assets/videos/FlyPlaneThrough.mp4" type="video/mp4" />
-		</video>
+  <div class="settings-bg">
+    <video autoplay muted loop playsinline id="bgVideo">
+      <source src="./static/assets/videos/FlyPlaneThrough.mp4" type="video/mp4" />
+    </video>
 
-		<div class="settings-overlay"></div>
-		<div class="settings-vignette"></div>
-	</div>
+    <div class="settings-overlay"></div>
+    <div class="settings-vignette"></div>
+  </div>
 
-	<audio id="bgMusic" loop>
-		<source src="static/assets/audio/Ambient.wav" type="audio/wav" />
-	</audio>
+  <audio id="bgMusic" loop>
+    <source src="./static/assets/audio/Ambient.wav" type="audio/wav" />
+  </audio>
 
-	<button class="back-button" onclick="returnToPreviousPage()">← Return</button>
-	<div id="audioHint">Click anywhere to enable sound</div>
+  <button class="back-button" onclick="returnToPreviousPage()">← Return</button>
+  <div id="audioHint">Click anywhere to enable sound</div>
 
-	<main class="settings-page">
-		<section class="settings-card">
-			<p class="small-title" data-i18n="smallTitle">SYSTEM CONFIGURATION</p>
+  <main class="settings-page">
+    <section class="settings-card">
+      <p class="small-title" data-i18n="smallTitle">SYSTEM CONFIGURATION</p>
 
-			<h1 class="settings-title" data-i18n="title">SETTINGS</h1>
+      <h1 class="settings-title" data-i18n="title">SETTINGS</h1>
 
-			<p class="settings-text" data-i18n="subtitle">
-				Adjust your cockpit preferences before takeoff.
-			</p>
+      <p class="settings-text" data-i18n="subtitle">
+        Adjust your cockpit preferences before takeoff.
+      </p>
 
-			<div class="setting-row">
-				<div>
-					<h2 data-i18n="musicVolume">Music Volume</h2>
-					<p data-i18n="musicText">Control the background music volume.</p>
-				</div>
+      <div class="setting-row">
+        <div>
+          <h2 data-i18n="musicVolume">Music Volume</h2>
+          <p data-i18n="musicText">Control the background music volume.</p>
+        </div>
 
-				<div class="volume-control">
-					<input id="musicVolume" type="range" min="0" max="100" value="22" />
-					<span id="volumeValue">22%</span>
-				</div>
-			</div>
+        <div class="volume-control">
+          <input id="musicVolume" type="range" min="0" max="100" value="22" />
+          <span id="volumeValue">22%</span>
+        </div>
+      </div>
 
-			<div class="setting-row">
-				<div>
-					<h2 data-i18n="language">Language</h2>
-					<p data-i18n="languageText">Choose the interface language.</p>
-				</div>
+      <div class="setting-row">
+        <div>
+          <h2 data-i18n="language">Language</h2>
+          <p data-i18n="languageText">Choose the interface language.</p>
+        </div>
 
-				<select id="languageSelect">
-					<option value="en">English</option>
-					<option value="fi">Suomi</option>
-					<option value="ru">Русский</option>
-				</select>
-			</div>
+        <select id="languageSelect">
+          <option value="en">English</option>
+          <option value="fi">Suomi</option>
+          <option value="ru">Русский</option>
+        </select>
+      </div>
 
-			<div class="controls-section">
-				<h2 data-i18n="tutorialTitle">Controls</h2>
+      <div class="controls-section">
+        <h2 data-i18n="tutorialTitle">Controls</h2>
 
-				<div class="controls-layout">
-					<div class="control-group">
-						<div class="keys">
-							<span></span>
-							<kbd>W</kbd>
-							<span></span>
+        <div class="controls-layout">
+          <div class="control-group">
+            <div class="keys">
+              <span></span>
+              <kbd>W</kbd>
+              <span></span>
 
-							<kbd>A</kbd>
-							<kbd>S</kbd>
-							<kbd>D</kbd>
-						</div>
+              <kbd>A</kbd>
+              <kbd>S</kbd>
+              <kbd>D</kbd>
+            </div>
 
-						<p data-i18n="moveText">Move aircraft</p>
-					</div>
+            <p data-i18n="moveText">Move aircraft</p>
+          </div>
 
-					<div class="control-group">
-						<div class="space-key">
-							<kbd>SPACE</kbd>
-						</div>
+          <div class="control-group">
+            <div class="space-key">
+              <kbd>SPACE</kbd>
+            </div>
 
-						<p data-i18n="shootText">Shoot</p>
-					</div>
-				</div>
-			</div>
-		</section>
-	</main>
+            <p data-i18n="shootText">Shoot</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-	<script src="static/js/loading.js" defer></script>
-	<script src="static/js/settings.js" defer></script>
+  <script src="./static/js/loading.js" defer></script>
+  <script src="./static/js/settings.js" defer></script>
 </body>
-
 </html>

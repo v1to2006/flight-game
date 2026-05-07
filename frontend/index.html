@@ -6,15 +6,15 @@
 
   <title>Iron Skies - Landing</title>
 
-  <link rel="stylesheet" href="static/css/variables.css" />
-  <link rel="stylesheet" href="static/css/loading.css" />
-  <link rel="stylesheet" href="static/css/Landing.css" />
+  <link rel="stylesheet" href="./static/css/variables.css" />
+  <link rel="stylesheet" href="./static/css/loading.css" />
+  <link rel="stylesheet" href="./static/css/Landing.css" />
 	<script type="module" src="./static/js/auth/pageGuard.js"></script>
 </head>
 <body>
 
   <video autoplay muted loop playsinline id="bgVideo">
-    <source src="static/assets/videos/BurningCity.mp4" type="video/mp4" />
+    <source src="./static/assets/videos/BurningCity.mp4" type="video/mp4" />
   </video>
 
   <div class="overlay"></div>
@@ -22,7 +22,7 @@
   <div class="cinematic-bars"></div>
 
   <audio id="bgMusic" loop>
-    <source src="static/assets/audio/tea_war.wav" type="audio/mpeg" />
+    <source src="./static/assets/audio/tea_war.wav" type="audio/mpeg" />
   </audio>
 
   <main class="landing">
@@ -37,8 +37,9 @@
 
   <div id="audioHint">Click anywhere to enable sound</div>
 
-  <script src="static/js/loading.js" defer></script>
-  <script src="static/js/settingsManager.js" defer></script>
-  <script src="static/js/Landing.js" defer></script>
+  <script src="./static/js/loading.js" defer></script>
+  <script src="./static/js/settingsManager.js" defer></script>
+  <script src="./static/js/languageManager.js" defer></script>
+  <script src="./static/js/Landing.js" defer></script>
 </body>
 </html>
