@@ -1,7 +1,10 @@
 import random
 
 from app.db.connection import get_db_connection
-from app.player.service import get_or_create_player
+from app.player.service import (
+    get_or_create_player,
+    reset_player_for_new_game,
+)
 
 AIRPORT_TYPES_FOR_CAMPAIGN = (
     "small_airport",
@@ -20,10 +23,10 @@ DIFFICULTY_MINIBOSS_ID = 4
 DIFFICULTY_BOSS_ID = 5
 
 REWARDS_BY_DIFFICULTY_ID = {
-    DIFFICULTY_EASY_ID: 100,
-    DIFFICULTY_MEDIUM_ID: 200,
-    DIFFICULTY_HARD_ID: 350,
-    DIFFICULTY_MINIBOSS_ID: 650,
+    DIFFICULTY_EASY_ID: 250,
+    DIFFICULTY_MEDIUM_ID: 400,
+    DIFFICULTY_HARD_ID: 600,
+    DIFFICULTY_MINIBOSS_ID: 800,
     DIFFICULTY_BOSS_ID: 1000,
 }
 
@@ -48,6 +51,8 @@ def start_new_game(user_id):
                 (player["id"],),
             )
 
+            reset_result = reset_player_for_new_game(cursor, player["id"])
+
             cursor.execute(
                 """
                 INSERT INTO game_sessions (player_id)
@@ -71,6 +76,7 @@ def start_new_game(user_id):
         "message": "New game started",
         "gameSessionId": game_session_id,
         "occupiedAirportsCount": occupied_airports_count,
+        "playerReset": reset_result,
     }
 
 

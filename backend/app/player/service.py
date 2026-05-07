@@ -30,28 +30,71 @@ def create_player_profile(user_id):
 
             player_id = cursor.lastrowid
 
-            cursor.execute(
-                """
-                INSERT INTO player_planes (player_id, plane_id)
-                VALUES (%s, %s)
-                """,
-                (player_id, STARTER_PLANE_ID),
-            )
-
-            player_plane_id = cursor.lastrowid
-
-            cursor.execute(
-                """
-                UPDATE players
-                SET current_player_plane_id = %s
-                WHERE id = %s
-                """,
-                (player_plane_id, player_id),
-            )
+            create_starter_plane_for_player(cursor, player_id)
     finally:
         db.close()
 
     return get_player_by_user_id(user_id)
+
+
+def create_starter_plane_for_player(cursor, player_id):
+    cursor.execute(
+        """
+        INSERT INTO player_planes (player_id, plane_id)
+        VALUES (%s, %s)
+        """,
+        (player_id, STARTER_PLANE_ID),
+    )
+
+    player_plane_id = cursor.lastrowid
+
+    cursor.execute(
+        """
+        UPDATE players
+        SET current_player_plane_id = %s
+        WHERE id = %s
+        """,
+        (player_plane_id, player_id),
+    )
+
+    return player_plane_id
+
+
+def reset_player_for_new_game(cursor, player_id):
+    """
+    Resets player progression when starting a fresh campaign:
+    - money becomes 0
+    - all owned planes are deleted
+    - all plane upgrades are deleted with owned planes
+    - starter plane is recreated
+    - starter plane becomes selected
+    """
+
+    cursor.execute(
+        """
+        UPDATE players
+        SET current_player_plane_id = NULL,
+            money = 0
+        WHERE id = %s
+        """,
+        (player_id,),
+    )
+
+    cursor.execute(
+        """
+        DELETE FROM player_planes
+        WHERE player_id = %s
+        """,
+        (player_id,),
+    )
+
+    starter_player_plane_id = create_starter_plane_for_player(cursor, player_id)
+
+    return {
+        "money": 0,
+        "currentPlayerPlaneId": starter_player_plane_id,
+        "starterPlaneId": STARTER_PLANE_ID,
+    }
 
 
 def get_player_by_user_id(user_id):
@@ -84,6 +127,7 @@ def get_or_create_player(user_id):
 
 def get_player_profile(user_id):
     player = get_or_create_player(user_id)
+
     if player is None:
         raise RuntimeError("Failed to get player")
 
@@ -97,6 +141,7 @@ def get_player_profile(user_id):
 
 def get_owned_planes(user_id):
     player = get_or_create_player(user_id)
+
     if player is None:
         raise RuntimeError("Failed to get player")
 
@@ -134,11 +179,15 @@ def get_owned_planes(user_id):
     finally:
         db.close()
 
-    return [format_owned_plane(row, player["current_player_plane_id"]) for row in rows]
+    return [
+        format_owned_plane(row, player["current_player_plane_id"])
+        for row in rows
+    ]
 
 
 def get_shop_planes(user_id):
     player = get_or_create_player(user_id)
+
     if player is None:
         raise RuntimeError("Failed to get player")
 
@@ -219,6 +268,7 @@ def format_owned_plane(row, current_player_plane_id):
 
 def select_player_plane(user_id, player_plane_id):
     player = get_or_create_player(user_id)
+
     if player is None:
         raise RuntimeError("Failed to get player")
 
@@ -260,6 +310,7 @@ def select_player_plane(user_id, player_plane_id):
 
 def buy_plane(user_id, plane_id):
     player = get_or_create_player(user_id)
+
     if player is None:
         raise RuntimeError("Failed to get player")
 
@@ -340,6 +391,7 @@ def buy_plane(user_id, plane_id):
             updated_player = cursor.fetchone()
     finally:
         db.close()
+
     if updated_player is None:
         raise RuntimeError("Failed to fetch player")
 
@@ -358,7 +410,9 @@ def upgrade_plane(user_id, player_plane_id, stat):
         raise ValueError("Invalid upgrade stat")
 
     column_name = VALID_UPGRADE_STATS[stat]
+
     player = get_or_create_player(user_id)
+
     if player is None:
         raise RuntimeError("Failed to get player")
 
@@ -427,6 +481,7 @@ def upgrade_plane(user_id, player_plane_id, stat):
             updated_player = cursor.fetchone()
     finally:
         db.close()
+
     if updated_player is None:
         raise RuntimeError("Failed to get player")
 
