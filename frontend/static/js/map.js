@@ -1,671 +1,707 @@
-const canvas = document.getElementById("mapCanvas");
-const ctx = canvas.getContext("2d");
+import { APP_CONFIG } from "./config.js"
+import { apiRequest } from "./apiClient.js"
 
-const mapStatus = document.getElementById("mapStatus");
-const popup = document.getElementById("airportPopup");
+const MAP_PAGE_WIDTH = 1920
+const MAP_PAGE_HEIGHT = 1080
 
-const popupName = document.getElementById("popupName");
-const popupType = document.getElementById("popupType");
-const popupICAO = document.getElementById("popupICAO");
-const popupCountry = document.getElementById("popupCountry");
-const popupCoords = document.getElementById("popupCoords");
+const GAME_PAGE = "./game.html"
+const SHOP_PAGE = "./shop.html"
 
-const primaryButton = document.getElementById("primaryButton");
-const closePopupButton = document.getElementById("closePopup");
+const HELSINKI_AIRPORT_IDENT = "EFHK"
+
+const ACTIVE_GAME_SESSION_KEY = "ironSkiesActiveGameSessionId"
+const SELECTED_AIRPORT_KEY = "ironSkiesSelectedAirport"
+
+const canvas = document.getElementById("mapCanvas")
+const ctx = canvas.getContext("2d")
+
+const mapStatus = document.getElementById("mapStatus")
+const popup = document.getElementById("airportPopup")
+
+const popupName = document.getElementById("popupName")
+const popupType = document.getElementById("popupType")
+const popupICAO = document.getElementById("popupICAO")
+const popupCountry = document.getElementById("popupCountry")
+const popupCoords = document.getElementById("popupCoords")
+
+const primaryButton = document.getElementById("primaryButton")
+const closePopupButton = document.getElementById("closePopup")
+
+const refreshMapButton = document.querySelector("[data-refresh-map]")
+const backMenuButton = document.querySelector("[data-back-menu]")
 
 const MAP_BOUNDS = {
   minLat: 31,
   maxLat: 72,
   minLon: -24,
-  maxLon: 60
-};
+  maxLon: 60,
+}
 
 const CAMERA = {
   scale: 1,
   minScale: 1,
   maxScale: 5,
   offsetX: 0,
-  offsetY: 0
-};
+  offsetY: 0,
+}
 
 const NODE_TYPES = {
+  BASE: "BASE",
   COMBAT: "COMBAT",
-  FINAL_BOSS: "FINAL_BOSS"
-};
+  FINAL_BOSS: "FINAL_BOSS",
+}
 
-const ASSET_BASE = "/frontend/static/assets/backgrounds";
+const ASSET_BASE = "./static/assets/backgrounds"
 
-const mapImage = new Image();
-mapImage.src = `${ASSET_BASE}/ww2map.png`;
+const mapImage = createImage(`${ASSET_BASE}/ww2map.png`)
 
 const icons = {
+  base: createImage(`${ASSET_BASE}/base.png`),
   easy: createImage(`${ASSET_BASE}/easy.png`),
   medium: createImage(`${ASSET_BASE}/medium.png`),
   hard: createImage(`${ASSET_BASE}/hard.png`),
-  boss: createImage(`${ASSET_BASE}/boss.png`)
-};
-
-let nodes = [];
-let selectedNode = null;
-let gameSessionId = null;
-
-let isDragging = false;
-let hasDragged = false;
-let dragStart = { x: 0, y: 0 };
-let cameraStart = { offsetX: 0, offsetY: 0 };
-
-const MOCK_GAME_MAP_RESPONSE = {
-  gameSessionId: 1,
-  occupiedAirports: [
-    {
-      airportIdent: "EFHK",
-      name: "Helsinki Vantaa Airport",
-      type: "large_airport",
-      isoCountry: "FI",
-      municipality: "Helsinki",
-      latitude: 60.3172,
-      longitude: 24.9633,
-      liberated: false,
-      difficulty: { id: 1, name: "EASY" }
-    },
-    {
-      airportIdent: "EFOU",
-      name: "Oulu Airport",
-      type: "medium_airport",
-      isoCountry: "FI",
-      municipality: "Oulu",
-      latitude: 64.9301,
-      longitude: 25.3546,
-      liberated: false,
-      difficulty: { id: 1, name: "EASY" }
-    },
-    {
-      airportIdent: "EFRO",
-      name: "Rovaniemi Airport",
-      type: "medium_airport",
-      isoCountry: "FI",
-      municipality: "Rovaniemi",
-      latitude: 66.5648,
-      longitude: 25.8304,
-      liberated: false,
-      difficulty: { id: 1, name: "EASY" }
-    },
-    {
-      airportIdent: "ESSA",
-      name: "Stockholm Arlanda Airport",
-      type: "large_airport",
-      isoCountry: "SE",
-      municipality: "Stockholm",
-      latitude: 59.6519,
-      longitude: 17.9186,
-      liberated: false,
-      difficulty: { id: 1, name: "EASY" }
-    },
-    {
-      airportIdent: "ESGG",
-      name: "Gothenburg Landvetter Airport",
-      type: "large_airport",
-      isoCountry: "SE",
-      municipality: "Gothenburg",
-      latitude: 57.6628,
-      longitude: 12.2798,
-      liberated: false,
-      difficulty: { id: 1, name: "EASY" }
-    },
-    {
-      airportIdent: "ESMS",
-      name: "Malmo Airport",
-      type: "medium_airport",
-      isoCountry: "SE",
-      municipality: "Malmo",
-      latitude: 55.5363,
-      longitude: 13.3762,
-      liberated: false,
-      difficulty: { id: 1, name: "EASY" }
-    },
-    {
-      airportIdent: "ENGM",
-      name: "Oslo Airport",
-      type: "large_airport",
-      isoCountry: "NO",
-      municipality: "Oslo",
-      latitude: 60.1939,
-      longitude: 11.1004,
-      liberated: false,
-      difficulty: { id: 1, name: "EASY" }
-    },
-    {
-      airportIdent: "ENBR",
-      name: "Bergen Airport",
-      type: "large_airport",
-      isoCountry: "NO",
-      municipality: "Bergen",
-      latitude: 60.2934,
-      longitude: 5.2181,
-      liberated: false,
-      difficulty: { id: 1, name: "EASY" }
-    },
-    {
-      airportIdent: "EKCH",
-      name: "Copenhagen Airport",
-      type: "large_airport",
-      isoCountry: "DK",
-      municipality: "Copenhagen",
-      latitude: 55.6179,
-      longitude: 12.656,
-      liberated: false,
-      difficulty: { id: 2, name: "MEDIUM" }
-    },
-    {
-      airportIdent: "EETN",
-      name: "Tallinn Airport",
-      type: "large_airport",
-      isoCountry: "EE",
-      municipality: "Tallinn",
-      latitude: 59.4133,
-      longitude: 24.8328,
-      liberated: false,
-      difficulty: { id: 2, name: "MEDIUM" }
-    },
-    {
-      airportIdent: "EVRA",
-      name: "Riga Airport",
-      type: "large_airport",
-      isoCountry: "LV",
-      municipality: "Riga",
-      latitude: 56.9236,
-      longitude: 23.9711,
-      liberated: false,
-      difficulty: { id: 2, name: "MEDIUM" }
-    },
-    {
-      airportIdent: "EYVI",
-      name: "Vilnius Airport",
-      type: "large_airport",
-      isoCountry: "LT",
-      municipality: "Vilnius",
-      latitude: 54.6341,
-      longitude: 25.2858,
-      liberated: false,
-      difficulty: { id: 2, name: "MEDIUM" }
-    },
-    {
-      airportIdent: "EPWA",
-      name: "Warsaw Chopin Airport",
-      type: "large_airport",
-      isoCountry: "PL",
-      municipality: "Warsaw",
-      latitude: 52.1657,
-      longitude: 20.9671,
-      liberated: false,
-      difficulty: { id: 3, name: "HARD" }
-    },
-    {
-      airportIdent: "EPGD",
-      name: "Gdansk Airport",
-      type: "large_airport",
-      isoCountry: "PL",
-      municipality: "Gdansk",
-      latitude: 54.3776,
-      longitude: 18.4662,
-      liberated: false,
-      difficulty: { id: 3, name: "HARD" }
-    },
-    {
-      airportIdent: "LKPR",
-      name: "Prague Airport",
-      type: "large_airport",
-      isoCountry: "CZ",
-      municipality: "Prague",
-      latitude: 50.1008,
-      longitude: 14.26,
-      liberated: false,
-      difficulty: { id: 3, name: "HARD" }
-    },
-    {
-      airportIdent: "EDDH",
-      name: "Hamburg Airport",
-      type: "large_airport",
-      isoCountry: "DE",
-      municipality: "Hamburg",
-      latitude: 53.6304,
-      longitude: 9.9882,
-      liberated: false,
-      difficulty: { id: 3, name: "HARD" }
-    },
-    {
-      airportIdent: "EDDF",
-      name: "Frankfurt Airport",
-      type: "large_airport",
-      isoCountry: "DE",
-      municipality: "Frankfurt",
-      latitude: 50.0333,
-      longitude: 8.5706,
-      liberated: false,
-      difficulty: { id: 3, name: "HARD" }
-    },
-    {
-      airportIdent: "EDDM",
-      name: "Munich Airport",
-      type: "large_airport",
-      isoCountry: "DE",
-      municipality: "Munich",
-      latitude: 48.3538,
-      longitude: 11.7861,
-      liberated: false,
-      difficulty: { id: 3, name: "HARD" }
-    },
-    {
-      airportIdent: "EDDB",
-      name: "Berlin Brandenburg Airport",
-      type: "large_airport",
-      isoCountry: "DE",
-      municipality: "Berlin",
-      latitude: 52.3514,
-      longitude: 13.4939,
-      liberated: false,
-      difficulty: { id: 4, name: "BOSS" }
-    }
-  ]
-};
-
-function createImage(src) {
-  const image = new Image();
-  image.src = src;
-  return image;
+  boss: createImage(`${ASSET_BASE}/boss.png`),
 }
 
+let nodes = []
+let selectedNode = null
+let gameSessionId = null
+
+let isDragging = false
+let hasDragged = false
+let dragStart = { x: 0, y: 0 }
+let cameraStart = { offsetX: 0, offsetY: 0 }
+
+initMap()
+
+function createImage(src) {
+  const image = new Image()
+  image.src = src
+  return image
+}
+
+/* -----------------------------
+   API
+----------------------------- */
+
+function continueGameSession() {
+  return apiRequest("/game/continue")
+}
+
+function startNewCampaign() {
+  return apiRequest("/game/start", {
+    method: "POST",
+  })
+}
+
+async function getOrCreateCampaign() {
+  let data = await continueGameSession()
+
+  if (data.hasActiveGame) {
+    return data
+  }
+
+  showStatus("NO ACTIVE CAMPAIGN. CREATING NEW CAMPAIGN...")
+
+  await startNewCampaign()
+
+  data = await continueGameSession()
+
+  return data
+}
+
+async function loadMapData() {
+  const data = await getOrCreateCampaign()
+
+  if (!data.hasActiveGame) {
+    throw new Error("Could not create or load active campaign.")
+  }
+
+  gameSessionId = data.gameSessionId ?? null
+
+  if (gameSessionId) {
+    sessionStorage.setItem(ACTIVE_GAME_SESSION_KEY, String(gameSessionId))
+    sessionStorage.setItem("gameSessionId", String(gameSessionId))
+  }
+
+  const allAirports = Array.isArray(data.airports)
+    ? data.airports
+    : []
+
+  const helsinkiAirport = allAirports.find((airport) => airport.airportIdent === HELSINKI_AIRPORT_IDENT)
+
+  if (!helsinkiAirport) {
+    nodes = []
+    throw new Error("Helsinki-Vantaa airport EFHK was not found in campaign data.")
+  }
+
+  const helsinkiLiberated = Boolean(helsinkiAirport.liberated)
+
+  if (!helsinkiLiberated) {
+    nodes = [
+      createNodeFromAirport({
+        ...helsinkiAirport,
+        liberated: false,
+      }),
+    ].filter(Boolean)
+
+    showStatus("LIBERATE HELSINKI-VANTAA FIRST.")
+    return data
+  }
+
+  const baseNode = createNodeFromAirport({
+    ...helsinkiAirport,
+    liberated: true,
+    isBase: true,
+  })
+
+  const unliberatedNodes = allAirports
+    .filter((airport) => !airport.liberated)
+    .map(createNodeFromAirport)
+    .filter(Boolean)
+
+  nodes = [
+    baseNode,
+    ...unliberatedNodes,
+  ].filter(Boolean)
+
+  return data
+}
+
+/* -----------------------------
+   STATUS UI
+----------------------------- */
+
 function showStatus(message) {
-  mapStatus.textContent = message;
-  mapStatus.classList.remove("hidden");
+  mapStatus.textContent = message
+  mapStatus.classList.remove("hidden")
 }
 
 function hideStatus() {
-  mapStatus.classList.add("hidden");
+  mapStatus.classList.add("hidden")
 }
 
+/* -----------------------------
+   ASSETS
+----------------------------- */
+
 async function loadImage(image) {
-  if (image.complete) return;
+  if (image.complete) return
 
   return new Promise((resolve) => {
-    image.onload = resolve;
-    image.onerror = resolve;
-  });
+    image.onload = resolve
+    image.onerror = resolve
+  })
 }
 
 async function loadAssets() {
   await Promise.all([
     loadImage(mapImage),
-    ...Object.values(icons).map(loadImage)
-  ]);
+    ...Object.values(icons).map(loadImage),
+  ])
 }
 
-function loadMapData() {
-  gameSessionId = MOCK_GAME_MAP_RESPONSE.gameSessionId;
-
-  nodes = MOCK_GAME_MAP_RESPONSE.occupiedAirports.map(createNodeFromAirport);
-}
+/* -----------------------------
+   NODES
+----------------------------- */
 
 function createNodeFromAirport(airport) {
-  const worldPosition = projectAirport(airport.latitude, airport.longitude);
+  const latitude = Number(airport.latitude)
+  const longitude = Number(airport.longitude)
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    console.warn("Airport skipped because coordinates are invalid:", airport)
+    return null
+  }
+
+  const worldPosition = projectAirport(latitude, longitude)
 
   return {
     id: airport.airportIdent,
     worldX: worldPosition.x,
     worldY: worldPosition.y,
-    airport,
+    airport: {
+      ...airport,
+      latitude,
+      longitude,
+      difficulty: airport.difficulty ?? {
+        id: 1,
+        name: "EASY",
+      },
+    },
     type: getNodeType(airport),
-    liberated: airport.liberated
-  };
+    liberated: Boolean(airport.liberated),
+    isBase: Boolean(airport.isBase),
+  }
 }
 
 function getNodeType(airport) {
-  if (airport.difficulty.id === 4 || airport.airportIdent === "EDDB") {
-    return NODE_TYPES.FINAL_BOSS;
+  if (airport.isBase) {
+    return NODE_TYPES.BASE
   }
 
-  return NODE_TYPES.COMBAT;
+  const difficultyId = Number(airport?.difficulty?.id ?? 0)
+
+  if (difficultyId === 4 || airport.airportIdent === "EDDB") {
+    return NODE_TYPES.FINAL_BOSS
+  }
+
+  return NODE_TYPES.COMBAT
 }
 
 function projectAirport(lat, lon) {
   const x =
     ((lon - MAP_BOUNDS.minLon) / (MAP_BOUNDS.maxLon - MAP_BOUNDS.minLon)) *
-    canvas.width;
+    MAP_PAGE_WIDTH
 
   const y =
     ((MAP_BOUNDS.maxLat - lat) / (MAP_BOUNDS.maxLat - MAP_BOUNDS.minLat)) *
-    canvas.height;
+    MAP_PAGE_HEIGHT
 
-  return { x, y };
+  return { x, y }
 }
+
+/* -----------------------------
+   CAMERA
+----------------------------- */
 
 function worldToScreen(worldX, worldY) {
   return {
     x: worldX * CAMERA.scale + CAMERA.offsetX,
-    y: worldY * CAMERA.scale + CAMERA.offsetY
-  };
+    y: worldY * CAMERA.scale + CAMERA.offsetY,
+  }
 }
 
 function screenToWorld(screenX, screenY) {
   return {
     x: (screenX - CAMERA.offsetX) / CAMERA.scale,
-    y: (screenY - CAMERA.offsetY) / CAMERA.scale
-  };
+    y: (screenY - CAMERA.offsetY) / CAMERA.scale,
+  }
 }
 
 function clampCamera() {
-  const mapWidth = canvas.width * CAMERA.scale;
-  const mapHeight = canvas.height * CAMERA.scale;
+  const mapWidth = MAP_PAGE_WIDTH * CAMERA.scale
+  const mapHeight = MAP_PAGE_HEIGHT * CAMERA.scale
 
-  const minOffsetX = canvas.width - mapWidth;
-  const minOffsetY = canvas.height - mapHeight;
+  const minOffsetX = canvas.width - mapWidth
+  const minOffsetY = canvas.height - mapHeight
 
-  CAMERA.offsetX = Math.min(0, Math.max(minOffsetX, CAMERA.offsetX));
-  CAMERA.offsetY = Math.min(0, Math.max(minOffsetY, CAMERA.offsetY));
+  CAMERA.offsetX = Math.min(0, Math.max(minOffsetX, CAMERA.offsetX))
+  CAMERA.offsetY = Math.min(0, Math.max(minOffsetY, CAMERA.offsetY))
 }
 
-function redraw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function resetCamera() {
+  CAMERA.scale = 1
+  CAMERA.offsetX = 0
+  CAMERA.offsetY = 0
+}
 
-  drawMapBackground();
-  drawNodes();
+/* -----------------------------
+   DRAWING
+----------------------------- */
+
+function redraw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  drawMapBackground()
+  drawNodes()
 }
 
 function drawMapBackground() {
   if (!mapImage.complete || mapImage.naturalWidth === 0) {
-    ctx.fillStyle = "#111";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    return;
+    ctx.fillStyle = "#111"
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    return
   }
 
-  ctx.save();
+  ctx.save()
 
-  ctx.translate(CAMERA.offsetX, CAMERA.offsetY);
-  ctx.scale(CAMERA.scale, CAMERA.scale);
+  ctx.translate(CAMERA.offsetX, CAMERA.offsetY)
+  ctx.scale(CAMERA.scale, CAMERA.scale)
 
-  ctx.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(mapImage, 0, 0, MAP_PAGE_WIDTH, MAP_PAGE_HEIGHT)
 
-  ctx.restore();
+  ctx.restore()
 }
 
 function drawNodes() {
-  ctx.textAlign = "center";
-  ctx.font = "12px 'Press Start 2P'";
+  ctx.textAlign = "center"
+  ctx.font = "12px 'Press Start 2P'"
 
   for (const node of nodes) {
-    const screenPosition = worldToScreen(node.worldX, node.worldY);
+    const screenPosition = worldToScreen(node.worldX, node.worldY)
 
-    drawNodeIcon(node, screenPosition);
-    drawSelectedRing(node, screenPosition);
-    drawNodeLabel(node, screenPosition);
+    drawNodeIcon(node, screenPosition)
+    drawSelectedRing(node, screenPosition)
+    drawNodeLabel(node, screenPosition)
   }
 }
 
 function drawNodeIcon(node, position) {
-  const icon = getNodeIcon(node);
+  const icon = getNodeIcon(node)
 
   if (icon && icon.complete && icon.naturalWidth > 0) {
-    ctx.drawImage(icon, position.x - 16, position.y - 16, 32, 32);
-    return;
+    ctx.save()
+
+    if (node.liberated && !node.isBase) {
+      ctx.globalAlpha = 0.45
+    }
+
+    const size = node.isBase ? 42 : 32
+
+    ctx.drawImage(icon, position.x - size / 2, position.y - size / 2, size, size)
+
+    ctx.restore()
+    return
   }
 
-  drawFallbackIcon(node, position);
+  drawFallbackIcon(node, position)
 }
 
 function getNodeIcon(node) {
-  if (node.type === NODE_TYPES.FINAL_BOSS) {
-    return icons.boss;
-  }
+  if (node.type === NODE_TYPES.BASE) return icons.base
+  if (node.type === NODE_TYPES.FINAL_BOSS) return icons.boss
 
-  const difficultyName = node.airport.difficulty.name.toLowerCase();
+  const difficultyName = getDifficultyName(node)
 
-  if (difficultyName === "easy") return icons.easy;
-  if (difficultyName === "medium") return icons.medium;
-  if (difficultyName === "hard") return icons.hard;
+  if (difficultyName === "easy") return icons.easy
+  if (difficultyName === "medium") return icons.medium
+  if (difficultyName === "hard") return icons.hard
 
-  return icons.easy;
+  return icons.easy
 }
 
 function drawFallbackIcon(node, position) {
-  ctx.beginPath();
-  ctx.arc(position.x, position.y, 10, 0, Math.PI * 2);
+  ctx.beginPath()
+  ctx.arc(position.x, position.y, node.isBase ? 15 : 10, 0, Math.PI * 2)
 
-  ctx.fillStyle = getNodeColor(node);
-  ctx.fill();
+  ctx.fillStyle = getNodeColor(node)
+  ctx.fill()
 
-  ctx.strokeStyle = "#111";
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  ctx.strokeStyle = "#111"
+  ctx.lineWidth = 2
+  ctx.stroke()
 }
 
 function drawSelectedRing(node, position) {
-  if (node !== selectedNode) return;
+  if (node !== selectedNode) return
 
-  ctx.strokeStyle = "#ffd24d";
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#ffd24d"
+  ctx.lineWidth = 2
 
-  ctx.beginPath();
-  ctx.arc(position.x, position.y, 22, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.beginPath()
+  ctx.arc(position.x, position.y, 24, 0, Math.PI * 2)
+  ctx.stroke()
 }
 
 function drawNodeLabel(node, position) {
-  ctx.fillStyle = getNodeColor(node);
-  ctx.shadowColor = "black";
-  ctx.shadowBlur = 6;
-  ctx.shadowBlur = 0;
+  ctx.save()
+
+  ctx.fillStyle = getNodeColor(node)
+  ctx.shadowColor = "black"
+  ctx.shadowBlur = 6
+
+  const label = node.isBase ? "BASE" : node.airport.airportIdent ?? "???"
+
+  ctx.fillText(label, position.x, position.y + 38)
+
+  ctx.restore()
 }
 
 function getNodeColor(node) {
-  if (node.liberated) return "#aaaaaa";
-  if (node.type === NODE_TYPES.FINAL_BOSS) return "#ff4444";
+  if (node.isBase) return "#8aff8a"
+  if (node.liberated) return "#aaaaaa"
+  if (node.type === NODE_TYPES.FINAL_BOSS) return "#ff4444"
 
-  const difficultyName = node.airport.difficulty.name.toLowerCase();
+  const difficultyName = getDifficultyName(node)
 
-  if (difficultyName === "easy") return "#8aff8a";
-  if (difficultyName === "medium") return "#ffd24d";
-  if (difficultyName === "hard") return "#ff6666";
+  if (difficultyName === "easy") return "#8aff8a"
+  if (difficultyName === "medium") return "#ffd24d"
+  if (difficultyName === "hard") return "#ff6666"
 
-  return "#ffffff";
+  return "#ffffff"
 }
 
+function getDifficultyName(node) {
+  return String(node?.airport?.difficulty?.name ?? "easy").toLowerCase()
+}
+
+/* -----------------------------
+   POPUP
+----------------------------- */
+
 function openAirportPopup(node) {
-  selectedNode = node;
+  selectedNode = node
 
-  popupName.textContent = node.airport.name.toUpperCase();
-  popupType.textContent = getPopupTypeText(node);
-  popupICAO.textContent = `ICAO: ${node.airport.airportIdent}`;
-  popupCountry.textContent = `COUNTRY: ${node.airport.isoCountry}`;
-  popupCoords.textContent = `LAT ${node.airport.latitude} | LON ${node.airport.longitude}`;
+  popupName.textContent = String(node.airport.name ?? "Unknown Airport").toUpperCase()
+  popupType.textContent = getPopupTypeText(node)
+  popupICAO.textContent = `ICAO: ${node.airport.airportIdent}`
+  popupCountry.textContent = `COUNTRY: ${node.airport.isoCountry} | ${node.airport.municipality ?? "UNKNOWN"}`
+  popupCoords.textContent = `LAT ${node.airport.latitude.toFixed(4)} | LON ${node.airport.longitude.toFixed(4)}`
 
-  setupPrimaryButton(node);
+  setupPrimaryButton(node)
 
-  popup.classList.remove("hidden");
-  redraw();
+  popup.classList.remove("hidden")
+  redraw()
 }
 
 function getPopupTypeText(node) {
-  if (node.liberated) {
-    return "LIBERATED";
+  if (node.isBase) {
+    return "BASE - SHOP AND UPGRADES"
   }
 
   if (node.type === NODE_TYPES.FINAL_BOSS) {
-    return "FINAL BOSS";
+    return "FINAL BATTLE - BERLIN"
   }
 
-  return `COMBAT - ${node.airport.difficulty.name}`;
+  return `COMBAT - ${String(node.airport.difficulty.name).toUpperCase()}`
 }
 
 function setupPrimaryButton(node) {
-  primaryButton.disabled = false;
+  primaryButton.disabled = false
 
-  if (node.liberated) {
-    primaryButton.textContent = "LIBERATED";
-    primaryButton.disabled = true;
-    primaryButton.onclick = null;
-    return;
+  if (node.isBase) {
+    primaryButton.textContent = "OPEN SHOP"
+    primaryButton.onclick = () => {
+      window.location.href = SHOP_PAGE
+    }
+    return
   }
 
   primaryButton.textContent =
     node.type === NODE_TYPES.FINAL_BOSS
       ? "START FINAL BATTLE"
-      : "START COMBAT";
+      : "START COMBAT"
 
-  primaryButton.onclick = () => startCombat(node);
+  primaryButton.onclick = () => startCombat(node)
 }
 
 function startCombat(node) {
-  sessionStorage.setItem("gameSessionId", gameSessionId);
-  sessionStorage.setItem("selectedAirportIdent", node.airport.airportIdent);
-  sessionStorage.setItem("selectedAirportName", node.airport.name);
-  sessionStorage.setItem("selectedAirportDifficulty", node.airport.difficulty.name);
+  const difficulty = getGameDifficultyFromAirport(node.airport)
 
-  console.log("START COMBAT:", node.airport);
+  const selectedAirport = {
+    gameSessionId,
+    airportIdent: node.airport.airportIdent,
+    name: node.airport.name,
+    type: node.airport.type,
+    isoCountry: node.airport.isoCountry,
+    municipality: node.airport.municipality,
+    latitude: node.airport.latitude,
+    longitude: node.airport.longitude,
+    difficulty: node.airport.difficulty,
+    gameDifficulty: difficulty,
+  }
 
-  // Later:
-  // window.location.href = `/frontend/combat.html?airportIdent=${node.airport.airportIdent}`;
+  sessionStorage.setItem(SELECTED_AIRPORT_KEY, JSON.stringify(selectedAirport))
+  sessionStorage.setItem(ACTIVE_GAME_SESSION_KEY, String(gameSessionId))
+
+  sessionStorage.setItem("gameSessionId", String(gameSessionId))
+  sessionStorage.setItem("selectedAirportIdent", node.airport.airportIdent)
+  sessionStorage.setItem("selectedAirportName", node.airport.name)
+  sessionStorage.setItem("selectedAirportDifficulty", difficulty)
+
+  window.location.href =
+    `${GAME_PAGE}?airportIdent=${encodeURIComponent(node.airport.airportIdent)}&difficulty=${encodeURIComponent(difficulty)}`
+}
+
+function getGameDifficultyFromAirport(airport) {
+  const difficultyId = Number(airport?.difficulty?.id ?? 1)
+  const name = String(airport?.difficulty?.name ?? "easy").toLowerCase()
+
+  if (difficultyId === 4 || airport.airportIdent === "EDDB") return "boss"
+  if (name === "hard") return "hard"
+  if (name === "medium") return "medium"
+
+  return "easy"
 }
 
 function closePopup() {
-  popup.classList.add("hidden");
-  selectedNode = null;
-  redraw();
+  popup.classList.add("hidden")
+  selectedNode = null
+  redraw()
 }
 
+function closePopupWithoutRedraw() {
+  popup.classList.add("hidden")
+  selectedNode = null
+}
+
+/* -----------------------------
+   INPUT
+----------------------------- */
+
 function getCanvasMousePosition(event) {
-  const rect = canvas.getBoundingClientRect();
+  const rect = canvas.getBoundingClientRect()
 
   return {
     x: (event.clientX - rect.left) * (canvas.width / rect.width),
-    y: (event.clientY - rect.top) * (canvas.height / rect.height)
-  };
+    y: (event.clientY - rect.top) * (canvas.height / rect.height),
+  }
 }
 
 function getClickedNode(event) {
-  const mouse = getCanvasMousePosition(event);
+  const mouse = getCanvasMousePosition(event)
 
   return nodes.find((node) => {
-    const position = worldToScreen(node.worldX, node.worldY);
-    const distance = Math.hypot(mouse.x - position.x, mouse.y - position.y);
+    const position = worldToScreen(node.worldX, node.worldY)
+    const distance = Math.hypot(mouse.x - position.x, mouse.y - position.y)
 
-    return distance < 30;
-  });
+    return distance < 34
+  })
 }
 
 function zoomAtMouse(event) {
-  event.preventDefault();
+  event.preventDefault()
 
-  const mouse = getCanvasMousePosition(event);
-  const worldBeforeZoom = screenToWorld(mouse.x, mouse.y);
+  const mouse = getCanvasMousePosition(event)
+  const worldBeforeZoom = screenToWorld(mouse.x, mouse.y)
 
-  const zoomDirection = event.deltaY < 0 ? 1 : -1;
-  const zoomFactor = zoomDirection > 0 ? 1.15 : 0.85;
+  const zoomFactor = event.deltaY < 0 ? 1.15 : 0.85
 
-  const newScale = Math.min(
+  CAMERA.scale = Math.min(
     CAMERA.maxScale,
     Math.max(CAMERA.minScale, CAMERA.scale * zoomFactor)
-  );
+  )
 
-  CAMERA.scale = newScale;
+  CAMERA.offsetX = mouse.x - worldBeforeZoom.x * CAMERA.scale
+  CAMERA.offsetY = mouse.y - worldBeforeZoom.y * CAMERA.scale
 
-  CAMERA.offsetX = mouse.x - worldBeforeZoom.x * CAMERA.scale;
-  CAMERA.offsetY = mouse.y - worldBeforeZoom.y * CAMERA.scale;
-
-  clampCamera();
-  redraw();
+  clampCamera()
+  redraw()
 }
 
 function startDragging(event) {
-  isDragging = true;
-  hasDragged = false;
+  isDragging = true
+  hasDragged = false
 
-  dragStart = getCanvasMousePosition(event);
+  dragStart = getCanvasMousePosition(event)
 
   cameraStart = {
     offsetX: CAMERA.offsetX,
-    offsetY: CAMERA.offsetY
-  };
+    offsetY: CAMERA.offsetY,
+  }
 
-  canvas.classList.add("dragging");
-  canvas.setPointerCapture(event.pointerId);
+  canvas.classList.add("dragging")
+  canvas.setPointerCapture(event.pointerId)
 }
 
 function dragMap(event) {
-  if (!isDragging) return;
+  if (!isDragging) return
 
-  const mouse = getCanvasMousePosition(event);
+  const mouse = getCanvasMousePosition(event)
 
-  const deltaX = mouse.x - dragStart.x;
-  const deltaY = mouse.y - dragStart.y;
+  const deltaX = mouse.x - dragStart.x
+  const deltaY = mouse.y - dragStart.y
 
   if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
-    hasDragged = true;
+    hasDragged = true
   }
 
-  CAMERA.offsetX = cameraStart.offsetX + deltaX;
-  CAMERA.offsetY = cameraStart.offsetY + deltaY;
+  CAMERA.offsetX = cameraStart.offsetX + deltaX
+  CAMERA.offsetY = cameraStart.offsetY + deltaY
 
-  clampCamera();
-  redraw();
+  clampCamera()
+  redraw()
 }
 
 function stopDragging(event) {
-  if (!isDragging) return;
+  if (!isDragging) return
 
-  isDragging = false;
-  canvas.classList.remove("dragging");
+  isDragging = false
+  canvas.classList.remove("dragging")
 
   if (canvas.hasPointerCapture(event.pointerId)) {
-    canvas.releasePointerCapture(event.pointerId);
+    canvas.releasePointerCapture(event.pointerId)
   }
 
   if (hasDragged) {
-    return;
+    return
   }
 
-  const clickedNode = getClickedNode(event);
+  const clickedNode = getClickedNode(event)
 
   if (!clickedNode) {
-    closePopup();
-    return;
+    closePopup()
+    return
   }
 
-  openAirportPopup(clickedNode);
+  openAirportPopup(clickedNode)
 }
 
-canvas.addEventListener("wheel", zoomAtMouse, { passive: false });
-canvas.addEventListener("pointerdown", startDragging);
-canvas.addEventListener("pointermove", dragMap);
-canvas.addEventListener("pointerup", stopDragging);
-canvas.addEventListener("pointercancel", stopDragging);
+/* -----------------------------
+   EVENTS
+----------------------------- */
 
-closePopupButton.addEventListener("click", closePopup);
+canvas.addEventListener("wheel", zoomAtMouse, { passive: false })
+canvas.addEventListener("pointerdown", startDragging)
+canvas.addEventListener("pointermove", dragMap)
+canvas.addEventListener("pointerup", stopDragging)
+canvas.addEventListener("pointercancel", stopDragging)
+
+closePopupButton.addEventListener("click", closePopup)
+
+refreshMapButton.addEventListener("click", () => {
+  refreshMap()
+})
+
+backMenuButton.addEventListener("click", () => {
+  window.location.href = APP_CONFIG.routes.mainMenu
+})
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
-    closePopup();
+    closePopup()
   }
-});
+
+  if (event.key.toLowerCase() === "r") {
+    refreshMap()
+  }
+})
+
+/* -----------------------------
+   INIT
+----------------------------- */
 
 async function initMap() {
-  showStatus("LOADING MAP...");
+  showStatus("LOADING MAP...")
 
-  await loadAssets();
+  canvas.width = MAP_PAGE_WIDTH
+  canvas.height = MAP_PAGE_HEIGHT
+
+  await loadAssets()
 
   if (!mapImage.complete || mapImage.naturalWidth === 0) {
-    showStatus("MAP IMAGE NOT FOUND");
+    showStatus("MAP IMAGE NOT FOUND")
   }
 
-  loadMapData();
-
-  if (nodes.length === 0) {
-    showStatus("NO OCCUPIED AIRPORTS FOUND");
-    redraw();
-    return;
-  }
-
-  hideStatus();
-  redraw();
+  await refreshMap()
 }
 
-initMap();
+async function refreshMap() {
+  try {
+    showStatus("LOADING CAMPAIGN DATA...")
+
+    resetCamera()
+    closePopupWithoutRedraw()
+
+    await loadMapData()
+
+    if (nodes.length === 0) {
+      showStatus("NO AIRPORTS FOUND")
+      redraw()
+      return
+    }
+
+    if (nodes.length === 1 && nodes[0].airport.airportIdent === HELSINKI_AIRPORT_IDENT && !nodes[0].isBase) {
+      redraw()
+      return
+    }
+
+    hideStatus()
+    redraw()
+  } catch (error) {
+    console.error(error)
+    showStatus(error.message || "FAILED TO LOAD MAP DATA")
+    redraw()
+  }
+}

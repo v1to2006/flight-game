@@ -2,43 +2,64 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<title>WW2 Flight Game - Campaign Map</title>
+  <title>Iron Skies - Campaign Map</title>
 
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 
-	<link rel="stylesheet" href="/frontend/static/css/map.css" />
+  <link rel="stylesheet" href="./static/css/map.css" />
 
-	<script type="module" src="./static/js/auth/pageGuard.js"></script>
+  <script type="module" src="./static/js/auth/pageGuard.js"></script>
 </head>
 
 <body>
-	<canvas id="mapCanvas" width="1920" height="1080"></canvas>
+  <canvas id="mapCanvas" width="1920" height="1080"></canvas>
 
-	<div id="mapStatus" class="map-status">
-		LOADING MAP...
-	</div>
+  <header class="map-hud">
+    <div class="map-hud__panel">
+      <p class="map-hud__title">CAMPAIGN MAP</p>
+      <p class="map-hud__text" id="mapStatus">LOADING MAP...</p>
+    </div>
 
-	<div id="airportPopup" class="hidden">
-		<h2 id="popupName">AIRPORT</h2>
+    <div class="map-hud__actions">
+      <button class="map-button" type="button" data-refresh-map>
+        REFRESH
+      </button>
 
-		<p id="popupType">TYPE</p>
-		<p id="popupICAO">ICAO</p>
-		<p id="popupCountry">COUNTRY</p>
-		<p id="popupCoords">COORDS</p>
+      <button class="map-button" type="button" data-back-menu>
+        MAIN MENU
+      </button>
+    </div>
+  </header>
 
-		<div class="popupButtons">
-			<button id="primaryButton">START COMBAT</button>
-			<button id="closePopup">BACK TO MAP</button>
-		</div>
-	</div>
+  <aside class="map-legend">
+    <p><span class="legend-dot legend-dot--base"></span> BASE</p>
+    <p><span class="legend-dot legend-dot--easy"></span> EASY</p>
+    <p><span class="legend-dot legend-dot--medium"></span> MEDIUM</p>
+    <p><span class="legend-dot legend-dot--hard"></span> HARD</p>
+    <p><span class="legend-dot legend-dot--boss"></span> BERLIN</p>
+  </aside>
 
-	<script src="/frontend/static/js/map.js"></script>
+  <div id="airportPopup" class="hidden">
+    <h2 id="popupName">AIRPORT</h2>
+
+    <p id="popupType">TYPE</p>
+    <p id="popupICAO">ICAO</p>
+    <p id="popupCountry">COUNTRY</p>
+    <p id="popupCoords">COORDS</p>
+
+    <div class="popupButtons">
+      <button id="primaryButton" type="button">START COMBAT</button>
+      <button id="closePopup" type="button">BACK TO MAP</button>
+    </div>
+  </div>
+
+  <script type="module" src="./static/js/map.js"></script>
 </body>
 
 </html>
