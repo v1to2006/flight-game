@@ -51,11 +51,12 @@
 			<button class="menu-btn primary" onclick="newGame()">New Game</button>
 			<button class="menu-btn" onclick="goToPage('settings.html')">Settings</button>
 			<button class="menu-btn danger" onclick="signOut()">Sign Out</button>
+			<button class="menu-btn" onclick="goToPage('credits.html')">Credits</button>
 		</section>
 	</main>
-
-	<script src="static/js/loading.js"></script>
-	<script type="module" src="static/js/mainMenu.js"></script>
+	<script src="static/js/loading.js" defer></script>
+	<script src="static/js/settingsManager.js" defer></script>
+	<script type="module" src="static/js/mainMenu.js" defer></script>
 </body>
 
 </html>

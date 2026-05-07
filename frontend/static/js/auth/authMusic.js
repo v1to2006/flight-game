@@ -2,7 +2,7 @@ const music = document.getElementById("bgMusic");
 const audioHint = document.getElementById("audioHint");
 
 if (music && audioHint) {
-  music.volume = 0.18;
+  applySavedMusicVolume(music);
 
   document.addEventListener("click", () => {
     music.play()
