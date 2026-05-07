@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>The Fall of Iron Sky</title>
+
+  <link rel="stylesheet" href="static/css/variables.css" />
+  <link rel="stylesheet" href="static/css/victorysplash.css" />
+</head>
+<body>
+  <main class="splash-page victory-page">
+
+    <video class="splash-video" autoplay muted loop playsinline>
+      <source src="static/assets/videos/skyfall.mp4" type="video/mp4" />
+    </video>
+
+    <div class="splash-darkener victory-darkener"></div>
+    <div class="splash-grain"></div>
+
+    <section class="splash-panel">
+      <p class="splash-kicker">FINAL OPERATION REPORT</p>
+
+      <h1 class="splash-title">THE FALL OF IRON SKY</h1>
+
+      <p class="splash-lead">
+        The enemy super project has fallen from the sky. Their command network is burning,
+        their weapons are silent, and the battlefield finally belongs to the survivors.
+      </p>
+
+      <div class="splash-data">
+        <p><span>Final Report</span> Hostile air weapon destroyed</p>
+        <p><span>Allied Command</span> Victory confirmed</p>
+        <p><span>Status</span> Operation Complete</p>
+      </div>
+
+      <div class="splash-actions">
+        <a class="splash-btn splash-btn-primary" href="./endingScene.html">Continue</a>
+        <a class="splash-btn splash-btn-secondary" href="./map.html">Return to Map</a>
+      </div>
+    </section>
+
+<audio id="pageMusic" loop preload="auto">
+  <source src="static/assets/audio/enddust.wav" type="audio/wav" />
+</audio>
+
+  </main>
+
+  <script src="static/js/victorysplash.js"></script>
+</body>
+</html>

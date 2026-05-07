@@ -26,6 +26,7 @@ let apiResultMessage = ""
 
 const DIFFICULTY_CONFIGS = {
   easy: {
+<<<<<<< HEAD
     timeMin: 170,
     timeMax: 230,
     killsMin: 10,
@@ -53,13 +54,47 @@ const DIFFICULTY_CONFIGS = {
     spawnDelayMin: 60,
     spawnDelayMax: 90,
     enemyPool: ["fighter", "heavy", "fast", "shotgun", "rocketHeavy", "stealthRam"],
+=======
+    timeMin: 180,
+    timeMax: 260,
+    killsMin: 20,
+    killsMax: 50,
+    spawnDelayMin: 75,
+    spawnDelayMax: 105,
+    enemyPool: ["fighter", "heavy"]
+  },
+
+  medium: {
+    timeMin: 210,
+    timeMax: 300,
+    killsMin: 15,
+    killsMax: 30,
+    spawnDelayMin: 55,
+    spawnDelayMax: 85,
+    enemyPool: ["fighter", "heavy", "fast", "shotgun"]
+  },
+
+  hard: {
+    timeMin: 240,
+    timeMax: 360,
+    killsMin: 15,
+    killsMax: 20,
+    spawnDelayMin: 38,
+    spawnDelayMax: 70,
+    enemyPool: ["fighter", "heavy", "fast", "shotgun", "rocketHeavy", "stealthRam"]
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
   },
 
   miniboss: {
     timeMin: 300,
     timeMax: 360,
+<<<<<<< HEAD
     killsMin: 10,
     killsMax: 15,
+=======
+    killsMin: 8,
+    killsMax: 18,
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
     spawnDelayMin: 70,
     spawnDelayMax: 100,
     enemyPool: ["fighter", "heavy"],
@@ -69,7 +104,11 @@ const DIFFICULTY_CONFIGS = {
   boss: {
     timeMin: 420,
     timeMax: 480,
+<<<<<<< HEAD
     killsMin: 10,
+=======
+    killsMin: 8,
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
     killsMax: 15,
     spawnDelayMin: 60,
     spawnDelayMax: 100,
@@ -84,7 +123,11 @@ const ENEMY_TYPES = {
     width: 64,
     height: 64,
     hp: 2,
+<<<<<<< HEAD
     speed: 1.0,
+=======
+    speed: 1.4,
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
     scoreValue: 100,
     image: "enemy",
     shootDelay: 150,
@@ -97,7 +140,11 @@ const ENEMY_TYPES = {
     width: 78,
     height: 78,
     hp: 4,
+<<<<<<< HEAD
     speed: 0.8,
+=======
+    speed: 1.0,
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
     scoreValue: 220,
     image: "enemyHeavy",
     shootDelay: 200,
@@ -110,7 +157,11 @@ const ENEMY_TYPES = {
     width: 48,
     height: 48,
     hp: 1,
+<<<<<<< HEAD
     speed: 3,
+=======
+    speed: 2.4,
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
     scoreValue: 150,
     image: "enemyFast",
     shootDelay: 165,
@@ -123,7 +174,11 @@ const ENEMY_TYPES = {
     width: 66,
     height: 66,
     hp: 3,
+<<<<<<< HEAD
     speed: 1.2,
+=======
+    speed: 1.3,
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
     scoreValue: 260,
     image: "enemyShotgun",
     shootDelay: 140,
@@ -136,7 +191,11 @@ const ENEMY_TYPES = {
     width: 86,
     height: 86,
     hp: 6,
+<<<<<<< HEAD
     speed: 1.2,
+=======
+    speed: 1.0,
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
     scoreValue: 360,
     image: "enemyRocketHeavy",
     shootDelay: 150,
@@ -149,7 +208,11 @@ const ENEMY_TYPES = {
     width: 58,
     height: 58,
     hp: 2,
+<<<<<<< HEAD
     speed: 3.0,
+=======
+    speed: 4.0,
+>>>>>>> 0c75966 (started creating splash parts, start and end, and adjusted some stats from game)
     scoreValue: 320,
     image: "enemyStealth",
     shootDelay: 9999,
