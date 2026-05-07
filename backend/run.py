@@ -1,14 +1,6 @@
-from flask import Flask, render_template
+from app import create_app
 
-app = Flask(
-    __name__,
-    template_folder='../frontend/templates',
-    static_folder='../frontend/static'
-)
+app = create_app()
 
-@app.route('/')
-def index():
-    return render_template("map.html")
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)

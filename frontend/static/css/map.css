@@ -1,123 +1,133 @@
-{
-    margin : 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    overflow: hidden;
-    background: #111;
-    font-family: 'Press Start 2P', monospace;
+  overflow: hidden;
+  background: #111;
+  font-family: "Press Start 2P", monospace;
 }
-
-
-/* !!!!!!!!
-Peli mapin config
-!!!!!!!!!!!!!
- */
-
 
 #mapCanvas {
-
-    display: block;
-
-    width: 100vw;
-    height: 100vh;
-
-    image-rendering: pixelated;
-    cursor: pointer;
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  cursor: grab;
+  image-rendering: pixelated;
+  user-select: none;
+  touch-action: none;
 }
 
-/* bänneri
- */
+#mapCanvas.dragging {
+  cursor: grabbing;
+}
+
+.map-status {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 50;
+
+  padding: 16px 20px;
+
+  background: rgba(10, 10, 15, 0.92);
+  border: 3px solid #777;
+
+  color: #f2d27c;
+  font-size: 11px;
+  line-height: 1.8;
+
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
 
 #airportPopup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 999;
 
-    position: absolute;
+  transform: translate(-50%, -50%);
 
-    top: 50%;
-    left: 50%;
+  width: min(520px, calc(100vw - 32px));
 
-    transform: translate(-50%,-50%);
+  padding: 28px;
 
-    width: 520px;
+  background: rgba(10, 10, 15, 0.97);
+  border: 4px solid #777;
 
-    background: rgba(10,10,15,0.97);
+  color: white;
+  text-align: center;
 
-    border: 4px solid #666;
-    padding: 28px;
-    color: white;
-    z-index: 999;
-    text-align: center;
-
-    image-rendering: pixelated;
+  box-shadow:
+    0 0 0 4px rgba(0, 0, 0, 0.6),
+    0 0 35px rgba(0, 0, 0, 0.9);
 }
 
 .hidden {
-    display: none !important;
+  display: none !important;
 }
-
-/* tekstiä
-
- */
 
 #popupName {
-    font-size: 22px;
-    margin-bottom: 20px;
-    color: #ffffff;
-    line-height: 1.6;
+  margin-bottom: 22px;
+
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1.6;
 }
+
 #popupType {
-    font-size: 15px;
-    margin-bottom: 20px;
-    color: #ff6666;
-    line-height: 1.6;
+  margin-bottom: 20px;
+
+  color: #ff6666;
+  font-size: 14px;
+  line-height: 1.6;
 }
+
 #popupICAO,
+#popupCountry,
 #popupCoords {
+  margin-bottom: 14px;
 
-    font-size: 14px;
-
-    margin-bottom: 16px;
-
-    color: #bbbbbb;
-    line-height: 1.8;
-
+  color: #bbbbbb;
+  font-size: 12px;
+  line-height: 1.8;
 }
 
 .popupButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
+  margin-top: 24px;
 }
 
-
 .popupButtons button {
-
-    font-family: 'Press Start 2P', monospace;
-
-  font-size: 10px;
-
   padding: 18px;
 
-  border: 3px solid #666;
-
+  border: 3px solid #777;
   background: #222;
 
   color: white;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
 
   cursor: pointer;
 
-  transition: 0.15s;
+  transition:
+    transform 0.15s,
+    background 0.15s,
+    color 0.15s;
 }
 
-
-/* hover */
-.popupButtons button:hover {
-
+.popupButtons button:hover:not(:disabled) {
   background: #444;
-
   transform: scale(1.03);
+}
+
+.popupButtons button:disabled {
+  color: #777;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
