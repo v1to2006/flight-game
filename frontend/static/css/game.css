@@ -8,14 +8,20 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #0F1A24;
-  font-family: Arial, sans-serif;
+
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
 }
 
 .game-screen {
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(circle at center, #24313D, #0F1A24 70%);
+
+  background:
+    radial-gradient(circle at center, rgba(214,173,98,0.08), transparent 35%),
+    linear-gradient(135deg, var(--color-bg-deep), var(--color-bg));
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,6 +31,6 @@ body {
   display: block;
   width: 100vw;
   height: 100vh;
-  background: #0F1A24;
+  background: var(--color-bg);
   image-rendering: pixelated;
 }
