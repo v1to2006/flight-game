@@ -24,22 +24,129 @@ body {
   cursor: grabbing;
 }
 
-.map-status {
+.hidden {
+  display: none !important;
+}
+
+.map-hud {
   position: absolute;
   top: 24px;
   left: 24px;
+  right: 24px;
   z-index: 50;
 
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+
+  pointer-events: none;
+}
+
+.map-hud__panel {
+  max-width: 760px;
   padding: 16px 20px;
 
   background: rgba(10, 10, 15, 0.92);
   border: 3px solid #777;
 
-  color: #f2d27c;
-  font-size: 11px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+
+  pointer-events: auto;
+}
+
+.map-hud__title {
+  margin-bottom: 10px;
+
+  color: #ffffff;
+  font-size: 12px;
   line-height: 1.8;
+}
+
+.map-hud__text,
+.map-status {
+  color: #f2d27c;
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+.map-hud__actions {
+  display: flex;
+  gap: 10px;
+
+  pointer-events: auto;
+}
+
+.map-button {
+  padding: 14px 16px;
+
+  border: 3px solid #777;
+  background: rgba(20, 20, 24, 0.94);
+
+  color: #ffffff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s,
+    background 0.15s,
+    color 0.15s;
+}
+
+.map-button:hover {
+  background: #444;
+  transform: scale(1.03);
+}
+
+.map-legend {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 50;
+
+  padding: 16px 18px;
+
+  background: rgba(10, 10, 15, 0.92);
+  border: 3px solid #777;
+
+  color: #dddddd;
+  font-size: 9px;
+  line-height: 2.1;
 
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+.legend-dot {
+  display: inline-block;
+
+  width: 10px;
+  height: 10px;
+
+  margin-right: 8px;
+
+  border-radius: 50%;
+}
+
+.legend-dot--base {
+  background: #8aff8a;
+}
+
+.legend-dot--easy {
+  background: #8aff8a;
+}
+
+.legend-dot--medium {
+  background: #ffd24d;
+}
+
+.legend-dot--hard {
+  background: #ff6666;
+}
+
+.legend-dot--boss {
+  background: #ff2222;
 }
 
 #airportPopup {
@@ -63,10 +170,6 @@ body {
   box-shadow:
     0 0 0 4px rgba(0, 0, 0, 0.6),
     0 0 35px rgba(0, 0, 0, 0.9);
-}
-
-.hidden {
-  display: none !important;
 }
 
 #popupName {
@@ -130,4 +233,33 @@ body {
   color: #777;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+@media (max-width: 700px) {
+  .map-hud {
+    flex-direction: column;
+  }
+
+  .map-hud__actions {
+    width: 100%;
+  }
+
+  .map-button {
+    flex: 1;
+  }
+
+  .map-legend {
+    display: none;
+  }
+
+  #popupName {
+    font-size: 15px;
+  }
+
+  #popupType,
+  #popupICAO,
+  #popupCountry,
+  #popupCoords {
+    font-size: 9px;
+  }
 }
