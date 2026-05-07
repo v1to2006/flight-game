@@ -1,67 +1,278 @@
-# OS shit
-.DS_Store
-Thumbs.db
-Desktop.ini
+# ---------------------------------------------------------
+# Byte-compiled / optimized / DLL files
+# ---------------------------------------------------------
+__pycache__/
+*.py[codz]
+*$py.class
 
-# Editor shit
-.vscode/
-.idea/
-*.swp
-*.suo
-*.user
+# ---------------------------------------------------------
+# C extensions
+# ---------------------------------------------------------
+*.so
 
-# Env / secret shit
+# ---------------------------------------------------------
+# Distribution / packaging
+# ---------------------------------------------------------
+.Python
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-wheel-metadata/
+
+# ---------------------------------------------------------
+# PyInstaller
+# ---------------------------------------------------------
+*.manifest
+*.spec
+
+# ---------------------------------------------------------
+# Installer logs
+# ---------------------------------------------------------
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ---------------------------------------------------------
+# Unit test / coverage reports
+# ---------------------------------------------------------
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+cover/
+.pytest_cache/
+.hypothesis/
+
+# ---------------------------------------------------------
+# Translations
+# ---------------------------------------------------------
+*.mo
+*.pot
+
+# ---------------------------------------------------------
+# Logs / runtime files
+# ---------------------------------------------------------
+*.log
+logs/
+*.pid
+*.seed
+*.out
+*.err
+
+# ---------------------------------------------------------
+# SQLite / local databases
+# ---------------------------------------------------------
+db.sqlite3
+db.sqlite3-journal
+*.db
+*.sqlite3
+
+# ---------------------------------------------------------
+# Flask
+# ---------------------------------------------------------
+instance/
+.webassets-cache
+.flaskenv
+
+# ---------------------------------------------------------
+# Django
+# ---------------------------------------------------------
+local_settings.py
+
+# ---------------------------------------------------------
+# Scrapy
+# ---------------------------------------------------------
+.scrapy
+
+# ---------------------------------------------------------
+# Sphinx documentation
+# ---------------------------------------------------------
+docs/_build/
+
+# ---------------------------------------------------------
+# PyBuilder
+# ---------------------------------------------------------
+.pybuilder/
+target/
+
+# ---------------------------------------------------------
+# Jupyter Notebook
+# ---------------------------------------------------------
+.ipynb_checkpoints
+
+# ---------------------------------------------------------
+# IPython
+# ---------------------------------------------------------
+profile_default/
+ipython_config.py
+
+# ---------------------------------------------------------
+# Type checkers / linters / analyzers
+# ---------------------------------------------------------
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ---------------------------------------------------------
+# Cython
+# ---------------------------------------------------------
+cython_debug/
+
+# ---------------------------------------------------------
+# PEP 582
+# ---------------------------------------------------------
+__pypackages__/
+
+# ---------------------------------------------------------
+# Celery
+# ---------------------------------------------------------
+celerybeat-schedule
+celerybeat.pid
+
+# ---------------------------------------------------------
+# SageMath
+# ---------------------------------------------------------
+*.sage.py
+
+# ---------------------------------------------------------
+# Virtual environments / local env files
+# ---------------------------------------------------------
 .env
 .env.*
 !.env.example
-*.pem
-*.key
-credentials.json
-secrets/
-
-# Logs
-*.log
-logs/
-
-# Node / web shit
-node_modules/
-dist/
-build/
-.next/
-.nuxt/
-.svelte-kit/
-.astro/
-.vercel/
-.netlify/
-.cache/
-coverage/
-*.tsbuildinfo
-
-# Python shit
-__pycache__/
-*.pyc
+!.env.sample
+.envrc
 .venv/
 venv/
 env/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-instance/
-*.sqlite3
+ENV/
+env.bak/
+venv.bak/
 
-# Docker / DB shit
-docker-compose.override.yml
-mysql-data/
-mariadb-data/
-postgres-data/
-*.db
-*.sqlite
-*.sql
+# ---------------------------------------------------------
+# Python version managers / dependency managers
+# ---------------------------------------------------------
+.python-version
 
-# Temp shit
-tmp/
-temp/
-*.tmp
-*.bak
+# Pipenv
+# Pipfile.lock
+
+# UV
+# uv.lock
+
+# Poetry
+# poetry.lock
+# poetry.toml
+
+# PDM
+.pdm-python
+.pdm-build/
+# pdm.lock
+# pdm.toml
+
+# Pixi
+.pixi/
+# pixi.lock
+
+# ---------------------------------------------------------
+# IDE / Editor
+# ---------------------------------------------------------
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# JetBrains
+.idea/
+*.iml
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# Cursor
+.cursorignore
+.cursorindexingignore
+
+# ---------------------------------------------------------
+# OS generated files
+# ---------------------------------------------------------
+
+# macOS
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ---------------------------------------------------------
+# Local uploads / generated app data
+# Uncomment if your project uses these and they should stay local
+# ---------------------------------------------------------
+# uploads/
+# media/
+# static/uploads/
+
+# ---------------------------------------------------------
+# MariaDB / Docker / local infrastructure
+# Uncomment if applicable
+# ---------------------------------------------------------
+# .mariadb/
+# mysql_data/
+# mariadb_data/
+# docker-data/
+# *.sql.gz
+
+# ---------------------------------------------------------
+# Misc tools
+# ---------------------------------------------------------
+.abstra/
+.pypirc
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# ---------------------------------------------------------
+# MkDocs
+# ---------------------------------------------------------
+/site
