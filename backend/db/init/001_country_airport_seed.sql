@@ -1,5 +1,9 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
 DROP TABLE IF EXISTS `airport`;
 DROP TABLE IF EXISTS `country`;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE `country` (
   `iso_country` varchar(40) NOT NULL,
