@@ -1,7 +1,7 @@
 const music = document.getElementById("bgMusic");
 const audioHint = document.getElementById("audioHint");
 
-music.volume = 0.22;
+applySavedMusicVolume(music);
 
 /* Sound starts after first click */
 document.addEventListener("click", () => {

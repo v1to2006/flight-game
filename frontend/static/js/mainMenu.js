@@ -290,6 +290,16 @@ document.addEventListener("mousemove", (event) => {
    NAVIGATION
 ----------------------------- */
 
+import { applyMusicVolume } from "./settingsManager.js";
+
+const music = document.getElementById("bgMusic");
+
+applyMusicVolume(music);
+
+/* -----------------------------
+   NAVIGATION
+----------------------------- */
+
 function goToPage(pageName) {
 	showLoadingScreen(pageName, {
 		title: "Preparing Mission",
