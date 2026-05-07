@@ -7,34 +7,59 @@ let currentNode = null;
 
 //hardcoded lentokentät aluksi
 const airports = [
+    // FINLAND
   { name: "Helsinki", icao: "EFHK", lat: 60.32, lon: 24.96 },
-  { name: "Stockholm", icao: "ESSA", lat: 59.65, lon: 17.92 },
-  { name: "Oslo", icao: "ENGM", lat: 60.19, lon: 11.1 },
-  { name: "Copenhagen", icao: "EKCH", lat: 55.92, lon: 12.65 },
-  { name: "Riga", icao: "EVRA", lat: 56.92, lon: 23.97 },
+  { name: "Oulu", icao: "EFOU", lat: 64.93, lon: 25.35 },
+  { name: "Rovaniemi", icao: "EFRO", lat: 66.56, lon: 25.83 },
+
+  // ESTONIA / BALTICS
   { name: "Tallinn", icao: "EETN", lat: 59.41, lon: 24.83 },
+  { name: "Riga", icao: "EVRA", lat: 56.92, lon: 23.97 },
+  { name: "Vilnius", icao: "EYVI", lat: 54.63, lon: 25.28 },
+
+  // SWEDEN
+  { name: "Stockholm", icao: "ESSA", lat: 59.65, lon: 17.92 },
+  { name: "Gothenburg", icao: "ESGG", lat: 57.66, lon: 12.29 },
+  { name: "Malmo", icao: "ESMS", lat: 55.54, lon: 13.37 },
+
+  // NORWAY
+  { name: "Oslo", icao: "ENGM", lat: 60.19, lon: 11.1 },
   { name: "Bergen", icao: "ENBR", lat: 60.29, lon: 5.22 },
   { name: "Tromso", icao: "ENTC", lat: 69.68, lon: 18.92 },
-  { name: "Oulu", icao: "EFOU", lat: 64.93, lon: 25.35 }
+
+  // DENMARK
+  { name: "Copenhagen", icao: "EKCH", lat: 55.62, lon: 12.65 },
+
+  // POLAND
+  { name: "Warsaw", icao: "EPWA", lat: 52.17, lon: 20.97 },
+  { name: "Gdansk", icao: "EPGD", lat: 54.38, lon: 18.47 },
+  { name: "Wolfsschanze", icao: "EPKE", lat: 54.05, lon: 21.43 },
+
+  // GERMANY
+  { name: "Berlin - Fuhrerbunker", icao: "EDDB", lat: 52.36, lon: 13.5 },
+  { name: "Hamburg", icao: "EDDH", lat: 53.63, lon: 9.99 },
+  { name: "Frankfurt", icao: "EDDF", lat: 50.03, lon: 8.57 },
+  { name: "Munich", icao: "EDDM", lat: 48.35, lon: 11.79 }
 ];
 
 const zone1map = new Image();
-zone1map.src = '/frontend/static/assets/backgrounds/zone1map.jpg';
+zone1map.src = '/frontend/static/assets/backgrounds/ww2map.png';
 
 
 // kuvan longitude ja langitude määritetty, erikseen per zone
 const zone_1 = {
-  minLat: 55.7,
+  minLat: 31,
   maxLat: 72,
-  minLon: -2.5,
-  maxLon: 42.5
+  minLon: -24,
+  maxLon: 60
 };
 
 const NODE_TYPES = {
-  START : "Start",
-  EXIT : "Exit",
+  HOMEBASE : "HomeBase",
   COMBAT : "Combat",
-  SHOP : "Shop"
+  SHOP : "Shop",
+  MINIBOSS : "MiniBoss",
+  FINALBOSS : "FinalBoss"
 };
 
 function getNodeCount() {
@@ -42,35 +67,12 @@ function getNodeCount() {
 }
 
 
-function drawConnections(nodes) {
-  ctx.strokeStyle = "white";
 
-  for (let node of nodes) {
-    for (let id of node.connections) {
-      let target = nodes.find(n => n.id === id);
-
-      ctx.beginPath();
-      ctx.moveTo(node.x, node.y);
-      ctx.lineTo(target.x, target.y);
-      ctx.stroke();
-    }
-  }
-}
 
 function takeAirports (airports, count) {
   return airports
       .sort(() => Math.random() - 0.5)
       .slice(0, count);
-}
-
-
- function FilterAirportsZone(airports, zone){
-  return airports.filter (a =>
-  a.lat >= zone.minLat &&
-  a.lat <= zone.maxLat &&
-  a.lon >= zone.minLon &&
-  a.lon <= zone.maxLon
-  );
 }
 
 
@@ -80,9 +82,50 @@ function projektio(lat,lon) {
   return {x,y};
 }
 
+
+function difficulty(airport) {
+
+
+  const medium_c = [
+      "Sweden",
+      "Estonia",
+      "Latvia",
+      "Lithuania"
+  ];
+
+  const hard_c = [
+      "Poland",
+      "Germany"
+  ];
+
+  if (
+      airport.icao === "EPKE" ||
+      airport.icao === "EDDB" ||
+      airport.icao.startsWith("ED") ||
+      airport.icao.startsWith("EP")
+  ) {
+        return "hard";
+  }
+
+  if (
+      airport.icao.startsWith("ES") ||
+      airport.icao.startsWith("EV") ||
+      airport.icao.startsWith("EY") ||
+      airport.icao.startsWith("EV") ||
+      airport.icao.startsWith("EG") ||
+      airport.icao.startsWith("EN")
+  ) {
+    return "medium";
+  }
+
+ return "easy";
+}
+
 function createNodes(airports) {
+
   return airports.map((a, i) => {
-    const {x, y} = projektio(a.lat, a.lon);
+
+    const { x, y } = projektio(a.lat, a.lon);
 
     return {
       id: i,
@@ -90,48 +133,76 @@ function createNodes(airports) {
       y,
       airport: a,
       type: NODE_TYPES.COMBAT,
-      difficulty: "easy",
-      connections: [],
+      difficulty: difficulty(a),
       discovered: false
     };
   });
 }
 
-function distance (a, b) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-function connectNodes(nodes) {
-  for (let node of nodes) {
-    let candidates = nodes.filter(n => n.x < node.x) // Oikealta vasemmalle liikkuminen
-
-    let neighbors = candidates
-        .sort((a, b) => distance(node, a) - distance(node,b))
-        .slice(0, 2);
-
-    node.connections = neighbors.map(n => n.id);
-  }
-}
 
 function redraw() {
+
   ctx.drawImage(zone1map, 0, 0, canvas.width, canvas.height);
 
-  drawConnections(nodes);
 
   for(let node of nodes) {
-    if (node === currentNode) ctx.fillStyle = "yellow";
-    else if (currentNode.connections.includes(node.id)) ctx.fillStyle = "white";
-    else ctx.fillStyle = "red";
+      //värit eri nodeille
+    if (node.type === NODE_TYPES.HOMEBASE) {
+      ctx.fillStyle = "cyan";
+    }
 
-    if (node.type === "Start") ctx.fillStyle = "green";
-    if (node.type === "Exit") ctx.fillStyle = "purple";
+    else if (node.type === NODE_TYPES.MINIBOSS) {
+      ctx.fillStyle = "magenta";
+    }
 
+    else if (node.type === NODE_TYPES.FINALBOSS) {
+      ctx.fillStyle = "darkred";
+    }
+
+    else {
+
+      if (node.difficulty === "easy")
+        ctx.fillStyle = "lime";
+
+      else if (node.difficulty === "medium")
+        ctx.fillStyle = "orange";
+
+      else
+        ctx.fillStyle = "red";
+    }
+
+
+  //piirretään eri pallot
     ctx.beginPath();
-    ctx.arc(node.x, node.y, 5, 0, Math.PI * 2);
+    ctx.arc(node.x, node.y, 6, 0, Math.PI * 2);
     ctx.fill();
 
+    //nykyisen paikan väri
+    if (node === currentNode ) {
+
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, 10, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    let label = `${node.airport.name} (${node.airport.icao})`;
+
+  if (node.type === NODE_TYPES.HOMEBASE)
+    label += " [HOMEBASE / SHOP]";
+
+  if (node.type === NODE_TYPES.MINIBOSS)
+    label += " [MINIBOSS]";
+
+  if (node.type === NODE_TYPES.FINALBOSS)
+    label += " [FINALBOSS]";
+
+    ctx.fillStyle = "white";
+
     ctx.fillText(
-        `${node.airport.name} (${node.airport.icao})`,
+        label,
         node.x + 8,
         node.y
     );
@@ -145,45 +216,66 @@ zone1map.onload = () => {
 
   //luodaan nodeja
   const count = getNodeCount();
-  const selected = takeAirports(airports, count)
+
+  const randompool = airports.filter ( a =>
+      a.icao !== "EPKE" &&
+      a.icao !== "EDDB" &&
+      a.icao !== "EFHK"
+  );
+
+  const middle = takeAirports(randompool, count -3);
+
+  const helsinki = airports.find (a => a.icao === "EFHK");
+  const berlin = airports.find (a => a.icao === "EDDB");
+  const miniboss = airports.find (a => a.icao === "EPKE");
+
+  const selected = [
+      helsinki,
+      berlin,
+      miniboss,
+      ...middle
+  ]
 
   nodes = createNodes(selected);
 
-  //oikealta vasemmalle polku
-  nodes.sort((a, b) => b.x - a.x);
-  connectNodes(nodes);
 
+  let helsinkiNode = nodes.find(n => n.airport.icao === "EFHK");
 
-  //hardcoded aloitus helsingistä
-  let startNode = nodes.find(n => n.airport.icao === "EFHK")
-  if (!startNode) startNode = nodes[0];
+  helsinkiNode.type = NODE_TYPES.HOMEBASE;
+  helsinkiNode.isHomeBase = true;
 
+  currentNode = helsinkiNode;
 
-  startNode.type = NODE_TYPES.START;
-  startNode.discovered = true;
-  currentNode = startNode;
+  let minibossNode = nodes.find(n => n.airport.icao ==="EPKE");
 
-  //exit node
-  let exitNode = nodes[nodes.length -1];
-  exitNode.type = NODE_TYPES.EXIT;
+  minibossNode.type = NODE_TYPES.MINIBOSS;
+
+  let berlinNode = nodes.find(n => n.airport.icao ==="EDDB");
+
+  berlinNode.type = NODE_TYPES.FINALBOSS;
+
 
   redraw();
 };
 
 canvas.addEventListener("click", (e) => {
-  if (!currentNode) return;
 
   const rect = canvas.getBoundingClientRect();
+
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
 
-  for(let node of nodes) {
+  for (let node of nodes) {
     let d = Math.hypot(mx - node.x, my - node.y);
 
     if (d < 8) {
-      if(currentNode.connections.includes(node.id))
-        currentNode = node;
-        redraw();
+      currentNode = node;
+
+      node.discovered = true;
+
+      redraw();
+
+      break;
     }
   }
 });
