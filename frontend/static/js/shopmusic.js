@@ -1,6 +1,6 @@
 let shopMusicStarted = false;
 
-const shopMusic = new Audio("static/assets/audio/shop.wav");
+const shopMusic = new Audio("./static/assets/audio/shop.wav");
 shopMusic.loop = true;
 
 if (typeof applySavedMusicVolume === "function") {

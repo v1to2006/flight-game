@@ -5,6 +5,7 @@ export const apiRequest = async (path, options = {}) => {
     ...options,
     credentials: "include",
     headers: {
+      Accept: "application/json",
       "Content-Type": "application/json",
       ...(options.headers || {}),
     },
@@ -13,11 +14,15 @@ export const apiRequest = async (path, options = {}) => {
   const data = await parseJson(response);
 
   if (!response.ok) {
-    throw new Error(data?.error || "Request failed.");
+    throw new Error(
+      data?.error ||
+      data?.message ||
+      `Request failed with status ${response.status}.`
+    );
   }
 
   return data;
-}
+};
 
 const parseJson = async (response) => {
   const contentType = response.headers.get("content-type");
@@ -27,4 +32,4 @@ const parseJson = async (response) => {
   }
 
   return response.json();
-}
+};
