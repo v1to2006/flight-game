@@ -265,7 +265,7 @@ let musicStarted = false;
 let currentMusicPath = "";
 
 
-const AUDIO_BASE = "../static/assets/audio/";
+const AUDIO_BASE = "static/assets/audio/";
 
 const MUSIC_TRACKS = {
   easy: AUDIO_BASE + "easy.wav",
@@ -386,22 +386,22 @@ window.addEventListener("click", () => {
 });
 
 const images = {
-  background: loadImage("../static/assets/backgrounds/ww2_map.png"),
+  background: loadImage("static/assets/backgrounds/ww2_map.png"),
   player: loadImage(selectedPlane.image),
 
-  enemy: loadImage("../static/assets/planes/enemy_fighter.png"),
-  enemyHeavy: loadImage("../static/assets/planes/enemy_heavy.png"),
+  enemy: loadImage("static/assets/planes/enemy_fighter.png"),
+  enemyHeavy: loadImage("static/assets/planes/enemy_heavy.png"),
 
   // These can be missing for now. Fallback drawing still works.
-  enemyFast: loadImage("../static/assets/planes/enemy_fast.png"),
-  enemyShotgun: loadImage("../static/assets/planes/enemy_shotgun.png"),
-  enemyRocketHeavy: loadImage("../static/assets/planes/enemy_rocket_heavy.png"),
-  enemyStealth: loadImage("../static/assets/planes/enemy_stealth.png"),
-  enemyMiniBoss: loadImage("../static/assets/planes/miniboss.png"),
-  enemyBoss: loadImage("../static/assets/planes/final_boss.png"),
+  enemyFast: loadImage("static/assets/planes/enemy_fast.png"),
+  enemyShotgun: loadImage("static/assets/planes/enemy_shotgun.png"),
+  enemyRocketHeavy: loadImage("static/assets/planes/enemy_rocket_heavy.png"),
+  enemyStealth: loadImage("static/assets/planes/enemy_stealth.png"),
+  enemyMiniBoss: loadImage("static/assets/planes/miniboss.png"),
+  enemyBoss: loadImage("static/assets/planes/final_boss.png"),
 
-  cloud1: loadImage("../static/assets/clouds/cloud1.png"),
-  cloud2: loadImage("../static/assets/clouds/cloud2.png")
+  cloud1: loadImage("static/assets/clouds/cloud1.png"),
+  cloud2: loadImage("static/assets/clouds/cloud2.png")
 };
 
 canvas.addEventListener("click", (event) => {
