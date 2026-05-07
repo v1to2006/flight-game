@@ -7,9 +7,9 @@
   <title>Aircraft Shop | WW2 Plane Game</title>
 
   <link rel="stylesheet" href="static/css/variables.css" />
-  <link rel="stylesheet" href="static/css/pages/base.css" />
-  <link rel="stylesheet" href="static/css/pages/loading.css" />
-  <link rel="stylesheet" href="static/css/pages/shop.css" />
+  <link rel="stylesheet" href="static/css/base.css" />
+  <link rel="stylesheet" href="static/css/loading.css" />
+  <link rel="stylesheet" href="static/css/shop.css" />
 </head>
 <body>
 
@@ -24,7 +24,7 @@
 
       <div class="top-left-menu">
         <a class="menu-button" href="map.html">Return to Map</a>
-        <a class="menu-button" href="settings.html">Settings</a>
+<button class="menu-button" type="button" onclick="goToSettings()">Settings</button>
       </div>
 
       <header class="shop-title">
@@ -105,11 +105,18 @@
 
   </main>
 
-  <script src="static/js/loading.js"></script>
-  <script src="static/js/settings.js"></script>
-  <script src="static/js/state.js"></script>
-  <script src="static/js/planes.js"></script>
-  <script src="static/js/shop.js"></script>
-  <script src="static/js/shopmusic.js"></script>
+  <script src="./static/js/loading.js" defer></script>
+  <script src="./static/js/settingsManager.js" defer></script>
+  <script src="./static/js/state.js" defer></script>
+  <script src="./static/js/planes.js" defer></script>
+  <script src="./static/js/shop.js" defer></script>
+  <script src="./static/js/shopmusic.js" defer></script>
+  
+  <script>
+  function goToSettings() {
+    sessionStorage.setItem("settingsReturnTo", window.location.href);
+    window.location.href = "settings.html";
+  }
+  </script>
 </body>
 </html>
