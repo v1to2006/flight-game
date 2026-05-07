@@ -2,62 +2,82 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<title>Iron Skies - Main Menu</title>
+  <title>Iron Skies - Main Menu</title>
 
-	<link rel="stylesheet" href="static/css/variables.css" />
-	<link rel="stylesheet" href="static/css/mainMenu.css" />
-	<link rel="stylesheet" href="static/css/loading.css" />
+  <link rel="stylesheet" href="static/css/variables.css" />
+  <link rel="stylesheet" href="static/css/mainMenu.css" />
+  <link rel="stylesheet" href="static/css/loading.css" />
 
-	<script type="module" src="./static/js/auth/pageGuard.js"></script>
+  <script type="module" src="./static/js/auth/pageGuard.js"></script>
 </head>
 
 <body>
+  <div class="background-layer">
+    <video autoplay muted playsinline id="bgVideo1">
+      <source src="static/assets/videos/PlaneGray.mp4" type="video/mp4" />
+    </video>
 
-	<div class="background-layer">
+    <video autoplay muted playsinline id="bgVideo2">
+      <source src="static/assets/videos/PlaneGray.mp4" type="video/mp4" />
+    </video>
 
-		<video autoplay muted playsinline id="bgVideo1">
-			<source src="static/assets/videos/PlaneGray.mp4" type="video/mp4" />
-		</video>
+    <canvas id="backgroundCanvas"></canvas>
 
-		<video autoplay muted playsinline id="bgVideo2">
-			<source src="static/assets/videos/PlaneGray.mp4" type="video/mp4" />
-		</video>
+    <div class="dark-overlay"></div>
+    <div class="vignette"></div>
+    <div class="flicker"></div>
+  </div>
 
-		<canvas id="backgroundCanvas"></canvas>
+  <audio id="bgMusic" loop>
+    <source src="static/assets/audio/Ambient.wav" type="audio/wav" />
+  </audio>
 
-		<div class="dark-overlay"></div>
-		<div class="vignette"></div>
-		<div class="flicker"></div>
-	</div>
+  <div id="audioHint">Click anywhere to enable sound</div>
 
-	<audio id="bgMusic" loop>
-		<source src="static/assets/audio/Ambient.wav" type="audio/mpeg" />
-	</audio>
+  <main class="main-menu">
+    <section class="title-area">
+      <p class="small-title">Flight-Game</p>
 
-	<div id="audioHint">Click anywhere to enable sound</div>
+      <h1 class="game-title">IRON SKIES</h1>
 
-	<main class="main-menu">
-		<section class="title-area">
-			<p class="small-title">Flight-Game</p>
-			<h1 class="game-title">IRON SKIES</h1>
-			<p class="subtitle">"You are about to embark upon the Great Crusade, toward which we have striven these many
-				months"</p>
-		</section>
+      <p class="subtitle">
+        "You are about to embark upon the Great Crusade, toward which we have striven these many months"
+      </p>
 
-		<section class="menu-buttons">
-			<button class="menu-btn" onclick="continueGame()">Continue</button>
-			<button class="menu-btn primary" onclick="newGame()">New Game</button>
-			<button class="menu-btn" onclick="goToPage('settings.html')">Settings</button>
-			<button class="menu-btn danger" onclick="signOut()">Sign Out</button>
-			<button class="menu-btn" onclick="goToPage('credits.html')">Credits</button>
-		</section>
-	</main>
-	<script src="static/js/loading.js" defer></script>
-	<script src="static/js/settingsManager.js" defer></script>
-	<script type="module" src="static/js/mainMenu.js" defer></script>
+      <p class="subtitle" data-menu-status>
+        Checking command status...
+      </p>
+    </section>
+
+    <section class="menu-buttons">
+      <button class="menu-btn" type="button" onclick="continueGame()">
+        Continue
+      </button>
+
+      <button class="menu-btn primary" type="button" onclick="newGame()">
+        New Game
+      </button>
+
+      <button class="menu-btn" type="button" onclick="goToPage('settings.html')">
+        Settings
+      </button>
+
+      <button class="menu-btn danger" type="button" onclick="signOut()">
+        Sign Out
+      </button>
+
+      <button class="menu-btn" type="button" onclick="goToPage('credits.html')">
+        Credits
+      </button>
+    </section>
+  </main>
+
+  <script src="static/js/loading.js" defer></script>
+  <script src="static/js/settingsManager.js" defer></script>
+  <script type="module" src="static/js/mainMenu.js"></script>
 </body>
 
 </html>
