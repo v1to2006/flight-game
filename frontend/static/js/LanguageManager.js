@@ -1,12 +1,16 @@
 const translations = {
   en: {
+    /* General */
     ironSkies: "Iron Skies",
     audioHint: "Click anywhere to enable sound",
+    enableSound: "Click anywhere to enable sound",
 
+    /* Landing */
     metropoliaPresents: "Masterminds of Metropolia presents",
     landingQuote: "\"Never in the field of human conflict was so much owed by so many to so few.\"",
     play: "PLAY",
 
+    /* Main Menu */
     flightGame: "Flight-Game",
     mainMenuSubtitle: "Choose your command, pilot.",
     continue: "Continue",
@@ -15,6 +19,24 @@ const translations = {
     signOut: "Sign Out",
     credits: "Credits",
 
+    /* Auth */
+    login: "Login",
+    signUp: "Sign up",
+    pilotAccess: "Pilot access",
+    loginSubtitle: "Enter your username and password to continue.",
+    username: "Username",
+    password: "Password",
+    noAccount: "No account?",
+    createOne: "Create one",
+    newPilotRegistration: "New pilot registration",
+    signupText: "Create your pilot account and prepare for deployment.",
+    confirmPassword: "Confirm Password",
+    createAccount: "Create Account",
+    alreadyHaveAccount: "Already have an account?",
+    passwordsDoNotMatch: "Passwords do not match",
+    accountCreated: "Account created. Redirecting to login...",
+
+    /* Shop */
     shop: "Shop",
     returnToMap: "Return to Map",
     airfieldSupplyPoint: "Airfield Supply Point",
@@ -32,6 +54,7 @@ const translations = {
     status: "Status",
 
     selected: "Selected",
+    owned: "Owned",
     unlocked: "Unlocked",
     locked: "Locked",
     currentlySelected: "Currently selected",
@@ -44,24 +67,22 @@ const translations = {
     maxed: "Maxed",
     upgrade: "Upgrade",
     need: "Need",
+    levelShort: "Lvl",
+
     resetTestSave: "Reset test save",
+    loadingShop: "Loading shop...",
+    shopUnavailable: "Shop unavailable",
+    couldNotLoadShop: "Could not load shop data.",
+    noAircraftFound: "No aircraft found",
+    noAircraftData: "No aircraft data was returned by the API.",
+    noPlanesFound: "No planes found.",
+    buyAircraftBeforeUpgrading: "Buy this aircraft before upgrading it.",
+    planeSelected: "Plane selected.",
+    planePurchased: "Plane purchased.",
+    upgradePurchased: "Upgrade purchased.",
     notEnoughOrMaxed: "Not enough money or upgrade is already maxed.",
 
-    login: "Login",
-    signUp: "Sign up",
-    pilotAccess: "Pilot access",
-    loginSubtitle: "Enter your username and password to continue.",
-    username: "Username",
-    password: "Password",
-    noAccount: "No account?",
-    createOne: "Create one",
-
-    newPilotRegistration: "New pilot registration",
-    signupText: "Create your pilot account and prepare for deployment.",
-    confirmPassword: "Confirm Password",
-    createAccount: "Create Account",
-    alreadyHaveAccount: "Already have an account?",
-
+    /* Settings */
     smallTitle: "SYSTEM CONFIGURATION",
     title: "SETTINGS",
     subtitle: "Adjust your cockpit preferences before takeoff.",
@@ -75,13 +96,17 @@ const translations = {
   },
 
   fi: {
+    /* General */
     ironSkies: "Iron Skies",
     audioHint: "Klikkaa aktivoidaksesi äänen",
+    enableSound: "Klikkaa aktivoidaksesi äänen",
 
+    /* Landing */
     metropoliaPresents: "Metropolian mastermindit esittävät",
     landingQuote: "\"Koskaan ihmiskunnan konfliktien historiassa niin moni ei ole ollut niin paljon velkaa niin harvalle.\"",
     play: "PELAA",
 
+    /* Main Menu */
     flightGame: "Lentopeli",
     mainMenuSubtitle: "Valitse käskysi, pilotti.",
     continue: "Jatka",
@@ -90,6 +115,24 @@ const translations = {
     signOut: "Kirjaudu ulos",
     credits: "Tekijät",
 
+    /* Auth */
+    login: "Kirjaudu",
+    signUp: "Rekisteröidy",
+    pilotAccess: "Pilotin pääsy",
+    loginSubtitle: "Syötä käyttäjänimi ja salasana jatkaaksesi.",
+    username: "Käyttäjänimi",
+    password: "Salasana",
+    noAccount: "Ei tiliä?",
+    createOne: "Luo tili",
+    newPilotRegistration: "Uuden pilotin rekisteröinti",
+    signupText: "Luo pilotin tili ja valmistaudu tehtävään.",
+    confirmPassword: "Vahvista salasana",
+    createAccount: "Luo tili",
+    alreadyHaveAccount: "Onko sinulla jo tili?",
+    passwordsDoNotMatch: "Salasanat eivät täsmää",
+    accountCreated: "Tili luotu. Siirrytään kirjautumiseen...",
+
+    /* Shop */
     shop: "Kauppa",
     returnToMap: "Palaa kartalle",
     airfieldSupplyPoint: "Lentotukikohdan varustepiste",
@@ -107,6 +150,7 @@ const translations = {
     status: "Tila",
 
     selected: "Valittu",
+    owned: "Omistettu",
     unlocked: "Avattu",
     locked: "Lukittu",
     currentlySelected: "Tällä hetkellä valittu",
@@ -119,24 +163,22 @@ const translations = {
     maxed: "Maksimissa",
     upgrade: "Paranna",
     need: "Tarvitsee",
+    levelShort: "Taso",
+
     resetTestSave: "Nollaa testitallennus",
+    loadingShop: "Ladataan kauppaa...",
+    shopUnavailable: "Kauppa ei ole saatavilla",
+    couldNotLoadShop: "Kaupan tietoja ei voitu ladata.",
+    noAircraftFound: "Lentokoneita ei löytynyt",
+    noAircraftData: "API ei palauttanut lentokonetietoja.",
+    noPlanesFound: "Lentokoneita ei löytynyt.",
+    buyAircraftBeforeUpgrading: "Osta tämä lentokone ennen parantamista.",
+    planeSelected: "Lentokone valittu.",
+    planePurchased: "Lentokone ostettu.",
+    upgradePurchased: "Parannus ostettu.",
     notEnoughOrMaxed: "Ei tarpeeksi rahaa tai parannus on jo maksimissa.",
 
-    login: "Kirjaudu",
-    signUp: "Rekisteröidy",
-    pilotAccess: "Pilotin pääsy",
-    loginSubtitle: "Syötä käyttäjänimi ja salasana jatkaaksesi.",
-    username: "Käyttäjänimi",
-    password: "Salasana",
-    noAccount: "Ei tiliä?",
-    createOne: "Luo tili",
-
-    newPilotRegistration: "Uuden pilotin rekisteröinti",
-    signupText: "Luo pilotin tili ja valmistaudu tehtävään.",
-    confirmPassword: "Vahvista salasana",
-    createAccount: "Luo tili",
-    alreadyHaveAccount: "Onko sinulla jo tili?",
-
+    /* Settings */
     smallTitle: "JÄRJESTELMÄASETUKSET",
     title: "ASETUKSET",
     subtitle: "Säädä ohjaamon asetukset ennen lentoonlähtöä.",
@@ -150,13 +192,17 @@ const translations = {
   },
 
   ru: {
+    /* General */
     ironSkies: "Iron Skies",
     audioHint: "Нажмите для включения звука",
+    enableSound: "Нажмите для включения звука",
 
+    /* Landing */
     metropoliaPresents: "Masterminds of Metropolia представляет",
     landingQuote: "\"Никогда в истории человеческих конфликтов столь многие не были обязаны столь немногим.\"",
     play: "ИГРАТЬ",
 
+    /* Main Menu */
     flightGame: "Авиасимулятор",
     mainMenuSubtitle: "Выберите приказ, пилот.",
     continue: "Продолжить",
@@ -165,6 +211,24 @@ const translations = {
     signOut: "Выйти",
     credits: "Авторы",
 
+    /* Auth */
+    login: "Войти",
+    signUp: "Регистрация",
+    pilotAccess: "Доступ пилота",
+    loginSubtitle: "Введите имя пользователя и пароль для продолжения.",
+    username: "Имя пользователя",
+    password: "Пароль",
+    noAccount: "Нет аккаунта?",
+    createOne: "Создать аккаунт",
+    newPilotRegistration: "Регистрация нового пилота",
+    signupText: "Создайте аккаунт пилота и подготовьтесь к вылету.",
+    confirmPassword: "Подтвердите пароль",
+    createAccount: "Создать аккаунт",
+    alreadyHaveAccount: "Уже есть аккаунт?",
+    passwordsDoNotMatch: "Пароли не совпадают",
+    accountCreated: "Аккаунт создан. Переход к входу...",
+
+    /* Shop */
     shop: "Магазин",
     returnToMap: "Вернуться к карте",
     airfieldSupplyPoint: "Пункт снабжения аэродрома",
@@ -182,6 +246,7 @@ const translations = {
     status: "Статус",
 
     selected: "Выбран",
+    owned: "В наличии",
     unlocked: "Открыт",
     locked: "Закрыт",
     currentlySelected: "Сейчас выбран",
@@ -194,24 +259,22 @@ const translations = {
     maxed: "Максимум",
     upgrade: "Улучшить",
     need: "Нужно",
+    levelShort: "Ур.",
+
     resetTestSave: "Сбросить тестовое сохранение",
+    loadingShop: "Загрузка магазина...",
+    shopUnavailable: "Магазин недоступен",
+    couldNotLoadShop: "Не удалось загрузить данные магазина.",
+    noAircraftFound: "Самолёты не найдены",
+    noAircraftData: "API не вернул данные самолётов.",
+    noPlanesFound: "Самолёты не найдены.",
+    buyAircraftBeforeUpgrading: "Купите этот самолёт перед улучшением.",
+    planeSelected: "Самолёт выбран.",
+    planePurchased: "Самолёт куплен.",
+    upgradePurchased: "Улучшение куплено.",
     notEnoughOrMaxed: "Недостаточно денег или улучшение уже максимальное.",
 
-    login: "Войти",
-    signUp: "Регистрация",
-    pilotAccess: "Доступ пилота",
-    loginSubtitle: "Введите имя пользователя и пароль для продолжения.",
-    username: "Имя пользователя",
-    password: "Пароль",
-    noAccount: "Нет аккаунта?",
-    createOne: "Создать аккаунт",
-
-    newPilotRegistration: "Регистрация нового пилота",
-    signupText: "Создайте аккаунт пилота и подготовьтесь к вылету.",
-    confirmPassword: "Подтвердите пароль",
-    createAccount: "Создать аккаунт",
-    alreadyHaveAccount: "Уже есть аккаунт?",
-
+    /* Settings */
     smallTitle: "СИСТЕМНЫЕ НАСТРОЙКИ",
     title: "НАСТРОЙКИ",
     subtitle: "Настройте параметры кабины перед взлётом.",
@@ -249,5 +312,6 @@ function applySavedLanguage() {
 
 window.t = t;
 window.applySavedLanguage = applySavedLanguage;
+window.translations = translations;
 
 document.addEventListener("DOMContentLoaded", applySavedLanguage);
