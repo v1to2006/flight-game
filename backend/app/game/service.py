@@ -225,12 +225,58 @@ def get_active_game_session(user_id):
         db.close()
 
 
+def get_latest_game_session(user_id):
+    player = get_or_create_player(user_id)
+
+    if player is None:
+        raise RuntimeError("Failed to get player")
+
+    db = get_db_connection()
+
+    try:
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id, player_id, status, started_at, completed_at
+                FROM game_sessions
+                WHERE player_id = %s
+                ORDER BY started_at DESC
+                LIMIT 1
+                """,
+                (player["id"],),
+            )
+
+            return cursor.fetchone()
+    finally:
+        db.close()
+
+
 def continue_game(user_id):
     session = get_active_game_session(user_id)
 
     if session is None:
+        latest_session = get_latest_game_session(user_id)
+
+        if latest_session is not None and latest_session["status"] == "completed":
+            progress = get_game_progress(latest_session["id"])
+
+            return {
+                "hasActiveGame": False,
+                "gameCompleted": True,
+                "gameSessionId": latest_session["id"],
+                "status": latest_session["status"],
+                "progress": progress,
+                "ending": {
+                    "type": "victory",
+                    "title": "Victory",
+                    "subtitle": "Berlin Liberated",
+                },
+                "message": "Campaign completed",
+            }
+
         return {
             "hasActiveGame": False,
+            "gameCompleted": False,
             "message": "No active game found",
         }
 
@@ -243,6 +289,7 @@ def continue_game(user_id):
 
     return {
         "hasActiveGame": True,
+        "gameCompleted": False,
         "gameSessionId": session["id"],
         "status": session["status"],
         "progress": progress,
@@ -254,13 +301,26 @@ def get_game_map(user_id):
     session = get_active_game_session(user_id)
 
     if session is None:
+        latest_session = get_latest_game_session(user_id)
+
+        if latest_session is not None and latest_session["status"] == "completed":
+            return {
+                "hasActiveGame": False,
+                "gameCompleted": True,
+                "gameSessionId": latest_session["id"],
+                "status": latest_session["status"],
+                "occupiedAirports": [],
+            }
+
         return {
             "hasActiveGame": False,
+            "gameCompleted": False,
             "occupiedAirports": [],
         }
 
     return {
         "hasActiveGame": True,
+        "gameCompleted": False,
         "gameSessionId": session["id"],
         "occupiedAirports": get_game_airports(
             game_session_id=session["id"],
@@ -273,8 +333,22 @@ def get_game_status(user_id):
     session = get_active_game_session(user_id)
 
     if session is None:
+        latest_session = get_latest_game_session(user_id)
+
+        if latest_session is not None and latest_session["status"] == "completed":
+            progress = get_game_progress(latest_session["id"])
+
+            return {
+                "hasActiveGame": False,
+                "gameCompleted": True,
+                "gameSessionId": latest_session["id"],
+                "status": latest_session["status"],
+                **progress,
+            }
+
         return {
             "hasActiveGame": False,
+            "gameCompleted": False,
             "message": "No active game found",
         }
 
@@ -282,6 +356,7 @@ def get_game_status(user_id):
 
     return {
         "hasActiveGame": True,
+        "gameCompleted": False,
         "gameSessionId": session["id"],
         "status": session["status"],
         **progress,

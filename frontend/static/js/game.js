@@ -8,6 +8,7 @@ canvas.height = 720
 
 const GAME_WIDTH = canvas.width
 const GAME_HEIGHT = canvas.height
+const TARGET_FRAME_MS = 500 / 60
 
 const MAP_PAGE = "./map.html"
 const SHOP_PAGE = "./shop.html"
@@ -23,6 +24,7 @@ const CURRENT_DIFFICULTY = getDifficultyFromSelectedAirport()
 let selectedPlane = null
 let gameReady = false
 let apiResultMessage = ""
+let lastFrameTime = performance.now()
 
 const DIFFICULTY_CONFIGS = {
   easy: {
@@ -242,6 +244,7 @@ const game = {
   bossDefeated: false,
   waitingForBoss: false,
   bossIntroTimer: 0,
+  bossSecondWarningShown: false,
   bossPhase: 1,
 }
 
@@ -366,7 +369,7 @@ const clouds = [
 ]
 
 initGame()
-gameLoop()
+requestAnimationFrame(gameLoop)
 
 async function initGame() {
   if (!airportIdent) {
@@ -611,6 +614,7 @@ function restartGame() {
   game.bossDefeated = false
   game.waitingForBoss = false
   game.bossIntroTimer = 0
+  game.bossSecondWarningShown = false
   game.bossPhase = 1
 
   player.x = GAME_WIDTH / 2
@@ -631,35 +635,35 @@ function restartGame() {
   warnings.length = 0
 }
 
-function update() {
+function update(dt) {
   if (game.state === "loading" || game.state === "error") {
-    updateBackground()
+    updateBackground(dt)
     return
   }
 
   if (game.state !== "playing") {
-    updateExplosions()
-    updateWarnings()
-    updateBackground()
+    updateExplosions(dt)
+    updateWarnings(dt)
+    updateBackground(dt)
     return
   }
 
   if (game.paused) {
-    updateWarnings()
+    updateWarnings(dt)
     return
   }
 
   updateTimer()
-  updatePlayer()
-  updateShooting()
-  updateAutoCannon()
-  updateBullets()
-  updateEnemyBullets()
-  updateEnemies()
+  updatePlayer(dt)
+  updateShooting(dt)
+  updateAutoCannon(dt)
+  updateBullets(dt)
+  updateEnemyBullets(dt)
+  updateEnemies(dt)
   updateCollisions()
-  updateExplosions()
-  updateWarnings()
-  updateBackground()
+  updateExplosions(dt)
+  updateWarnings(dt)
+  updateBackground(dt)
 }
 
 function updateTimer() {
@@ -673,21 +677,21 @@ function updateTimer() {
   }
 }
 
-function updatePlayer() {
+function updatePlayer(dt) {
   if (keys["arrowleft"] || keys["a"]) {
-    player.x -= player.speed
+    player.x -= player.speed * dt
   }
 
   if (keys["arrowright"] || keys["d"]) {
-    player.x += player.speed
+    player.x += player.speed * dt
   }
 
   if (keys["arrowup"] || keys["w"]) {
-    player.y -= player.speed
+    player.y -= player.speed * dt
   }
 
   if (keys["arrowdown"] || keys["s"]) {
-    player.y += player.speed
+    player.y += player.speed * dt
   }
 
   const halfWidth = player.width / 2
@@ -697,13 +701,13 @@ function updatePlayer() {
   player.y = Math.max(halfHeight, Math.min(GAME_HEIGHT - halfHeight, player.y))
 
   if (player.invincibleTimer > 0) {
-    player.invincibleTimer--
+    player.invincibleTimer -= dt
   }
 }
 
-function updateShooting() {
+function updateShooting(dt) {
   if (player.shootCooldown > 0) {
-    player.shootCooldown--
+    player.shootCooldown -= dt
   }
 
   if ((keys[" "] || keys["space"]) && player.shootCooldown <= 0) {
@@ -712,11 +716,11 @@ function updateShooting() {
   }
 }
 
-function updateAutoCannon() {
+function updateAutoCannon(dt) {
   if (player.weaponType !== "heavy_auto") return
 
   if (player.autoCannonCooldown > 0) {
-    player.autoCannonCooldown--
+    player.autoCannonCooldown -= dt
     return
   }
 
@@ -747,12 +751,12 @@ function updateAutoCannon() {
   player.autoCannonCooldown = player.autoCannonDelay || 70
 }
 
-function updateBullets() {
+function updateBullets(dt) {
   for (let i = bullets.length - 1; i >= 0; i--) {
     const bullet = bullets[i]
 
-    bullet.x += bullet.vx || 0
-    bullet.y += bullet.vy || -bullet.speed
+    bullet.x += (bullet.vx || 0) * dt
+    bullet.y += (bullet.vy || -bullet.speed) * dt
 
     if (
       bullet.y + bullet.height < 0 ||
@@ -765,12 +769,12 @@ function updateBullets() {
   }
 }
 
-function updateEnemyBullets() {
+function updateEnemyBullets(dt) {
   for (let i = enemyBullets.length - 1; i >= 0; i--) {
     const bullet = enemyBullets[i]
 
-    bullet.x += bullet.vx || 0
-    bullet.y += bullet.vy || 0
+    bullet.x += (bullet.vx || 0) * dt
+    bullet.y += (bullet.vy || 0) * dt
 
     if (
       bullet.y > GAME_HEIGHT + bullet.height ||
@@ -790,26 +794,26 @@ function updateEnemyBullets() {
   }
 }
 
-function updateEnemies() {
+function updateEnemies(dt) {
   if (difficultyConfig.hasMiniBoss) {
-    handleMiniBossFlow()
+    handleMiniBossFlow(dt)
   }
 
   if (difficultyConfig.hasBoss) {
-    handleBossFlow()
+    handleBossFlow(dt)
   }
 
   if (difficultyConfig.hasMiniBoss && (game.waitingForMiniBoss || game.miniBossStarted)) {
-    updateExistingEnemiesOnly()
+    updateExistingEnemiesOnly(dt)
     return
   }
 
   if (difficultyConfig.hasBoss && (game.waitingForBoss || game.bossStarted)) {
-    updateExistingEnemiesOnly()
+    updateExistingEnemiesOnly(dt)
     return
   }
 
-  game.enemySpawnTimer++
+  game.enemySpawnTimer += dt
 
   if (game.enemySpawnTimer >= game.enemySpawnDelay) {
     spawnEnemy()
@@ -826,29 +830,29 @@ function updateEnemies() {
     game.enemySpawnDelay = Math.max(28, difficultyConfig.spawnDelayMin - 12)
   }
 
-  updateExistingEnemiesOnly()
+  updateExistingEnemiesOnly(dt)
 }
 
-function updateExistingEnemiesOnly() {
+function updateExistingEnemiesOnly(dt) {
   for (let i = enemies.length - 1; i >= 0; i--) {
     const enemy = enemies[i]
 
     if (enemy.type === "boss") {
-      updateBoss(enemy)
+      updateBoss(enemy, dt)
     } else if (enemy.type === "miniboss") {
-      updateMiniBoss(enemy)
+      updateMiniBoss(enemy, dt)
     } else if (enemy.type === "stealthRam") {
-      updateStealthRam(enemy)
+      updateStealthRam(enemy, dt)
     } else {
-      enemy.y += enemy.speed
-      enemy.x += enemy.drift
+      enemy.y += enemy.speed * dt
+      enemy.x += enemy.drift * dt
     }
 
     if (enemy.stealth && enemy.stealthAlpha < 0.8) {
-      enemy.stealthAlpha += 0.006
+      enemy.stealthAlpha += 0.006 * dt
     }
 
-    enemy.shootTimer--
+    enemy.shootTimer -= dt
 
     if (
       enemy.pattern !== "ram" &&
@@ -873,7 +877,7 @@ function updateExistingEnemiesOnly() {
   }
 }
 
-function handleMiniBossFlow() {
+function handleMiniBossFlow(dt) {
   if (game.miniBossStarted || game.miniBossDefeated) return
 
   if (game.kills >= game.targetKills && !game.waitingForMiniBoss) {
@@ -888,7 +892,7 @@ function handleMiniBossFlow() {
   }
 
   if (game.waitingForMiniBoss) {
-    game.miniBossIntroTimer--
+    game.miniBossIntroTimer -= dt
 
     if (game.miniBossIntroTimer <= 0) {
       spawnMiniBoss()
@@ -899,12 +903,13 @@ function handleMiniBossFlow() {
   }
 }
 
-function handleBossFlow() {
+function handleBossFlow(dt) {
   if (game.bossStarted || game.bossDefeated) return
 
   if (game.kills >= game.targetKills && !game.waitingForBoss) {
     game.waitingForBoss = true
     game.bossIntroTimer = 160
+    game.bossSecondWarningShown = false
 
     enemies.length = 0
     enemyBullets.length = 0
@@ -914,9 +919,10 @@ function handleBossFlow() {
   }
 
   if (game.waitingForBoss) {
-    game.bossIntroTimer--
+    game.bossIntroTimer -= dt
 
-    if (game.bossIntroTimer === 80) {
+    if (game.bossIntroTimer <= 80 && !game.bossSecondWarningShown) {
+      game.bossSecondWarningShown = true
       createWarning("BOSS APPROACHING", GAME_WIDTH / 2, 205, 100)
     }
 
@@ -992,9 +998,9 @@ function updateCollisions() {
   }
 }
 
-function updateExplosions() {
+function updateExplosions(dt) {
   for (let i = explosions.length - 1; i >= 0; i--) {
-    explosions[i].life--
+    explosions[i].life -= dt
 
     if (explosions[i].life <= 0) {
       explosions.splice(i, 1)
@@ -1002,9 +1008,9 @@ function updateExplosions() {
   }
 }
 
-function updateWarnings() {
+function updateWarnings(dt) {
   for (let i = warnings.length - 1; i >= 0; i--) {
-    warnings[i].life--
+    warnings[i].life -= dt
 
     if (warnings[i].life <= 0) {
       warnings.splice(i, 1)
@@ -1012,9 +1018,9 @@ function updateWarnings() {
   }
 }
 
-function updateBackground() {
-  backgroundLayer.y1 += backgroundLayer.speed
-  backgroundLayer.y2 += backgroundLayer.speed
+function updateBackground(dt) {
+  backgroundLayer.y1 += backgroundLayer.speed * dt
+  backgroundLayer.y2 += backgroundLayer.speed * dt
 
   if (backgroundLayer.y1 >= GAME_HEIGHT) {
     backgroundLayer.y1 = backgroundLayer.y2 - GAME_HEIGHT
@@ -1025,7 +1031,7 @@ function updateBackground() {
   }
 
   for (const cloud of clouds) {
-    cloud.y += cloud.speed
+    cloud.y += cloud.speed * dt
 
     if (cloud.y > GAME_HEIGHT + 120) {
       cloud.y = -180
@@ -1306,9 +1312,9 @@ function spawnBoss() {
   })
 }
 
-function updateMiniBoss(enemy) {
+function updateMiniBoss(enemy, dt) {
   if (!enemy.entranceDone) {
-    enemy.y += 1.3
+    enemy.y += 1.3 * dt
 
     if (enemy.y >= 115) {
       enemy.y = 115
@@ -1319,7 +1325,7 @@ function updateMiniBoss(enemy) {
     return
   }
 
-  enemy.x += enemy.drift
+  enemy.x += enemy.drift * dt
 
   if (
     enemy.x < enemy.width / 2 + 40 ||
@@ -1328,14 +1334,14 @@ function updateMiniBoss(enemy) {
     enemy.drift *= -1
   }
 
-  enemy.rocketTimer--
+  enemy.rocketTimer -= dt
 
   if (enemy.rocketTimer <= 0) {
     shootMiniBossRockets(enemy)
     enemy.rocketTimer = 130 + Math.floor(Math.random() * 60)
   }
 
-  enemy.summonTimer--
+  enemy.summonTimer -= dt
 
   if (enemy.summonTimer <= 0) {
     summonMiniBossAdds()
@@ -1343,9 +1349,9 @@ function updateMiniBoss(enemy) {
   }
 }
 
-function updateBoss(enemy) {
+function updateBoss(enemy, dt) {
   if (!enemy.entranceDone) {
-    enemy.y += 1.0
+    enemy.y += 1.0 * dt
 
     if (enemy.y >= 120) {
       enemy.y = 120
@@ -1356,7 +1362,7 @@ function updateBoss(enemy) {
     return
   }
 
-  enemy.x += enemy.drift
+  enemy.x += enemy.drift * dt
 
   if (
     enemy.x < enemy.width / 2 + 40 ||
@@ -1365,14 +1371,14 @@ function updateBoss(enemy) {
     enemy.drift *= -1
   }
 
-  enemy.rocketTimer--
+  enemy.rocketTimer -= dt
 
   if (enemy.rocketTimer <= 0) {
     shootBossRockets(enemy)
     enemy.rocketTimer = 130
   }
 
-  enemy.autoCannonTimer--
+  enemy.autoCannonTimer -= dt
 
   if (enemy.autoCannonTimer <= 0) {
     shootBossAutoCannon(enemy)
@@ -1380,21 +1386,21 @@ function updateBoss(enemy) {
   }
 }
 
-function updateStealthRam(enemy) {
+function updateStealthRam(enemy, dt) {
   const dx = player.x - enemy.x
   const dy = player.y - enemy.y
   const length = Math.sqrt(dx * dx + dy * dy)
 
   if (length === 0) {
-    enemy.y += enemy.speed
+    enemy.y += enemy.speed * dt
     return
   }
 
   const vx = (dx / length) * enemy.speed
   const vy = (dy / length) * enemy.speed
 
-  enemy.x += vx
-  enemy.y += Math.max(vy, 1.5)
+  enemy.x += vx * dt
+  enemy.y += Math.max(vy, 1.5) * dt
 }
 
 function enemyShoot(enemy) {
@@ -2380,8 +2386,12 @@ function goToMap() {
   window.location.href = MAP_PAGE
 }
 
-function gameLoop() {
-  update()
+function gameLoop(currentTime = performance.now()) {
+  const dt = Math.min((currentTime - lastFrameTime) / TARGET_FRAME_MS, 2.5)
+  lastFrameTime = currentTime
+
+  update(dt)
   draw()
+
   requestAnimationFrame(gameLoop)
 }

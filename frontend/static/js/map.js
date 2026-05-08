@@ -7,6 +7,7 @@ const MAP_PAGE_HEIGHT = 1080
 const GAME_PAGE = "./game.html"
 const SHOP_PAGE = "./shop.html"
 const START_SPLASH_PAGE = "./startsplash.html"
+const VICTORY_SPLASH_PAGE = "./victorysplash.html"
 
 const HELSINKI_AIRPORT_IDENT = "EFHK"
 const MINIBOSS_AIRPORT_IDENT = "EPKE"
@@ -137,16 +138,29 @@ function continueGameSession() {
   return apiRequest("/game/continue")
 }
 
+function redirectToStartSplash() {
+  window.location.href = START_SPLASH_PAGE
+}
+
+function redirectToVictorySplash() {
+  window.location.href = VICTORY_SPLASH_PAGE
+}
+
 async function getOrCreateCampaign() {
   const data = await continueGameSession()
+
+  if (data.gameCompleted || data.status === "completed") {
+    showStatus("CAMPAIGN COMPLETE. OPENING VICTORY SCREEN...")
+    redirectToVictorySplash()
+    throw new Error("Redirecting to victory screen.")
+  }
 
   if (data.hasActiveGame) {
     return data
   }
 
   showStatus("NO ACTIVE CAMPAIGN. OPENING MISSION BRIEFING...")
-
-  window.location.href = START_SPLASH_PAGE
+  redirectToStartSplash()
 
   throw new Error("Redirecting to mission briefing.")
 }
@@ -849,14 +863,14 @@ canvas.addEventListener("pointerup", stopDragging)
 canvas.addEventListener("pointercancel", stopDragging)
 canvas.addEventListener("pointerleave", clearHover)
 
-closePopupButton.addEventListener("click", closePopup)
+closePopupButton?.addEventListener("click", closePopup)
 closeHelsinkiPopupButton?.addEventListener("click", closeHelsinkiDefendedPopup)
 
-refreshMapButton.addEventListener("click", () => {
+refreshMapButton?.addEventListener("click", () => {
   refreshMap()
 })
 
-backMenuButton.addEventListener("click", () => {
+backMenuButton?.addEventListener("click", () => {
   window.location.href = APP_CONFIG.routes.mainMenu
 })
 
@@ -924,6 +938,14 @@ async function refreshMap() {
     }
   } catch (error) {
     console.error(error)
+
+    if (
+      error.message === "Redirecting to victory screen." ||
+      error.message === "Redirecting to mission briefing."
+    ) {
+      return
+    }
+
     showStatus(error.message || "FAILED TO LOAD MAP DATA")
     redraw()
   }
