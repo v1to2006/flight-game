@@ -2,6 +2,7 @@ from app.db.connection import get_db_connection
 from app.player.stats import (
     VALID_UPGRADE_STATS,
     calculate_plane_stats,
+    get_next_upgrade_price,
     get_upgrade_multiplier,
     get_upgrade_price,
 )
@@ -262,6 +263,12 @@ def format_owned_plane(row, current_player_plane_id):
             "damage": get_upgrade_multiplier(row["damage_level"]),
             "firerate": get_upgrade_multiplier(row["firerate_level"]),
         },
+        "nextUpgradePrices": {
+            "hp": get_next_upgrade_price(row["hp_level"]),
+            "speed": get_next_upgrade_price(row["speed_level"]),
+            "damage": get_next_upgrade_price(row["damage_level"]),
+            "firerate": get_next_upgrade_price(row["firerate_level"]),
+        },
         "stats": calculate_plane_stats(row),
     }
 
@@ -492,5 +499,6 @@ def upgrade_plane(user_id, player_plane_id, stat):
         "newLevel": new_level,
         "newMultiplier": get_upgrade_multiplier(new_level),
         "upgradePrice": upgrade_price,
+        "nextUpgradePrice": get_next_upgrade_price(new_level),
         "money": updated_player["money"],
     }

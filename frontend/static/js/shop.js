@@ -26,25 +26,21 @@ const UPGRADE_DEFS = [
     id: "hp",
     label: "HP",
     levelKey: "hpLevel",
-    fallbackBasePrice: 120,
   },
   {
     id: "speed",
     label: "Speed",
     levelKey: "speedLevel",
-    fallbackBasePrice: 100,
   },
   {
     id: "firerate",
     label: "Fire Rate",
     levelKey: "firerateLevel",
-    fallbackBasePrice: 200,
   },
   {
     id: "damage",
     label: "Damage",
     levelKey: "damageLevel",
-    fallbackBasePrice: 220,
   },
 ];
 
@@ -298,9 +294,9 @@ function renderUpgradePanel() {
     const multiplier = Number(ownedPlane.multipliers?.[upgrade.id] || 1);
 
     const isMaxed = level >= MAX_UPGRADE_LEVEL;
-    const upgradePrice = getUpgradePrice(ownedPlane, upgrade, level);
+    const upgradePrice = getUpgradePrice(ownedPlane, upgrade);
     const canAfford =
-      upgradePrice === null || Number(player.money) >= Number(upgradePrice);
+      upgradePrice !== null && Number(player.money) >= Number(upgradePrice);
 
     const row = document.createElement("div");
     row.className = "upgrade-row";
@@ -340,8 +336,8 @@ function renderUpgradePanel() {
       button.textContent = "Maxed";
       button.disabled = true;
     } else if (upgradePrice === null) {
-      button.textContent = "Upgrade";
-      button.disabled = false;
+      button.textContent = "Price unavailable";
+      button.disabled = true;
     } else {
       button.textContent = canAfford
         ? `Upgrade - ${upgradePrice}`
@@ -529,21 +525,14 @@ function getPlaneMultipliersForDisplay(ownedPlane) {
   };
 }
 
-function getUpgradePrice(ownedPlane, upgrade, currentLevel) {
-  const directPrice =
-    ownedPlane.nextUpgradePrices?.[upgrade.id] ??
-    ownedPlane.upgradePrices?.[upgrade.id] ??
-    ownedPlane.upgradeCosts?.[upgrade.id];
+function getUpgradePrice(ownedPlane, upgrade) {
+  const price = ownedPlane.nextUpgradePrices?.[upgrade.id];
 
-  if (directPrice !== undefined && directPrice !== null) {
-    return Number(directPrice);
+  if (price === undefined || price === null) {
+    return null;
   }
 
-  if (currentLevel >= MAX_UPGRADE_LEVEL) {
-    return 0;
-  }
-
-  return Math.floor(upgrade.fallbackBasePrice * (1 + currentLevel * 0.55));
+  return Number(price);
 }
 
 function showMessage(message, type = "error") {

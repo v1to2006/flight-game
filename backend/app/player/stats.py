@@ -5,6 +5,8 @@ VALID_UPGRADE_STATS = {
     "firerate": "firerate_level",
 }
 
+MAX_UPGRADE_LEVEL = 5
+
 UPGRADE_PRICES = {
     1: 100,
     2: 125,
@@ -20,6 +22,15 @@ def get_upgrade_multiplier(level):
 
 def get_upgrade_price(new_level):
     return UPGRADE_PRICES.get(int(new_level), 0)
+
+
+def get_next_upgrade_price(current_level):
+    current_level = int(current_level)
+
+    if current_level >= MAX_UPGRADE_LEVEL:
+        return None
+
+    return get_upgrade_price(current_level + 1)
 
 
 def calculate_plane_stats(row):
