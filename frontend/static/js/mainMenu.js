@@ -376,7 +376,7 @@ async function loadMenuStatus() {
     setMenuStatus(`${username} | Money: ${money} | Campaign: ${liberated}/${total} liberated | ${remaining} remaining`)
   } catch (error) {
     console.error(error)
-    setMenuStatus("Could not load command status. Check backend/server connection.")
+    setMenuStatus("Could not load command status.")
   }
 }
 

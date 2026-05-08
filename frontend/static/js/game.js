@@ -30,20 +30,20 @@ const DIFFICULTY_CONFIGS = {
     timeMin: 210,
     timeMax: 300,
     killsMin: 15,
-    killsMax: 30,
-    spawnDelayMin: 55,
-    spawnDelayMax: 85,
-    enemyPool: ["fighter", "heavy", "fast", "shotgun"]
+    killsMax: 20,
+    spawnDelayMin: 120,
+    spawnDelayMax: 150,
+    enemyPool: ["fighter", "heavy", "fast", "shotgun"],
   },
 
   hard: {
-    timeMin: 240,
-    timeMax: 360,
-    killsMin: 15,
-    killsMax: 20,
-    spawnDelayMin: 38,
-    spawnDelayMax: 70,
-    enemyPool: ["fighter", "heavy", "fast", "shotgun", "rocketHeavy", "stealthRam"]
+    timeMin: 230,
+    timeMax: 340,
+    killsMin: 20,
+    killsMax: 30,
+    spawnDelayMin: 150,
+    spawnDelayMax: 200,
+    enemyPool: ["fighter", "heavy", "fast", "shotgun", "rocketHeavy", "stealthRam"],
   },
 
   miniboss: {
@@ -60,16 +60,14 @@ const DIFFICULTY_CONFIGS = {
     boss: {
     timeMin: 420,
     timeMax: 480,
-    killsMin: 8,
-    killsMax: 15,
-    spawnDelayMin: 60,
-    spawnDelayMax: 85,
-    enemyPool: ["fighter", "heavy", "fast"],
-    hasBoss: true
-  }
-};
-
-const difficultyConfig = DIFFICULTY_CONFIGS[CURRENT_DIFFICULTY] || DIFFICULTY_CONFIGS.easy;
+    killsMin: 15,
+    killsMax: 20,
+    spawnDelayMin: 50,
+    spawnDelayMax: 100,
+    enemyPool: ["fighter", "heavy", "fast", "rocketHeavy"],
+    hasBoss: true,
+  },
+}
 
 const ENEMY_TYPES = {
   fighter: {
@@ -119,9 +117,9 @@ const ENEMY_TYPES = {
     speed: 1.3,
     scoreValue: 260,
     image: "enemyShotgun",
-    shootDelay: 135,
-    bulletSpeed: 4.6,
-    pattern: "shotgun"
+    shootDelay: 300,
+    bulletSpeed: 2.0,
+    pattern: "shotgun",
   },
 
   rocketHeavy: {
@@ -129,12 +127,12 @@ const ENEMY_TYPES = {
     width: 86,
     height: 86,
     hp: 6,
-    speed: 1.0,
+    speed: 1.5,
     scoreValue: 360,
     image: "enemyRocketHeavy",
-    shootDelay: 115,
-    bulletSpeed: 4.2,
-    pattern: "rocket"
+    shootDelay: 150,
+    bulletSpeed: 3.0,
+    pattern: "rocket",
   },
 
   stealthRam: {
@@ -155,14 +153,49 @@ const ENEMY_TYPES = {
     type: "miniboss",
     width: 150,
     height: 120,
-    hp: 45,
+    hp: 150,
     speed: 1.4,
     scoreValue: 2500,
     image: "enemyMiniBoss",
     shootDelay: 75,
     bulletSpeed: 4.8,
     pattern: "miniboss",
-    boss: true
+    boss: true,
+  },
+
+  boss: {
+    type: "boss",
+    width: 320,
+    height: 220,
+    hp: 350,
+    speed: 1.0,
+    scoreValue: 8000,
+    image: "enemyBoss",
+    shootDelay: 200,
+    bulletSpeed: 2,
+    pattern: "boss",
+    boss: true,
+    finalBoss: true,
+  },
+}
+
+const PLAYER_IMAGE_BY_PLANE_ID = {
+  1: "./static/assets/planes/player_fighter1.png",
+  2: "./static/assets/planes/player_attacker.png",
+  3: "./static/assets/planes/player_interceptor.png",
+}
+
+const WEAPON_BY_PLANE_ID = {
+  1: {
+    weaponType: "single",
+    rocketEveryShots: 0,
+    autoCannonDelay: 0,
+  },
+
+  2: {
+    weaponType: "heavy_auto",
+    rocketEveryShots: 4,
+    autoCannonDelay: 70,
   },
 
    boss: {
@@ -1839,9 +1872,8 @@ function update() {
     return;
   }
 
-  if (game.paused) {
-    updateWarnings();
-    return;
+  if (game.state === "loading") {
+    drawOverlayBox("LOADING", "Preparing aircraft...")
   }
 
   updateTimer();
@@ -2528,7 +2560,7 @@ function drawPauseMenu() {
 }
 
 function drawLoseScreen() {
-  drawOverlayBox("MISSION FAILED", "Your aircraft was lost behind enemy lines.");
+  drawOverlayBox("MISSION FAILED", "Something went wrong. Try again or return to map.")
 
   const buttonX = GAME_WIDTH / 2 - 140;
   const startY = GAME_HEIGHT / 2 - 48;
