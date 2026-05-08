@@ -11,6 +11,7 @@ const GAME_HEIGHT = canvas.height
 
 const MAP_PAGE = "./map.html"
 const SHOP_PAGE = "./shop.html"
+const VICTORY_SPLASH_PAGE = "./victorysplash.html"
 
 const SELECTED_AIRPORT_KEY = "ironSkiesSelectedAirport"
 
@@ -220,6 +221,7 @@ const game = {
   score: 0,
   wave: 1,
   kills: 0,
+  victoryRedirectStarted: false,
   targetKills: randomInt(difficultyConfig.killsMin, difficultyConfig.killsMax),
   timeLimit: randomInt(difficultyConfig.timeMin, difficultyConfig.timeMax),
   timeLeft: 0,
@@ -589,6 +591,7 @@ function restartGame() {
   game.score = 0
   game.wave = 1
   game.kills = 0
+  game.victoryRedirectStarted = false
   game.targetKills = randomInt(difficultyConfig.killsMin, difficultyConfig.killsMax)
   game.timeLimit = randomInt(difficultyConfig.timeMin, difficultyConfig.timeMax)
   game.timeLeft = game.timeLimit
@@ -1070,7 +1073,14 @@ async function completeMission() {
     apiResultMessage = error.message || "Failed to save liberation."
   } finally {
     game.backendLiberationLoading = false
+  if (CURRENT_DIFFICULTY === "boss" && !game.victoryRedirectStarted) {
+    game.victoryRedirectStarted = true
+
+    setTimeout(() => {
+      window.location.href = VICTORY_SPLASH_PAGE
+    }, 1400)
   }
+}
 }
 
 function shootBullet() {
@@ -2312,9 +2322,14 @@ function drawWinScreen() {
   const buttonW = 280
   const buttonH = 55
 
-  drawMenuButton("Continue", buttonX, buttonY, buttonW, buttonH, () => {
-    goToMap()
-  })
+drawMenuButton("Continue", buttonX, buttonY, buttonW, buttonH, () => {
+  if (CURRENT_DIFFICULTY === "boss") {
+    window.location.href = VICTORY_SPLASH_PAGE
+    return
+  }
+
+  goToMap()
+})
 }
 
 function drawErrorScreen() {
