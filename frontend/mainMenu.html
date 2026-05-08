@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Iron Skies - Main Menu</title>
   <title>Iron Skies - Main Menu</title>
 
   <link rel="stylesheet" href="./static/css/variables.css" />
   <link rel="stylesheet" href="./static/css/mainMenu.css" />
   <link rel="stylesheet" href="./static/css/loading.css" />
 
-  <script type="module" src="./static/js/auth/pageGuard.js" defer></script>
+  <script type="module" src="./static/js/auth/pageGuard.js"></script>
 </head>
 
 <body>
@@ -27,12 +25,7 @@
     </video>
 
     <canvas id="backgroundCanvas"></canvas>
-    <canvas id="backgroundCanvas"></canvas>
 
-    <div class="dark-overlay"></div>
-    <div class="vignette"></div>
-    <div class="flicker"></div>
-  </div>
     <div class="dark-overlay"></div>
     <div class="vignette"></div>
     <div class="flicker"></div>
@@ -42,7 +35,9 @@
     <source src="./static/assets/audio/Ambient.wav" type="audio/wav" />
   </audio>
 
-  <div id="audioHint" data-i18n="enableSound">Click anywhere to enable sound</div>
+  <div id="audioHint" data-i18n="enableSound">
+    Click anywhere to enable sound
+  </div>
 
   <main class="main-menu">
     <section class="title-area">
@@ -51,28 +46,28 @@
       <h1 class="game-title" data-i18n="ironSkies">IRON SKIES</h1>
 
       <p class="subtitle" data-i18n="mainMenuSubtitle">
-		"You are about to embark upon the Great Crusade, toward which we have striven these many months"
+        "You are about to embark upon the Great Crusade, toward which we have striven these many months"
       </p>
     </section>
 
     <section class="menu-buttons">
-      <button class="menu-btn" onclick="continueGame()" data-i18n="continue">
+      <button class="menu-btn" type="button" onclick="continueGame()" data-i18n="continue">
         Continue
       </button>
 
-      <button class="menu-btn primary" onclick="newGame()" data-i18n="newGame">
+      <button class="menu-btn primary" type="button" onclick="newGame()" data-i18n="newGame">
         New Game
       </button>
 
-      <button class="menu-btn" onclick="goToSettings()" data-i18n="settings">
+      <button class="menu-btn" type="button" onclick="goToSettings()" data-i18n="settings">
         Settings
       </button>
 
-      <button class="menu-btn danger" onclick="signOut()" data-i18n="signOut">
+      <button class="menu-btn danger" type="button" onclick="signOut()" data-i18n="signOut">
         Sign Out
       </button>
 
-      <button class="menu-btn" onclick="goToPage('credits.html')" data-i18n="credits">
+      <button class="menu-btn" type="button" onclick="goToPage('credits.html')" data-i18n="credits">
         Credits
       </button>
     </section>
@@ -81,13 +76,7 @@
   <script src="./static/js/loading.js" defer></script>
   <script src="./static/js/settingsManager.js" defer></script>
   <script src="./static/js/languageManager.js" defer></script>
-  <script type="module" src="./static/js/mainMenu.js" defer></script>
-
-  <script>
-    function goToSettings() {
-      sessionStorage.setItem("settingsReturnTo", window.location.href);
-      window.location.href = "settings.html";
-    }
-  </script>
+  <script type="module" src="./static/js/mainMenu.js"></script>
 </body>
+
 </html>

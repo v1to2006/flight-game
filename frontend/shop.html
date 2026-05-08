@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html lang="fi">
-
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Aircraft Shop | Iron Skies</title>
 
-	<link rel="stylesheet" href="././static/css/variables.css" />
-	<link rel="stylesheet" href="././static/css/loading.css" />
-	<link rel="stylesheet" href="././static/css/shop.css" />
-  <link rel="stylesheet" href="././static/css/base.css" />
+  <link rel="stylesheet" href="./static/css/variables.css" />
+  <link rel="stylesheet" href="./static/css/base.css" />
+  <link rel="stylesheet" href="./static/css/loading.css" />
+  <link rel="stylesheet" href="./static/css/shop.css" />
 
-	<script type="module" src="././static/js/auth/pageGuard.js"></script>
+  <script type="module" src="./static/js/auth/pageGuard.js"></script>
 </head>
 
-
 <body>
-	<main class="shop-page">
-		<div class="shop-video-background">
-			<video autoplay muted loop playsinline>
-				<source src="./static/assets/videos/Hangar.mp4" type="video/mp4" />
-			</video>
-		</div>
+  <main class="shop-page">
+    <div class="shop-video-background" aria-hidden="true">
+      <video autoplay muted loop playsinline>
+        <source src="./static/assets/videos/Hangar.mp4" type="video/mp4" />
+      </video>
+    </div>
 
     <header class="shop-topbar">
       <div class="shop-topbar-left">
-        <a class="topbar-button" href="./map.html" data-i18n="returnToMap">Return to Map</a>
+        <a class="topbar-button" href="./map.html" data-i18n="returnToMap">
+          Return to Map
+        </a>
 
-        <button class="topbar-button" type="button" onclick="goToSettings()" data-i18n="settings">
+        <button
+          id="settingsButton"
+          class="topbar-button"
+          type="button"
+          data-i18n="settings"
+        >
           Settings
         </button>
       </div>
@@ -44,9 +49,28 @@
 
     <section class="shop-hero">
       <header class="shop-title">
+        <p class="shop-eyebrow">Iron Skies</p>
         <h1 data-i18n="shop">Shop</h1>
         <p id="moneyText" class="money-text">Money: 0</p>
+        <p id="shopMessage" class="shop-message hidden" role="status" aria-live="polite"></p>
       </header>
+
+      <section class="main-showcase">
+        <div class="showcase-bg-rings" aria-hidden="true"></div>
+
+        <div class="showcase-plane">
+          <img
+            id="previewImage"
+            src="./static/assets/planes/player_fighter1.png"
+            alt="Selected plane preview"
+          />
+        </div>
+
+        <div class="showcase-text">
+          <h2 id="previewName">Starter Fighter</h2>
+          <p id="previewDescription">Balanced starter fighter.</p>
+        </div>
+      </section>
 
       <aside class="stats-card">
         <div class="stats-card-header">
@@ -66,27 +90,27 @@
           <div class="stats-face stats-front">
             <div class="stat-row">
               <span data-i18n="hp">HP</span>
-              <strong id="statHp">5 x1.00</strong>
+              <strong id="statHp">-</strong>
             </div>
 
             <div class="stat-row">
               <span data-i18n="speed">Speed</span>
-              <strong id="statSpeed">6 x1.00</strong>
+              <strong id="statSpeed">-</strong>
             </div>
 
             <div class="stat-row">
               <span data-i18n="fireRate">Fire Rate</span>
-              <strong id="statFireRate">x1.00</strong>
+              <strong id="statFireRate">-</strong>
             </div>
 
             <div class="stat-row">
               <span data-i18n="damage">Damage</span>
-              <strong id="statDamage">1 x1.00</strong>
+              <strong id="statDamage">-</strong>
             </div>
 
             <div class="stat-row">
               <span data-i18n="status">Status</span>
-              <strong id="statStatus">Selected</strong>
+              <strong id="statStatus">-</strong>
             </div>
           </div>
 
@@ -98,49 +122,18 @@
           </div>
         </div>
       </aside>
-
-			<section class="main-showcase">
-				<div class="showcase-bg-rings"></div>
-
-        <div class="showcase-plane">
-          <img
-            id="previewImage"
-            src="./static/assets/planes/player_fighter1.png"
-            alt="Selected plane preview"
-          />
-        </div>
-
-        <div class="showcase-text">
-          <h2 id="previewName">Hawk Fighter</h2>
-          <p id="previewDescription">Balanced starter fighter.</p>
-        </div>
-      </section>
     </section>
 
     <section class="bottom-shop">
       <div class="shop-divider"><span>✦</span></div>
       <div id="planeCards" class="plane-cards"></div>
     </section>
-
-    <button id="resetButton" class="reset-button" data-i18n="resetTestSave">
-      Reset test save
-    </button>
   </main>
 
   <script src="./static/js/loading.js" defer></script>
   <script src="./static/js/settingsManager.js" defer></script>
   <script src="./static/js/languageManager.js" defer></script>
-  <script src="./static/js/state.js" defer></script>
-  <script src="./static/js/planes.js" defer></script>
-  <script src="./static/js/shop.js" defer></script>
+  <script type="module" src="./static/js/shop.js"></script>
   <script src="./static/js/shopmusic.js" defer></script>
-
-  <script>
-    function goToSettings() {
-      sessionStorage.setItem("settingsReturnTo", window.location.href);
-      window.location.href = "settings.html";
-    }
-  </script>
 </body>
-
 </html>

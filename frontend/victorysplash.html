@@ -1,52 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>The Fall of Iron Sky</title>
+  <title>Iron Skies - Victory</title>
 
-  <link rel="stylesheet" href="static/css/variables.css" />
-  <link rel="stylesheet" href="static/css/victorysplash.css" />
+  <link rel="stylesheet" href="./static/css/variables.css" />
+  <link rel="stylesheet" href="./static/css/splash.css" />
+
+  <script type="module" src="./static/js/auth/pageGuard.js"></script>
 </head>
-<body>
-  <main class="splash-page victory-page">
 
-    <video class="splash-video" autoplay muted loop playsinline>
-      <source src="static/assets/videos/skyfall.mp4" type="video/mp4" />
-    </video>
+<body class="splash-page splash-page--victory">
+  <main class="splash-card splash-card--victory">
+    <p class="splash-eyebrow">OPERATION COMPLETE</p>
 
-    <div class="splash-darkener victory-darkener"></div>
-    <div class="splash-grain"></div>
+    <h1>BERLIN HAS FALLEN</h1>
 
-    <section class="splash-panel">
-      <p class="splash-kicker">FINAL OPERATION REPORT</p>
+    <div class="splash-divider"></div>
 
-      <h1 class="splash-title">THE FALL OF IRON SKY</h1>
+    <p class="splash-text">
+      The final enemy stronghold has been destroyed. Occupied airfields across Europe
+      are free once again.
+    </p>
 
-      <p class="splash-lead">
-        The enemy super project has fallen from the sky. Their command network is burning,
-        their weapons are silent, and the battlefield finally belongs to the survivors.
-      </p>
+    <p class="splash-text">
+      Helsinki stood. Europe fought back. Victory belongs to the skies.
+    </p>
 
-      <div class="splash-data">
-        <p><span>Final Report</span> Hostile air weapon destroyed</p>
-        <p><span>Allied Command</span> Victory confirmed</p>
-        <p><span>Status</span> Operation Complete</p>
-      </div>
+    <div class="splash-actions">
+      <button class="splash-button splash-button--primary" type="button" data-new-campaign>
+        NEW CAMPAIGN
+      </button>
 
-      <div class="splash-actions">
-        <a class="splash-btn splash-btn-primary" href="./endingScene.html">Continue</a>
-        <a class="splash-btn splash-btn-secondary" href="./map.html">Return to Map</a>
-      </div>
-    </section>
-
-<audio id="pageMusic" loop preload="auto">
-  <source src="static/assets/audio/enddust.wav" type="audio/wav" />
-</audio>
-
+      <button class="splash-button" type="button" data-back-menu>
+        MAIN MENU
+      </button>
+    </div>
   </main>
 
-  <script src="static/js/victorysplash.js"></script>
+  <script type="module">
+    import { APP_CONFIG } from "./static/js/config.js"
+
+    const newCampaignButton = document.querySelector("[data-new-campaign]")
+    const backMenuButton = document.querySelector("[data-back-menu]")
+
+    newCampaignButton.addEventListener("click", () => {
+      window.location.href = "./startsplash.html"
+    })
+
+    backMenuButton.addEventListener("click", () => {
+      window.location.href = APP_CONFIG.routes.mainMenu
+    })
+  </script>
 </body>
+
 </html>

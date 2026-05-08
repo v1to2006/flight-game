@@ -1,5 +1,7 @@
 import { apiRequest } from "./apiClient.js";
 
+const settingsButton = document.getElementById("settingsButton");
+
 const moneyText = document.getElementById("moneyText");
 const shopMessage = document.getElementById("shopMessage");
 const planeCards = document.getElementById("planeCards");
@@ -24,20 +26,27 @@ const MAX_UPGRADE_LEVEL = 5;
 const UPGRADE_DEFS = [
   {
     id: "hp",
+    apiStat: "hp",
     levelKey: "hpLevel",
+    snakeLevelKey: "hp_level",
   },
   {
     id: "speed",
+    apiStat: "speed",
     levelKey: "speedLevel",
+    snakeLevelKey: "speed_level",
   },
   {
     id: "fireRate",
     apiStat: "firerate",
     levelKey: "firerateLevel",
+    snakeLevelKey: "firerate_level",
   },
   {
     id: "damage",
+    apiStat: "damage",
     levelKey: "damageLevel",
+    snakeLevelKey: "damage_level",
   },
 ];
 
@@ -52,7 +61,7 @@ const PLANE_UI_BY_ID = {
   },
   3: {
     image: "./static/assets/planes/player_attacker.png",
-    description: "Heavy aircraft with strong armor and powerful damage output.",
+    description: "Strong armored aircraft with powerful damage output.",
   },
 };
 
@@ -69,15 +78,26 @@ let selectedPreviewPlaneId = null;
 let upgradePanelOpen = false;
 let isBusy = false;
 
-function tr(key) {
-  return typeof window.t === "function" ? window.t(key) : key;
+function tr(key, fallback = key) {
+  if (typeof window.t !== "function") {
+    return fallback;
+  }
+
+  const translated = window.t(key);
+
+  if (!translated || translated === key) {
+    return fallback;
+  }
+
+  return translated;
 }
 
 async function initShop() {
-  try {
-    setupUpgradeFlipButton();
+  setupSettingsButton();
+  setupUpgradeFlipButton();
 
-    planeCards.innerHTML = `<p class="shop-loading-text">${tr("loadingShop")}</p>`;
+  try {
+    planeCards.innerHTML = `<p class="shop-loading-text">${tr("loadingShop", "Loading shop...")}</p>`;
 
     await loadShopData();
     renderShop();
@@ -85,32 +105,42 @@ async function initShop() {
     console.error(error);
 
     planeCards.innerHTML = "";
-    previewName.textContent = tr("shopUnavailable");
-    previewDescription.textContent = tr("couldNotLoadShop");
+    previewName.textContent = tr("shopUnavailable", "Shop unavailable");
+    previewDescription.textContent = tr("couldNotLoadShop", "Could not load shop data.");
 
     showMessage(error.message);
   }
 }
 
+function setupSettingsButton() {
+  if (!settingsButton) return;
+
+  settingsButton.addEventListener("click", () => {
+    sessionStorage.setItem("settingsReturnTo", window.location.href);
+    window.location.href = "settings.html";
+  });
+}
+
 async function loadShopData() {
-  const [profileResponse, ownedPlanesResponse, shopPlanesResponse] =
-    await Promise.all([
-      apiRequest("/player/profile"),
-      apiRequest("/player/planes"),
-      apiRequest("/player/planes/shop"),
-    ]);
+  const [profileResponse, ownedPlanesResponse, shopPlanesResponse] = await Promise.all([
+    apiRequest("/player/profile"),
+    apiRequest("/player/planes"),
+    apiRequest("/player/planes/shop"),
+  ]);
 
   player = profileResponse.player || profileResponse.profile || profileResponse;
 
   ownedPlanes =
     ownedPlanesResponse.planes ||
     ownedPlanesResponse.ownedPlanes ||
+    ownedPlanesResponse.owned_planes ||
     ownedPlanesResponse ||
     [];
 
   shopPlanes =
     shopPlanesResponse.planes ||
     shopPlanesResponse.shopPlanes ||
+    shopPlanesResponse.shop_planes ||
     shopPlanesResponse ||
     [];
 
@@ -118,36 +148,31 @@ async function loadShopData() {
   if (!Array.isArray(shopPlanes)) shopPlanes = [];
 
   const selectedPlane = ownedPlanes.find((plane) => plane.selected);
+
   const currentPlane = ownedPlanes.find(
-    (plane) => Number(plane.playerPlaneId) === Number(player.currentPlayerPlaneId)
+    (plane) => Number(getPlayerPlaneId(plane)) === Number(getCurrentPlayerPlaneId())
   );
 
   const fallbackPlane = currentPlane || selectedPlane || ownedPlanes[0] || shopPlanes[0];
 
   if (!selectedPreviewPlaneId && fallbackPlane) {
-    selectedPreviewPlaneId = fallbackPlane.planeId;
+    selectedPreviewPlaneId = getPlaneId(fallbackPlane);
   }
 }
 
 function renderShop() {
   if (!player) return;
 
-  moneyText.textContent = `${tr("money")}: ${player.money}`;
+  moneyText.textContent = `${tr("money", "Money")}: ${formatMoney(getPlayerMoney())}`;
 
   renderPreview();
   renderPlaneCards();
   renderUpgradePanel();
-
-  if (upgradePanelOpen) {
-    toggleUpgradeButton.textContent = tr("stats");
-    statsPanelTitle.textContent = tr("upgradeStats");
-  } else {
-    toggleUpgradeButton.textContent = tr("upgrades");
-    statsPanelTitle.textContent = tr("aircraftStats");
-  }
+  updateStatsPanelText();
 
   if (typeof window.applySavedLanguage === "function") {
     window.applySavedLanguage();
+    updateStatsPanelText();
   }
 }
 
@@ -155,8 +180,8 @@ function renderPreview() {
   const shopPlane = getPreviewShopPlane();
 
   if (!shopPlane) {
-    previewName.textContent = tr("noAircraftFound");
-    previewDescription.textContent = tr("noAircraftData");
+    previewName.textContent = tr("noAircraftFound", "No aircraft found");
+    previewDescription.textContent = tr("noAircraftData", "No aircraft data available.");
 
     statHp.textContent = "-";
     statSpeed.textContent = "-";
@@ -166,19 +191,18 @@ function renderPreview() {
     return;
   }
 
-  const ownedPlane = getOwnedPlaneByPlaneId(shopPlane.planeId);
+  const planeId = getPlaneId(shopPlane);
+  const ownedPlane = getOwnedPlaneByPlaneId(planeId);
   const ui = getPlaneUiData(shopPlane);
 
   const stats = getPlaneStatsForDisplay(shopPlane, ownedPlane);
   const multipliers = getPlaneMultipliersForDisplay(ownedPlane);
 
-  const isSelected =
-    ownedPlane &&
-    Number(ownedPlane.playerPlaneId) === Number(player.currentPlayerPlaneId);
+  const isSelected = ownedPlane && isOwnedPlaneSelected(ownedPlane);
 
-  previewName.textContent = shopPlane.name;
+  previewName.textContent = getPlaneName(shopPlane);
   previewImage.src = ui.image;
-  previewImage.alt = `${shopPlane.name} preview`;
+  previewImage.alt = `${getPlaneName(shopPlane)} preview`;
   previewDescription.textContent = ui.description;
 
   statHp.textContent = `${formatNumber(stats.hp)} x${formatMultiplier(multipliers.hp)}`;
@@ -187,11 +211,11 @@ function renderPreview() {
   statDamage.textContent = `${formatNumber(stats.damage)} x${formatMultiplier(multipliers.damage)}`;
 
   if (isSelected) {
-    statStatus.textContent = tr("selected");
+    statStatus.textContent = tr("selected", "Selected");
   } else if (ownedPlane) {
-    statStatus.textContent = tr("owned");
+    statStatus.textContent = tr("owned", "Owned");
   } else {
-    statStatus.textContent = `${tr("locked")} - ${shopPlane.price}`;
+    statStatus.textContent = `${tr("locked", "Locked")} - ${formatMoney(getPlanePrice(shopPlane))}`;
   }
 }
 
@@ -199,19 +223,20 @@ function renderPlaneCards() {
   planeCards.innerHTML = "";
 
   if (shopPlanes.length === 0) {
-    planeCards.innerHTML = `<p class="shop-loading-text">${tr("noPlanesFound")}</p>`;
+    planeCards.innerHTML = `<p class="shop-loading-text">${tr("noPlanesFound", "No planes found.")}</p>`;
     return;
   }
 
   for (const shopPlane of shopPlanes) {
-    const ownedPlane = getOwnedPlaneByPlaneId(shopPlane.planeId);
+    const planeId = getPlaneId(shopPlane);
+    const ownedPlane = getOwnedPlaneByPlaneId(planeId);
 
     const isOwned = Boolean(ownedPlane);
-    const isSelected =
-      ownedPlane &&
-      Number(ownedPlane.playerPlaneId) === Number(player.currentPlayerPlaneId);
+    const isSelected = ownedPlane && isOwnedPlaneSelected(ownedPlane);
 
-    const canAfford = Number(player.money) >= Number(shopPlane.price);
+    const price = getPlanePrice(shopPlane);
+    const canAfford = Number(getPlayerMoney()) >= Number(price);
+
     const ui = getPlaneUiData(shopPlane);
     const stats = getPlaneStatsForDisplay(shopPlane, ownedPlane);
 
@@ -222,7 +247,7 @@ function renderPlaneCards() {
     if (isSelected) card.classList.add("selected");
 
     card.addEventListener("click", () => {
-      selectedPreviewPlaneId = shopPlane.planeId;
+      selectedPreviewPlaneId = planeId;
       renderShop();
     });
 
@@ -231,50 +256,51 @@ function renderPlaneCards() {
 
     const image = document.createElement("img");
     image.src = ui.image;
-    image.alt = shopPlane.name;
+    image.alt = getPlaneName(shopPlane);
 
     imageBox.appendChild(image);
 
     const title = document.createElement("h3");
-    title.textContent = shopPlane.name;
+    title.textContent = getPlaneName(shopPlane);
 
-    const price = document.createElement("p");
-    price.className = "card-price";
-    price.textContent =
-      Number(shopPlane.price) === 0
-        ? tr("starterPlane")
-        : `${tr("price")}: ${shopPlane.price}`;
+    const priceElement = document.createElement("p");
+    priceElement.className = "card-price";
+    priceElement.textContent =
+      Number(price) === 0
+        ? tr("starterPlane", "Starter plane")
+        : `${tr("price", "Price")}: ${formatMoney(price)}`;
 
     const statsText = document.createElement("p");
     statsText.className = "card-stats";
     statsText.textContent =
-      `${tr("hp")} ${formatNumber(stats.hp)} | ` +
-      `${tr("speed")} ${formatNumber(stats.speed)} | ` +
-      `${tr("damage")} ${formatNumber(stats.damage)}`;
+      `${tr("hp", "HP")} ${formatNumber(stats.hp)} | ` +
+      `${tr("speed", "Speed")} ${formatNumber(stats.speed)} | ` +
+      `${tr("damage", "Damage")} ${formatNumber(stats.damage)}`;
 
     const status = document.createElement("p");
     status.className = "card-status";
 
     if (isSelected) {
-      status.textContent = tr("currentlySelected");
+      status.textContent = tr("currentlySelected", "Currently selected");
     } else if (isOwned) {
-      status.textContent = tr("owned");
+      status.textContent = tr("owned", "Owned");
     } else if (canAfford) {
-      status.textContent = tr("canBePurchased");
+      status.textContent = tr("canBePurchased", "Available for purchase");
     } else {
-      status.textContent = tr("locked");
+      status.textContent = tr("locked", "Locked");
     }
 
     const button = document.createElement("button");
     button.className = "card-button";
+    button.type = "button";
 
     if (isSelected) {
-      button.textContent = tr("selected");
+      button.textContent = tr("selected", "Selected");
       button.disabled = true;
     } else if (isOwned) {
-      button.textContent = tr("select");
+      button.textContent = tr("select", "Select");
     } else {
-      button.textContent = canAfford ? tr("buy") : tr("notEnoughMoney");
+      button.textContent = canAfford ? tr("buy", "Buy") : tr("notEnoughMoney", "Not enough money");
       button.disabled = !canAfford;
     }
 
@@ -285,7 +311,7 @@ function renderPlaneCards() {
 
     card.appendChild(imageBox);
     card.appendChild(title);
-    card.appendChild(price);
+    card.appendChild(priceElement);
     card.appendChild(statsText);
     card.appendChild(status);
     card.appendChild(button);
@@ -302,22 +328,26 @@ function renderUpgradePanel() {
   if (!ownedPlane) {
     const lockedMessage = document.createElement("p");
     lockedMessage.className = "upgrade-empty-message";
-    lockedMessage.textContent = tr("buyAircraftBeforeUpgrading");
+    lockedMessage.textContent = tr(
+      "buyAircraftBeforeUpgrading",
+      "Buy this aircraft before upgrading it."
+    );
 
     upgradeRows.appendChild(lockedMessage);
     return;
   }
 
   for (const upgrade of UPGRADE_DEFS) {
-    const statKey = upgrade.apiStat || upgrade.id;
+    const statKey = upgrade.apiStat;
 
-    const level = Number(ownedPlane.upgrades?.[upgrade.levelKey] || 0);
-    const multiplier = Number(ownedPlane.multipliers?.[statKey] || 1);
+    const level = getUpgradeLevel(ownedPlane, upgrade);
+    const multiplier = getUpgradeMultiplier(ownedPlane, statKey);
 
     const isMaxed = level >= MAX_UPGRADE_LEVEL;
     const upgradePrice = getUpgradePrice(ownedPlane, upgrade);
+
     const canAfford =
-      upgradePrice !== null && Number(player.money) >= Number(upgradePrice);
+      upgradePrice !== null && Number(getPlayerMoney()) >= Number(upgradePrice);
 
     const row = document.createElement("div");
     row.className = "upgrade-row";
@@ -327,11 +357,11 @@ function renderUpgradePanel() {
 
     const name = document.createElement("span");
     name.className = "upgrade-name";
-    name.textContent = `${tr(upgrade.id)} x${formatMultiplier(multiplier)}`;
+    name.textContent = `${tr(upgrade.id, getUpgradeFallbackName(upgrade.id))} x${formatMultiplier(multiplier)}`;
 
     const levelText = document.createElement("span");
     levelText.className = "upgrade-level";
-    levelText.textContent = `${tr("levelShort")} ${level}/${MAX_UPGRADE_LEVEL}`;
+    levelText.textContent = `${tr("levelShort", "Lvl")} ${level}/${MAX_UPGRADE_LEVEL}`;
 
     top.appendChild(name);
     top.appendChild(levelText);
@@ -352,25 +382,24 @@ function renderUpgradePanel() {
 
     const button = document.createElement("button");
     button.className = "upgrade-buy-button";
+    button.type = "button";
 
     if (isMaxed) {
-      button.textContent = tr("maxed");
+      button.textContent = tr("maxed", "Maxed");
       button.disabled = true;
     } else if (upgradePrice === null) {
-      button.textContent = tr("upgrade");
-      button.disabled = false;
-      button.textContent = "Price unavailable";
+      button.textContent = tr("priceUnavailable", "Price unavailable");
       button.disabled = true;
     } else {
       button.textContent = canAfford
-        ? `${tr("upgrade")} - ${upgradePrice}`
-        : `${tr("need")} ${upgradePrice}`;
+        ? `${tr("upgrade", "Upgrade")} - ${formatMoney(upgradePrice)}`
+        : `${tr("need", "Need")} ${formatMoney(upgradePrice)}`;
 
       button.disabled = !canAfford;
     }
 
     button.addEventListener("click", async () => {
-      await handleUpgradeClick(ownedPlane.playerPlaneId, statKey);
+      await handleUpgradeClick(getPlayerPlaneId(ownedPlane), statKey);
     });
 
     row.appendChild(top);
@@ -388,10 +417,10 @@ async function handlePlaneButtonClick(shopPlane, ownedPlane) {
     setBusy(true);
 
     if (ownedPlane) {
-      await selectOwnedPlane(ownedPlane.playerPlaneId);
+      await selectOwnedPlane(getPlayerPlaneId(ownedPlane));
 
-      selectedPreviewPlaneId = shopPlane.planeId;
-      showMessage(tr("planeSelected"), "success");
+      selectedPreviewPlaneId = getPlaneId(shopPlane);
+      showMessage(tr("planeSelected", "Plane selected."), "success");
 
       await refreshShop();
       return;
@@ -400,21 +429,21 @@ async function handlePlaneButtonClick(shopPlane, ownedPlane) {
     await apiRequest("/player/planes/buy", {
       method: "POST",
       body: JSON.stringify({
-        planeId: shopPlane.planeId,
+        planeId: getPlaneId(shopPlane),
       }),
     });
 
     await loadShopData();
 
-    const purchasedPlane = getOwnedPlaneByPlaneId(shopPlane.planeId);
+    const purchasedPlane = getOwnedPlaneByPlaneId(getPlaneId(shopPlane));
 
     if (purchasedPlane) {
-      await selectOwnedPlane(purchasedPlane.playerPlaneId);
+      await selectOwnedPlane(getPlayerPlaneId(purchasedPlane));
     }
 
-    selectedPreviewPlaneId = shopPlane.planeId;
+    selectedPreviewPlaneId = getPlaneId(shopPlane);
 
-    showMessage(tr("planePurchased"), "success");
+    showMessage(tr("planePurchased", "Plane purchased."), "success");
     await refreshShop();
   } catch (error) {
     showMessage(error.message);
@@ -446,7 +475,7 @@ async function handleUpgradeClick(playerPlaneId, stat) {
       }),
     });
 
-    showMessage(tr("upgradePurchased"), "success");
+    showMessage(tr("upgradePurchased", "Upgrade purchased."), "success");
     await refreshShop();
   } catch (error) {
     showMessage(error.message);
@@ -465,25 +494,35 @@ function setupUpgradeFlipButton() {
 
   toggleUpgradeButton.addEventListener("click", () => {
     upgradePanelOpen = !upgradePanelOpen;
-
-    if (upgradePanelOpen) {
-      statsFlipCard.classList.add("flipped");
-      toggleUpgradeButton.textContent = tr("stats");
-      statsPanelTitle.textContent = tr("upgradeStats");
-    } else {
-      statsFlipCard.classList.remove("flipped");
-      toggleUpgradeButton.textContent = tr("upgrades");
-      statsPanelTitle.textContent = tr("aircraftStats");
-    }
+    statsFlipCard.classList.toggle("flipped", upgradePanelOpen);
+    updateStatsPanelText();
   });
 }
 
+function updateStatsPanelText() {
+  if (!toggleUpgradeButton || !statsPanelTitle) return;
+
+  if (upgradePanelOpen) {
+    toggleUpgradeButton.dataset.i18n = "stats";
+    statsPanelTitle.dataset.i18n = "upgradeStats";
+
+    toggleUpgradeButton.textContent = tr("stats", "Stats");
+    statsPanelTitle.textContent = tr("upgradeStats", "Upgrade Stats");
+  } else {
+    toggleUpgradeButton.dataset.i18n = "upgrades";
+    statsPanelTitle.dataset.i18n = "aircraftStats";
+
+    toggleUpgradeButton.textContent = tr("upgrades", "Upgrades");
+    statsPanelTitle.textContent = tr("aircraftStats", "Aircraft Stats");
+  }
+}
+
 function getOwnedPlaneByPlaneId(planeId) {
-  return ownedPlanes.find((plane) => Number(plane.planeId) === Number(planeId));
+  return ownedPlanes.find((plane) => Number(getPlaneId(plane)) === Number(planeId));
 }
 
 function getShopPlaneByPlaneId(planeId) {
-  return shopPlanes.find((plane) => Number(plane.planeId) === Number(planeId));
+  return shopPlanes.find((plane) => Number(getPlaneId(plane)) === Number(planeId));
 }
 
 function getPreviewShopPlane() {
@@ -491,83 +530,147 @@ function getPreviewShopPlane() {
 }
 
 function getPlaneUiData(plane) {
-  if (PLANE_UI_BY_ID[plane.planeId]) {
-    return PLANE_UI_BY_ID[plane.planeId];
+  const planeId = Number(getPlaneId(plane));
+
+  if (PLANE_UI_BY_ID[planeId]) {
+    return PLANE_UI_BY_ID[planeId];
   }
 
-  const name = String(plane.name || "").toLowerCase();
+  const name = String(getPlaneName(plane)).toLowerCase();
 
   if (name.includes("interceptor") || name.includes("swift")) {
-    return {
-      image: "./static/assets/planes/player_interceptor.png",
-      description: "Fast aircraft with twin guns and alternating wing rockets.",
-    };
+    return PLANE_UI_BY_ID[2];
   }
 
   if (name.includes("attacker") || name.includes("iron")) {
-    return {
-      image: "./static/assets/planes/player_attacker.png",
-      description: "Heavy aircraft with strong armor and powerful damage output.",
-    };
+    return PLANE_UI_BY_ID[3];
   }
 
   if (name.includes("fighter") || name.includes("hawk")) {
-    return {
-      image: "./static/assets/planes/player_fighter1.png",
-      description: "Balanced starter fighter. Reliable, simple, and easy to control.",
-    };
+    return PLANE_UI_BY_ID[1];
   }
 
   return DEFAULT_PLANE_UI;
 }
 
 function getPlaneStatsForDisplay(shopPlane, ownedPlane) {
-  if (ownedPlane?.stats) {
+  const ownedStats = ownedPlane?.stats || ownedPlane?.finalStats || ownedPlane?.final_stats;
+
+  if (ownedStats) {
     return {
-      hp: ownedPlane.stats.hp,
-      speed: ownedPlane.stats.speed,
-      damage: ownedPlane.stats.damage,
-      firerate: ownedPlane.stats.firerate,
+      hp: ownedStats.hp || 0,
+      speed: ownedStats.speed || 0,
+      damage: ownedStats.damage || 0,
+      firerate: ownedStats.firerate || ownedStats.fireRate || ownedStats.fire_rate || 0,
     };
   }
 
+  const baseStats = shopPlane.baseStats || shopPlane.base_stats || shopPlane;
+
   return {
-    hp: shopPlane.baseStats?.hp || 0,
-    speed: shopPlane.baseStats?.speed || 0,
-    damage: shopPlane.baseStats?.damage || 0,
-    firerate: shopPlane.baseStats?.firerate || 0,
+    hp: baseStats.hp || 0,
+    speed: baseStats.speed || 0,
+    damage: baseStats.damage || 0,
+    firerate: baseStats.firerate || baseStats.fireRate || baseStats.fire_rate || 0,
   };
 }
 
 function getPlaneMultipliersForDisplay(ownedPlane) {
+  const multipliers = ownedPlane?.multipliers || ownedPlane?.upgradeMultipliers || ownedPlane?.upgrade_multipliers;
+
   return {
-    hp: ownedPlane?.multipliers?.hp || 1,
-    speed: ownedPlane?.multipliers?.speed || 1,
-    damage: ownedPlane?.multipliers?.damage || 1,
-    firerate: ownedPlane?.multipliers?.firerate || 1,
+    hp: multipliers?.hp || 1,
+    speed: multipliers?.speed || 1,
+    damage: multipliers?.damage || 1,
+    firerate: multipliers?.firerate || multipliers?.fireRate || multipliers?.fire_rate || 1,
   };
 }
 
-function getUpgradePrice(ownedPlane, upgrade, currentLevel) {
-  const statKey = upgrade.apiStat || upgrade.id;
+function getUpgradePrice(ownedPlane, upgrade) {
+  const statKey = upgrade.apiStat;
+  const uiKey = upgrade.id;
 
-  const directPrice =
-    ownedPlane.nextUpgradePrices?.[statKey] ??
-    ownedPlane.nextUpgradePrices?.[upgrade.id] ??
-    ownedPlane.upgradePrices?.[statKey] ??
-    ownedPlane.upgradePrices?.[upgrade.id] ??
-    ownedPlane.upgradeCosts?.[statKey] ??
-    ownedPlane.upgradeCosts?.[upgrade.id];
+  const priceObjects = [
+    ownedPlane.nextUpgradePrices,
+    ownedPlane.next_upgrade_prices,
+    ownedPlane.upgradePrices,
+    ownedPlane.upgrade_prices,
+    ownedPlane.upgradeCosts,
+    ownedPlane.upgrade_costs,
+  ];
 
-  if (directPrice !== undefined && directPrice !== null) {
-    return Number(directPrice);
+  const possiblePrices = [];
+
+  for (const priceObject of priceObjects) {
+    if (!priceObject) continue;
+
+    possiblePrices.push(priceObject[statKey]);
+    possiblePrices.push(priceObject[uiKey]);
   }
 
-  if (price === undefined || price === null) {
-    return null;
+  const price = possiblePrices.find(
+    (value) => value !== undefined && value !== null && !Number.isNaN(Number(value))
+  );
+
+  return price === undefined ? null : Number(price);
+}
+
+function getUpgradeLevel(ownedPlane, upgrade) {
+  return Number(
+    ownedPlane.upgrades?.[upgrade.levelKey] ??
+    ownedPlane.upgrades?.[upgrade.snakeLevelKey] ??
+    ownedPlane[upgrade.levelKey] ??
+    ownedPlane[upgrade.snakeLevelKey] ??
+    0
+  );
+}
+
+function getUpgradeMultiplier(ownedPlane, statKey) {
+  const multipliers = getPlaneMultipliersForDisplay(ownedPlane);
+  return Number(multipliers[statKey] || 1);
+}
+
+function getUpgradeFallbackName(upgradeId) {
+  const names = {
+    hp: "HP",
+    speed: "Speed",
+    fireRate: "Fire Rate",
+    damage: "Damage",
+  };
+
+  return names[upgradeId] || upgradeId;
+}
+
+function isOwnedPlaneSelected(ownedPlane) {
+  if (ownedPlane.selected === true) {
+    return true;
   }
 
-  return Number(price);
+  return Number(getPlayerPlaneId(ownedPlane)) === Number(getCurrentPlayerPlaneId());
+}
+
+function getPlaneId(plane) {
+  return plane?.planeId ?? plane?.plane_id ?? plane?.id;
+}
+
+function getPlayerPlaneId(plane) {
+  return plane?.playerPlaneId ?? plane?.player_plane_id ?? plane?.ownedPlaneId ?? plane?.owned_plane_id ?? plane?.id;
+}
+
+function getCurrentPlayerPlaneId() {
+  return player?.currentPlayerPlaneId ?? player?.current_player_plane_id;
+}
+
+function getPlayerMoney() {
+  return Number(player?.money ?? player?.coins ?? 0);
+}
+
+function getPlanePrice(plane) {
+  return Number(plane?.price ?? plane?.unlockPrice ?? plane?.unlock_price ?? plane?.cost ?? 0);
+}
+
+function getPlaneName(plane) {
+  return plane?.name || plane?.planeName || plane?.plane_name || "Aircraft";
 }
 
 function showMessage(message, type = "error") {
@@ -601,6 +704,10 @@ function formatNumber(value) {
 
 function formatMultiplier(value) {
   return Number(value || 1).toFixed(2);
+}
+
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString("en-US");
 }
 
 document.addEventListener("DOMContentLoaded", initShop);

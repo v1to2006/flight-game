@@ -1,52 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Iron Sky Project</title>
+  <title>Iron Skies - Mission Briefing</title>
 
-  <link rel="stylesheet" href="static/css/variables.css" />
-  <link rel="stylesheet" href="static/css/startsplash.css" />
+  <link rel="stylesheet" href="./static/css/variables.css" />
+  <link rel="stylesheet" href="./static/css/splash.css" />
+
+  <script type="module" src="./static/js/auth/pageGuard.js"></script>
 </head>
-<body>
-  <main class="splash-page">
 
-    <video class="splash-video" autoplay muted loop playsinline>
-      <source src="static/assets/videos/fire.mp4" type="video/mp4" />
-    </video>
+<body class="splash-page splash-page--start">
+  <main class="splash-card">
+    <p class="splash-eyebrow">MISSION BRIEFING</p>
 
-    <div class="splash-darkener"></div>
-    <div class="splash-grain"></div>
+    <h1>HELSINKI IS UNDER ATTACK</h1>
 
-    <section class="splash-panel">
-      <p class="splash-kicker">CLASSIFIED MISSION FILE</p>
+    <div class="splash-divider"></div>
 
-      <h1 class="splash-title">IRON SKY PROJECT</h1>
+    <p class="splash-text">
+      Enemy forces have reached Finnish airspace. Helsinki-Vantaa is the last shield
+      standing between the homeland and occupation.
+    </p>
 
-      <p class="splash-lead">
-        Enemy forces have activated a secret aerial super project. Your mission is to enter hostile
-        airspace, destroy the enemy aircraft network, and stop the weapon before it reaches full power.
-      </p>
+    <p class="splash-text">
+      Take off immediately. Defend Helsinki. Then push the enemy back across Europe.
+    </p>
 
-      <div class="splash-data">
-        <p><span>Operation</span> Iron Sky</p>
-        <p><span>Objective</span> Eliminate Super Project</p>
-        <p><span>Status</span> Ready for Launch</p>
-      </div>
+    <div class="splash-actions">
+      <button class="splash-button splash-button--primary" type="button" data-start-campaign>
+        DEFEND HELSINKI
+      </button>
 
-      <div class="splash-actions">
-        <a class="splash-btn splash-btn-primary" href="./map.html">Begin Mission</a>
-        <a class="splash-btn splash-btn-secondary" href="./map.html">Return to Map</a>
-      </div>
-    </section>
+      <button class="splash-button" type="button" data-back-menu>
+        MAIN MENU
+      </button>
+    </div>
 
-<audio id="pageMusic" loop preload="auto">
-  <source src="static/assets/audio/startdust.wav" type="audio/wav" />
-</audio>
-
+    <p class="splash-status" data-splash-status></p>
   </main>
 
-  <script src="static/js/startsplash.js"></script>
+  <script type="module">
+    import { APP_CONFIG } from "./static/js/config.js"
+    import { apiRequest } from "./static/js/apiClient.js"
+
+    const startButton = document.querySelector("[data-start-campaign]")
+    const backMenuButton = document.querySelector("[data-back-menu]")
+    const statusText = document.querySelector("[data-splash-status]")
+
+    const ACTIVE_GAME_SESSION_KEY = "ironSkiesActiveGameSessionId"
+
+    startButton.addEventListener("click", async () => {
+      try {
+        startButton.disabled = true
+        startButton.textContent = "STARTING..."
+        statusText.textContent = "CREATING NEW CAMPAIGN..."
+
+        const data = await apiRequest("/game/start", {
+          method: "POST",
+        })
+
+        if (data.gameSessionId) {
+          sessionStorage.setItem(ACTIVE_GAME_SESSION_KEY, String(data.gameSessionId))
+          sessionStorage.setItem("gameSessionId", String(data.gameSessionId))
+        }
+
+        window.location.href = "./map.html"
+      } catch (error) {
+        console.error(error)
+
+        startButton.disabled = false
+        startButton.textContent = "DEFEND HELSINKI"
+        statusText.textContent = error.message || "FAILED TO START CAMPAIGN"
+      }
+    })
+
+    backMenuButton.addEventListener("click", () => {
+      window.location.href = APP_CONFIG.routes.mainMenu
+    })
+  </script>
 </body>
+
 </html>

@@ -6,6 +6,7 @@ const MAP_PAGE_HEIGHT = 1080
 
 const GAME_PAGE = "./game.html"
 const SHOP_PAGE = "./shop.html"
+const START_SPLASH_PAGE = "./startsplash.html"
 
 const HELSINKI_AIRPORT_IDENT = "EFHK"
 const MINIBOSS_AIRPORT_IDENT = "EPKE"
@@ -16,12 +17,14 @@ const DIFFICULTY_BOSS_ID = 5
 
 const ACTIVE_GAME_SESSION_KEY = "ironSkiesActiveGameSessionId"
 const SELECTED_AIRPORT_KEY = "ironSkiesSelectedAirport"
+const HELSINKI_DEFENDED_POPUP_KEY_PREFIX = "ironSkiesHelsinkiDefendedShown:"
 
 const canvas = document.getElementById("mapCanvas")
 const ctx = canvas.getContext("2d")
 
 const mapStatus = document.getElementById("mapStatus")
 const popup = document.getElementById("airportPopup")
+const helsinkiDefendedPopup = document.getElementById("helsinkiDefendedPopup")
 
 const popupName = document.getElementById("popupName")
 const popupType = document.getElementById("popupType")
@@ -31,6 +34,7 @@ const popupCoords = document.getElementById("popupCoords")
 
 const primaryButton = document.getElementById("primaryButton")
 const closePopupButton = document.getElementById("closePopup")
+const closeHelsinkiPopupButton = document.getElementById("closeHelsinkiPopup")
 
 const refreshMapButton = document.querySelector("[data-refresh-map]")
 const backMenuButton = document.querySelector("[data-back-menu]")
@@ -77,6 +81,7 @@ let nodes = []
 let selectedNode = null
 let hoveredNode = null
 let gameSessionId = null
+let shouldShowHelsinkiDefendedPopup = false
 
 let isDragging = false
 let hasDragged = false
@@ -132,33 +137,27 @@ function continueGameSession() {
   return apiRequest("/game/continue")
 }
 
-function startNewCampaign() {
-  return apiRequest("/game/start", {
-    method: "POST",
-  })
-}
-
 async function getOrCreateCampaign() {
-  let data = await continueGameSession()
+  const data = await continueGameSession()
 
   if (data.hasActiveGame) {
     return data
   }
 
-  showStatus("NO ACTIVE CAMPAIGN. CREATING NEW CAMPAIGN...")
+  showStatus("NO ACTIVE CAMPAIGN. OPENING MISSION BRIEFING...")
 
-  await startNewCampaign()
+  window.location.href = START_SPLASH_PAGE
 
-  data = await continueGameSession()
-
-  return data
+  throw new Error("Redirecting to mission briefing.")
 }
 
 async function loadMapData() {
+  shouldShowHelsinkiDefendedPopup = false
+
   const data = await getOrCreateCampaign()
 
   if (!data.hasActiveGame) {
-    throw new Error("Could not create or load active campaign.")
+    throw new Error("No active campaign found.")
   }
 
   gameSessionId = data.gameSessionId ?? null
@@ -195,6 +194,8 @@ async function loadMapData() {
     return data
   }
 
+  shouldShowHelsinkiDefendedPopup = shouldOpenHelsinkiDefendedPopup(gameSessionId)
+
   const baseNode = createNodeFromAirport({
     ...helsinkiAirport,
     liberated: true,
@@ -225,6 +226,35 @@ function showStatus(message) {
 
 function hideStatus() {
   mapStatus.classList.add("hidden")
+}
+
+/* -----------------------------
+   STORY POPUP
+----------------------------- */
+
+function getHelsinkiDefendedPopupKey(sessionId) {
+  return `${HELSINKI_DEFENDED_POPUP_KEY_PREFIX}${sessionId}`
+}
+
+function shouldOpenHelsinkiDefendedPopup(sessionId) {
+  if (!sessionId) return false
+
+  const key = getHelsinkiDefendedPopupKey(sessionId)
+
+  return localStorage.getItem(key) !== "true"
+}
+
+function openHelsinkiDefendedPopup() {
+  if (!gameSessionId || !helsinkiDefendedPopup) return
+
+  const key = getHelsinkiDefendedPopupKey(gameSessionId)
+
+  localStorage.setItem(key, "true")
+  helsinkiDefendedPopup.classList.remove("hidden")
+}
+
+function closeHelsinkiDefendedPopup() {
+  helsinkiDefendedPopup?.classList.add("hidden")
 }
 
 /* -----------------------------
@@ -820,6 +850,7 @@ canvas.addEventListener("pointercancel", stopDragging)
 canvas.addEventListener("pointerleave", clearHover)
 
 closePopupButton.addEventListener("click", closePopup)
+closeHelsinkiPopupButton?.addEventListener("click", closeHelsinkiDefendedPopup)
 
 refreshMapButton.addEventListener("click", () => {
   refreshMap()
@@ -832,6 +863,7 @@ backMenuButton.addEventListener("click", () => {
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closePopup()
+    closeHelsinkiDefendedPopup()
   }
 
   if (event.key.toLowerCase() === "r") {
@@ -866,6 +898,7 @@ async function refreshMap() {
 
     resetCamera()
     closePopupWithoutRedraw()
+    closeHelsinkiDefendedPopup()
 
     hoveredNode = null
     canvas.classList.remove("node-hover")
@@ -885,6 +918,10 @@ async function refreshMap() {
 
     hideStatus()
     redraw()
+
+    if (shouldShowHelsinkiDefendedPopup) {
+      openHelsinkiDefendedPopup()
+    }
   } catch (error) {
     console.error(error)
     showStatus(error.message || "FAILED TO LOAD MAP DATA")

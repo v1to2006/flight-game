@@ -5,10 +5,10 @@ services:
     restart: unless-stopped
 
     environment:
-      MARIADB_ROOT_PASSWORD: skibidi67
-      MARIADB_DATABASE: app_db
-      MARIADB_USER: admin
-      MARIADB_PASSWORD: skibidi67ADMIN
+      MARIADB_ROOT_PASSWORD: your-db-password
+      MARIADB_DATABASE: your-db-name
+      MARIADB_USER: your-db-user
+      MARIADB_PASSWORD: your-db-password
 
     ports:
       - "3307:3306"

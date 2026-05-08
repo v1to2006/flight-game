@@ -3,6 +3,7 @@ import { apiRequest } from "./apiClient.js"
 import { getCurrentUser, logoutUser } from "./authApi.js"
 
 const MAP_PAGE = "map.html"
+const START_SPLASH_PAGE = "startsplash.html"
 
 const ACTIVE_GAME_SESSION_KEY = "ironSkiesActiveGameSessionId"
 const ACTIVE_GAME_PROGRESS_KEY = "ironSkiesActiveGameProgress"
@@ -343,12 +344,6 @@ function continueGameSession() {
   return apiRequest("/game/continue")
 }
 
-function startGameSession() {
-  return apiRequest("/game/start", {
-    method: "POST",
-  })
-}
-
 function getPlayerProfile() {
   return apiRequest("/player/profile")
 }
@@ -365,7 +360,7 @@ async function loadMenuStatus() {
     const money = profile?.player?.money ?? 0
 
     if (!gameStatus.hasActiveGame) {
-      setMenuStatus(`${username} | Money: ${money} | No active campaign. Continue will create one.`)
+      setMenuStatus(`${username} | Money: ${money} | No active campaign. Continue will start briefing.`)
       return
     }
 
@@ -409,44 +404,38 @@ async function continueGame() {
       return
     }
 
-    setMenuStatus("No active campaign found. Creating new campaign...")
+    setMenuStatus("No active campaign found. Opening mission briefing...")
 
-    const startResult = await startGameSession()
-    saveActiveGame(startResult)
-
-    navigateWithLoading(MAP_PAGE, {
-      title: "Creating Campaign",
-      duration: 1800,
+    navigateWithLoading(START_SPLASH_PAGE, {
+      title: "Opening Briefing",
+      duration: 1200,
     })
   } catch (error) {
     console.error(error)
-    setMenuStatus(error.message || "Could not continue campaign.")
-    alert(error.message || "Could not continue campaign.")
+    setMenuStatus("Could not check campaign. Opening mission briefing...")
+
+    navigateWithLoading(START_SPLASH_PAGE, {
+      title: "Opening Briefing",
+      duration: 1200,
+    })
   } finally {
     setMenuLoading(false)
   }
 }
 
 async function newGame() {
-  const startNew = confirm("Start a new campaign? Your old active campaign will be abandoned.")
+  const startNew = confirm("Start a new campaign? Your old active campaign will be abandoned after the briefing.")
 
   if (!startNew) return
 
   setMenuLoading(true)
-  setMenuStatus("Creating new campaign...")
+  setMenuStatus("Opening mission briefing...")
 
   try {
-    const result = await startGameSession()
-    saveActiveGame(result)
-
-    navigateWithLoading(MAP_PAGE, {
-      title: "Preparing New Campaign",
-      duration: 1800,
+    navigateWithLoading(START_SPLASH_PAGE, {
+      title: "Opening Briefing",
+      duration: 1200,
     })
-  } catch (error) {
-    console.error(error)
-    setMenuStatus(error.message || "Could not start new campaign.")
-    alert(error.message || "Could not start new campaign.")
   } finally {
     setMenuLoading(false)
   }
@@ -474,6 +463,15 @@ async function signOut() {
   } finally {
     setMenuLoading(false)
   }
+}
+
+function goToSettings() {
+  sessionStorage.setItem("settingsReturnTo", window.location.href)
+
+  navigateWithLoading("settings.html", {
+    title: "Opening Settings",
+    duration: 800,
+  })
 }
 
 function navigateWithLoading(pageName, options) {
@@ -514,3 +512,4 @@ window.goToPage = goToPage
 window.continueGame = continueGame
 window.newGame = newGame
 window.signOut = signOut
+window.goToSettings = goToSettings
