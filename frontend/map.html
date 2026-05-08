@@ -20,6 +20,14 @@
 <body>
   <canvas id="mapCanvas" width="1920" height="1080"></canvas>
 
+  <audio id="bgMusic" loop>
+    <source src="./static/assets/audio/Ambient.wav" type="audio/wav" />
+  </audio>
+
+  <div id="audioHint" class="map-audio-hint">
+    CLICK ANYWHERE TO ENABLE SOUND
+  </div>
+
   <header class="map-hud">
     <div class="map-hud__panel">
       <p class="map-hud__title">CAMPAIGN MAP</p>
@@ -47,19 +55,26 @@
   </aside>
 
   <div id="airportPopup" class="hidden">
-    <h2 id="popupName">AIRPORT</h2>
+    <div class="popup-frame">
+      <p class="popup-eyebrow">MISSION TARGET</p>
 
-    <p id="popupType">TYPE</p>
-    <p id="popupICAO">ICAO</p>
-    <p id="popupCountry">COUNTRY</p>
-    <p id="popupCoords">COORDS</p>
+      <h2 id="popupName">AIRPORT</h2>
 
-    <div class="popupButtons">
-      <button id="primaryButton" type="button">START COMBAT</button>
-      <button id="closePopup" type="button">BACK TO MAP</button>
+      <div class="popup-divider"></div>
+
+      <p id="popupType">TYPE</p>
+      <p id="popupICAO">ICAO</p>
+      <p id="popupCountry">COUNTRY</p>
+      <p id="popupCoords">COORDS</p>
+
+      <div class="popupButtons">
+        <button id="primaryButton" type="button">START COMBAT</button>
+        <button id="closePopup" type="button">BACK TO MAP</button>
+      </div>
     </div>
   </div>
 
+  <script src="./static/js/settingsManager.js" defer></script>
   <script type="module" src="./static/js/map.js"></script>
 </body>
 

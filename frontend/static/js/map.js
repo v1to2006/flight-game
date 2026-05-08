@@ -35,6 +35,9 @@ const closePopupButton = document.getElementById("closePopup")
 const refreshMapButton = document.querySelector("[data-refresh-map]")
 const backMenuButton = document.querySelector("[data-back-menu]")
 
+const music = document.getElementById("bgMusic")
+const audioHint = document.getElementById("audioHint")
+
 const MAP_BOUNDS = {
   minLat: 31,
   maxLat: 72,
@@ -72,6 +75,7 @@ const icons = {
 
 let nodes = []
 let selectedNode = null
+let hoveredNode = null
 let gameSessionId = null
 
 let isDragging = false
@@ -79,12 +83,45 @@ let hasDragged = false
 let dragStart = { x: 0, y: 0 }
 let cameraStart = { offsetX: 0, offsetY: 0 }
 
+let musicStarted = false
+
 initMap()
 
 function createImage(src) {
   const image = new Image()
   image.src = src
   return image
+}
+
+/* -----------------------------
+   AUDIO
+----------------------------- */
+
+function setupAudio() {
+  if (!music) return
+
+  if (typeof globalThis.applySavedMusicVolume === "function") {
+    globalThis.applySavedMusicVolume(music, 28)
+  } else {
+    music.volume = 0.28
+  }
+
+  document.addEventListener("click", enableAudio)
+  document.addEventListener("keydown", enableAudio)
+}
+
+function enableAudio() {
+  if (!music || musicStarted) return
+
+  music
+    .play()
+    .then(() => {
+      musicStarted = true
+      audioHint?.classList.add("hidden")
+    })
+    .catch(() => {
+      console.log("Audio waits for user interaction.")
+    })
 }
 
 /* -----------------------------
@@ -317,6 +354,7 @@ function redraw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
   drawMapBackground()
+  drawNodeAuras()
   drawNodes()
 }
 
@@ -337,37 +375,152 @@ function drawMapBackground() {
   ctx.restore()
 }
 
-function drawNodes() {
-  ctx.textAlign = "center"
-  ctx.font = "12px 'Press Start 2P'"
-
+function drawNodeAuras() {
   for (const node of nodes) {
-    const screenPosition = worldToScreen(node.worldX, node.worldY)
+    const position = worldToScreen(node.worldX, node.worldY)
 
-    drawNodeIcon(node, screenPosition)
-    drawSelectedRing(node, screenPosition)
+    drawNodeAura(node, position)
   }
+}
+
+function drawNodes() {
+  for (const node of nodes) {
+    const position = worldToScreen(node.worldX, node.worldY)
+
+    drawNodeIcon(node, position)
+    drawNodeMarkerRing(node, position)
+  }
+}
+
+function drawNodeAura(node, position) {
+  const color = getNodeColor(node)
+  const isHovered = node === hoveredNode
+  const isSelected = node === selectedNode
+
+  const radius =
+    getNodeBaseSize(node) / 2 +
+    (isHovered ? 15 : isSelected ? 11 : 7)
+
+  ctx.save()
+
+  ctx.globalAlpha = isHovered || isSelected ? 0.58 : 0.26
+  ctx.shadowColor = color
+  ctx.shadowBlur = isHovered || isSelected ? 32 : 18
+
+  ctx.fillStyle = color
+  ctx.beginPath()
+  ctx.arc(position.x, position.y, radius, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.restore()
 }
 
 function drawNodeIcon(node, position) {
   const icon = getNodeIcon(node)
+  const color = getNodeColor(node)
+
+  const isHovered = node === hoveredNode
+  const isSelected = node === selectedNode
+
+  const baseSize = getNodeBaseSize(node)
+  const size = baseSize + (isHovered ? 10 : isSelected ? 6 : 0)
+
+  ctx.save()
+
+  if (node.liberated && !node.isBase) {
+    ctx.globalAlpha = 0.45
+  }
+
+  ctx.shadowColor = color
+  ctx.shadowBlur = isHovered || isSelected ? 20 : 10
 
   if (icon && icon.complete && icon.naturalWidth > 0) {
-    ctx.save()
-
-    if (node.liberated && !node.isBase) {
-      ctx.globalAlpha = 0.45
-    }
-
-    const size = node.isBase ? 42 : 34
-
     ctx.drawImage(icon, position.x - size / 2, position.y - size / 2, size, size)
+  } else {
+    drawFallbackIcon(node, position, size / 2)
+  }
 
-    ctx.restore()
+  ctx.restore()
+}
+
+function drawFallbackIcon(node, position, radius) {
+  ctx.beginPath()
+  ctx.arc(position.x, position.y, radius, 0, Math.PI * 2)
+
+  ctx.fillStyle = getNodeColor(node)
+  ctx.fill()
+
+  ctx.strokeStyle = "#0b0b0d"
+  ctx.lineWidth = 3
+  ctx.stroke()
+}
+
+function drawNodeMarkerRing(node, position) {
+  const isHovered = node === hoveredNode
+  const isSelected = node === selectedNode
+
+  if (!isHovered && !isSelected && node.type !== NODE_TYPES.BASE && node.type !== NODE_TYPES.MINIBOSS && node.type !== NODE_TYPES.FINAL_BOSS) {
     return
   }
 
-  drawFallbackIcon(node, position)
+  const color = getNodeColor(node)
+  const radius = getNodeBaseSize(node) / 2 + (isHovered || isSelected ? 17 : 11)
+
+  ctx.save()
+
+  ctx.strokeStyle = isSelected ? "#fff0a8" : color
+  ctx.lineWidth = isSelected ? 3 : 2
+  ctx.shadowColor = color
+  ctx.shadowBlur = isHovered || isSelected ? 18 : 8
+
+  ctx.beginPath()
+  ctx.arc(position.x, position.y, radius, 0, Math.PI * 2)
+  ctx.stroke()
+
+  if (node.type === NODE_TYPES.MINIBOSS || node.type === NODE_TYPES.FINAL_BOSS) {
+    drawTargetBrackets(position, radius + 7, color)
+  }
+
+  ctx.restore()
+}
+
+function drawTargetBrackets(position, radius, color) {
+  const length = 12
+
+  ctx.strokeStyle = color
+  ctx.lineWidth = 2
+
+  ctx.beginPath()
+
+  ctx.moveTo(position.x - radius, position.y - length)
+  ctx.lineTo(position.x - radius, position.y + length)
+
+  ctx.moveTo(position.x + radius, position.y - length)
+  ctx.lineTo(position.x + radius, position.y + length)
+
+  ctx.moveTo(position.x - length, position.y - radius)
+  ctx.lineTo(position.x + length, position.y - radius)
+
+  ctx.moveTo(position.x - length, position.y + radius)
+  ctx.lineTo(position.x + length, position.y + radius)
+
+  ctx.stroke()
+}
+
+function getNodeBaseSize(node) {
+  if (node.type === NODE_TYPES.BASE) return 46
+  if (node.type === NODE_TYPES.FINAL_BOSS) return 44
+  if (node.type === NODE_TYPES.MINIBOSS) return 42
+
+  return 34
+}
+
+function getNodeHitRadius(node) {
+  if (node.type === NODE_TYPES.BASE) return 34
+  if (node.type === NODE_TYPES.FINAL_BOSS) return 36
+  if (node.type === NODE_TYPES.MINIBOSS) return 35
+
+  return 30
 }
 
 function getNodeIcon(node) {
@@ -384,34 +537,11 @@ function getNodeIcon(node) {
   return icons.easy
 }
 
-function drawFallbackIcon(node, position) {
-  ctx.beginPath()
-  ctx.arc(position.x, position.y, node.isBase ? 15 : 10, 0, Math.PI * 2)
-
-  ctx.fillStyle = getNodeColor(node)
-  ctx.fill()
-
-  ctx.strokeStyle = "#111"
-  ctx.lineWidth = 2
-  ctx.stroke()
-}
-
-function drawSelectedRing(node, position) {
-  if (node !== selectedNode) return
-
-  ctx.strokeStyle = "#ffd24d"
-  ctx.lineWidth = 2
-
-  ctx.beginPath()
-  ctx.arc(position.x, position.y, 24, 0, Math.PI * 2)
-  ctx.stroke()
-}
-
 function getNodeColor(node) {
   if (node.isBase) return "#8aff8a"
   if (node.liberated) return "#aaaaaa"
-  if (node.type === NODE_TYPES.MINIBOSS) return "#ff8a00"
-  if (node.type === NODE_TYPES.FINAL_BOSS) return "#ff2222"
+  if (node.type === NODE_TYPES.MINIBOSS) return "#ff9f2e"
+  if (node.type === NODE_TYPES.FINAL_BOSS) return "#ff2f2f"
 
   const difficultyName = getDifficultyName(node)
 
@@ -432,6 +562,8 @@ function getDifficultyName(node) {
 
 function openAirportPopup(node) {
   selectedNode = node
+
+  popup.dataset.nodeType = node.type.toLowerCase().replace("_", "-")
 
   popupName.textContent = String(node.airport.name ?? "Unknown Airport").toUpperCase()
   popupType.textContent = getPopupTypeText(node)
@@ -525,12 +657,14 @@ function getGameDifficultyFromAirport(airport) {
 function closePopup() {
   popup.classList.add("hidden")
   selectedNode = null
+  delete popup.dataset.nodeType
   redraw()
 }
 
 function closePopupWithoutRedraw() {
   popup.classList.add("hidden")
   selectedNode = null
+  delete popup.dataset.nodeType
 }
 
 /* -----------------------------
@@ -546,15 +680,28 @@ function getCanvasMousePosition(event) {
   }
 }
 
-function getClickedNode(event) {
+function getNodeAtCanvasPosition(x, y) {
+  let closestNode = null
+  let closestDistance = Infinity
+
+  for (const node of nodes) {
+    const position = worldToScreen(node.worldX, node.worldY)
+    const distance = Math.hypot(x - position.x, y - position.y)
+    const hitRadius = getNodeHitRadius(node)
+
+    if (distance <= hitRadius && distance < closestDistance) {
+      closestNode = node
+      closestDistance = distance
+    }
+  }
+
+  return closestNode
+}
+
+function getNodeFromEvent(event) {
   const mouse = getCanvasMousePosition(event)
 
-  return nodes.find((node) => {
-    const position = worldToScreen(node.worldX, node.worldY)
-    const distance = Math.hypot(mouse.x - position.x, mouse.y - position.y)
-
-    return distance < 34
-  })
+  return getNodeAtCanvasPosition(mouse.x, mouse.y)
 }
 
 function zoomAtMouse(event) {
@@ -592,6 +739,23 @@ function startDragging(event) {
   canvas.setPointerCapture(event.pointerId)
 }
 
+function handlePointerMove(event) {
+  if (isDragging) {
+    dragMap(event)
+    return
+  }
+
+  const nextHoveredNode = getNodeFromEvent(event)
+
+  if (nextHoveredNode === hoveredNode) return
+
+  hoveredNode = nextHoveredNode
+
+  canvas.classList.toggle("node-hover", Boolean(hoveredNode))
+
+  redraw()
+}
+
 function dragMap(event) {
   if (!isDragging) return
 
@@ -625,14 +789,23 @@ function stopDragging(event) {
     return
   }
 
-  const clickedNode = getClickedNode(event)
+  const clickedNode = getNodeFromEvent(event)
 
   if (!clickedNode) {
     closePopup()
     return
   }
 
+  hoveredNode = clickedNode
   openAirportPopup(clickedNode)
+}
+
+function clearHover() {
+  if (!hoveredNode) return
+
+  hoveredNode = null
+  canvas.classList.remove("node-hover")
+  redraw()
 }
 
 /* -----------------------------
@@ -641,9 +814,10 @@ function stopDragging(event) {
 
 canvas.addEventListener("wheel", zoomAtMouse, { passive: false })
 canvas.addEventListener("pointerdown", startDragging)
-canvas.addEventListener("pointermove", dragMap)
+canvas.addEventListener("pointermove", handlePointerMove)
 canvas.addEventListener("pointerup", stopDragging)
 canvas.addEventListener("pointercancel", stopDragging)
+canvas.addEventListener("pointerleave", clearHover)
 
 closePopupButton.addEventListener("click", closePopup)
 
@@ -670,6 +844,8 @@ window.addEventListener("keydown", (event) => {
 ----------------------------- */
 
 async function initMap() {
+  setupAudio()
+
   showStatus("LOADING MAP...")
 
   canvas.width = MAP_PAGE_WIDTH
@@ -690,6 +866,9 @@ async function refreshMap() {
 
     resetCamera()
     closePopupWithoutRedraw()
+
+    hoveredNode = null
+    canvas.classList.remove("node-hover")
 
     await loadMapData()
 

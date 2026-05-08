@@ -40,8 +40,8 @@ const DIFFICULTY_CONFIGS = {
     timeMax: 280,
     killsMin: 15,
     killsMax: 20,
-    spawnDelayMin: 90,
-    spawnDelayMax: 120,
+    spawnDelayMin: 120,
+    spawnDelayMax: 150,
     enemyPool: ["fighter", "heavy", "fast", "shotgun"],
   },
 
@@ -50,8 +50,8 @@ const DIFFICULTY_CONFIGS = {
     timeMax: 340,
     killsMin: 20,
     killsMax: 30,
-    spawnDelayMin: 60,
-    spawnDelayMax: 90,
+    spawnDelayMin: 150,
+    spawnDelayMax: 200,
     enemyPool: ["fighter", "heavy", "fast", "shotgun", "rocketHeavy", "stealthRam"],
   },
 
@@ -69,11 +69,11 @@ const DIFFICULTY_CONFIGS = {
   boss: {
     timeMin: 420,
     timeMax: 480,
-    killsMin: 10,
-    killsMax: 15,
-    spawnDelayMin: 60,
+    killsMin: 15,
+    killsMax: 20,
+    spawnDelayMin: 50,
     spawnDelayMax: 100,
-    enemyPool: ["fighter", "heavy", "fast"],
+    enemyPool: ["fighter", "heavy", "fast", "rocketHeavy"],
     hasBoss: true,
   },
 }
@@ -126,8 +126,8 @@ const ENEMY_TYPES = {
     speed: 1.2,
     scoreValue: 260,
     image: "enemyShotgun",
-    shootDelay: 140,
-    bulletSpeed: 4.0,
+    shootDelay: 300,
+    bulletSpeed: 2.0,
     pattern: "shotgun",
   },
 
@@ -136,11 +136,11 @@ const ENEMY_TYPES = {
     width: 86,
     height: 86,
     hp: 6,
-    speed: 1.2,
+    speed: 1.5,
     scoreValue: 360,
     image: "enemyRocketHeavy",
     shootDelay: 150,
-    bulletSpeed: 4.0,
+    bulletSpeed: 3.0,
     pattern: "rocket",
   },
 
@@ -162,7 +162,7 @@ const ENEMY_TYPES = {
     type: "miniboss",
     width: 150,
     height: 120,
-    hp: 45,
+    hp: 150,
     speed: 1.4,
     scoreValue: 2500,
     image: "enemyMiniBoss",
@@ -176,11 +176,11 @@ const ENEMY_TYPES = {
     type: "boss",
     width: 320,
     height: 220,
-    hp: 150,
+    hp: 500,
     speed: 1.0,
     scoreValue: 8000,
     image: "enemyBoss",
-    shootDelay: 80,
+    shootDelay: 120,
     bulletSpeed: 4.2,
     pattern: "boss",
     boss: true,
@@ -1740,7 +1740,7 @@ function draw() {
   drawBossHpBar()
 
   if (game.state === "loading") {
-    drawOverlayBox("LOADING", "Preparing aircraft data from backend...")
+    drawOverlayBox("LOADING", "Preparing aircraft...")
   }
 
   if (game.paused && game.state === "playing") {
@@ -2265,7 +2265,7 @@ function drawPauseMenu() {
 }
 
 function drawLoseScreen() {
-  drawOverlayBox("MISSION FAILED", "Nothing was saved to backend. Try again or return to map.")
+  drawOverlayBox("MISSION FAILED", "Something went wrong. Try again or return to map.")
 
   const buttonX = GAME_WIDTH / 2 - 140
   const startY = GAME_HEIGHT / 2 - 48

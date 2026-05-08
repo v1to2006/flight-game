@@ -62,9 +62,9 @@ INSERT INTO planes (
     default_firerate,
     price
 ) VALUES
-(1, 'Starter Fighter', 100, 50, 10, 0.4, 0),
-(2, 'Ironwing Fighter', 150, 100, 20, 0.80, 2000),
-(3, 'Stormhawk Fighter', 300, 150, 35, 1.30, 5000)
+(1, 'Starter Fighter', 100, 50, 10, 0.3, 0),
+(2, 'Ironwing Fighter', 150, 70, 15, 0.5, 2000),
+(3, 'Stormhawk Fighter', 250, 110, 20, 0.8, 5000)
 ON DUPLICATE KEY UPDATE
 name = VALUES(name),
 default_hp = VALUES(default_hp),
