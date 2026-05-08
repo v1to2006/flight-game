@@ -3,7 +3,7 @@ const UPGRADE_DEFS = {
     id: "hp",
     label: "HP",
     price: 120,
-    step: 0.15,
+    step: 0,
     maxLevel: 5
   },
 
@@ -11,7 +11,7 @@ const UPGRADE_DEFS = {
     id: "speed",
     label: "Speed",
     price: 100,
-    step: 0.10,
+    step: 0,
     maxLevel: 5
   },
 
@@ -19,7 +19,7 @@ const UPGRADE_DEFS = {
     id: "fireRate",
     label: "Fire Rate",
     price: 200,
-    step: 0.12,
+    step: 0,
     maxLevel: 5
   },
 
@@ -27,7 +27,7 @@ const UPGRADE_DEFS = {
     id: "damage",
     label: "Damage",
     price: 220,
-    step: 0.20,
+    step: 0,
     maxLevel: 5
   }
 };
