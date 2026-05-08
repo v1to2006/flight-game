@@ -15,9 +15,10 @@
 
   <script src="./static/js/loading.js" defer></script>
   <script src="./static/js/settingsManager.js" defer></script>
+  <script src="./static/js/languageManager.js" defer></script>
   <script src="./static/js/auth/authMusic.js" defer></script>
-  <script type="module" src="./static/js/auth/pageGuard.js"></script>
-  <script type="module" src="./static/js/auth/signup.js"></script>
+  <script type="module" src="./static/js/auth/pageGuard.js" defer></script>
+  <script type="module" src="./static/js/auth/signup.js" defer></script>
 </head>
 
 <body>
@@ -34,30 +35,32 @@
     <source src="./static/assets/audio/tea_war.wav" type="audio/wav" />
   </audio>
 
-  <div id="audioHint">Click anywhere to enable sound</div>
+  <div id="audioHint" data-i18n="enableSound">Click anywhere to enable sound</div>
 
   <header class="auth-navbar">
     <a class="auth-logo" href="./index.html" aria-label="Iron Skies home">
       <span class="auth-logo__icon">✦</span>
-      <span>Iron Skies</span>
+      <span data-i18n="ironSkies">Iron Skies</span>
     </a>
 
     <nav class="auth-nav" aria-label="Authentication navigation">
-      <a class="auth-nav__link" href="./login.html">Login</a>
-      <a class="auth-nav__link auth-nav__link--active" href="./signup.html">Sign up</a>
+      <a class="auth-nav__link" href="./login.html" data-i18n="login">Login</a>
+      <a class="auth-nav__link auth-nav__link--active" href="./signup.html" data-i18n="signUp">Sign up</a>
     </nav>
   </header>
 
   <main class="auth-page">
     <section class="auth-card" aria-labelledby="signup-title">
       <div class="auth-card__header">
-        <p class="auth-eyebrow">New pilot registration</p>
+        <p class="auth-eyebrow" data-i18n="newPilotRegistration">
+          New pilot registration
+        </p>
 
-        <h1 class="auth-card__title" id="signup-title">
+        <h1 class="auth-card__title" id="signup-title" data-i18n="signUp">
           Sign Up
         </h1>
 
-        <p class="auth-card__text">
+        <p class="auth-card__text" data-i18n="signupText">
           Create your pilot account and prepare for deployment.
         </p>
       </div>
@@ -66,7 +69,7 @@
         <p class="status-message" data-status-message role="alert" aria-live="polite"></p>
 
         <label class="form-field">
-          <span class="form-label">Username</span>
+          <span class="form-label" data-i18n="username">Username</span>
 
           <input
             class="form-input"
@@ -80,7 +83,7 @@
         </label>
 
         <label class="form-field">
-          <span class="form-label">Password</span>
+          <span class="form-label" data-i18n="password">Password</span>
 
           <input
             class="form-input"
@@ -94,7 +97,7 @@
         </label>
 
         <label class="form-field">
-          <span class="form-label">Confirm Password</span>
+          <span class="form-label" data-i18n="confirmPassword">Confirm Password</span>
 
           <input
             class="form-input"
@@ -108,13 +111,13 @@
         </label>
 
         <button class="button button--primary" type="submit" data-submit-button>
-          Create Account
+          <span data-i18n="createAccount">Create Account</span>
         </button>
       </form>
 
       <p class="auth-switch">
-        Already have an account?
-        <a href="./login.html">Login</a>
+        <span data-i18n="alreadyHaveAccount">Already have an account?</span>
+        <a href="./login.html" data-i18n="login">Login</a>
       </p>
     </section>
   </main>

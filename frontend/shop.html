@@ -5,14 +5,16 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<title>Aircraft Shop | WW2 Flight Game</title>
+  <title>Aircraft Shop | Iron Skies</title>
 
-	<link rel="stylesheet" href="./static/css/variables.css" />
-	<link rel="stylesheet" href="./static/css/loading.css" />
-	<link rel="stylesheet" href="./static/css/shop.css" />
+	<link rel="stylesheet" href="././static/css/variables.css" />
+	<link rel="stylesheet" href="././static/css/loading.css" />
+	<link rel="stylesheet" href="././static/css/shop.css" />
+  <link rel="stylesheet" href="././static/css/base.css" />
 
-	<script type="module" src="./static/js/auth/pageGuard.js"></script>
+	<script type="module" src="././static/js/auth/pageGuard.js"></script>
 </head>
+
 
 <body>
 	<main class="shop-page">
@@ -22,97 +24,123 @@
 			</video>
 		</div>
 
-		<section class="shop-hero">
-			<div class="top-left-menu">
-				<a class="menu-button" href="map.html">Return to Map</a>
-				<button class="menu-button" type="button" onclick="goToSettings()">Settings</button>
-			</div>
+    <header class="shop-topbar">
+      <div class="shop-topbar-left">
+        <a class="topbar-button" href="./map.html" data-i18n="returnToMap">Return to Map</a>
 
-			<header class="shop-title">
-				<p class="eyebrow">Airfield Supply Point</p>
-				<h1>Shop</h1>
-				<p id="moneyText" class="money-text">Money: 0</p>
-				<p id="shopMessage" class="shop-message hidden"></p>
-			</header>
+        <button class="topbar-button" type="button" onclick="goToSettings()" data-i18n="settings">
+          Settings
+        </button>
+      </div>
 
-			<aside class="stats-card">
-				<div class="stats-card-header">
-					<h2 id="statsPanelTitle">Aircraft Stats</h2>
+      <div class="shop-topbar-center">
+        <span class="topbar-wing">▰▰▰</span>
+        <span data-i18n="airfieldSupplyPoint">Airfield Supply Point</span>
+        <span class="topbar-wing">▰▰▰</span>
+      </div>
 
-					<button id="toggleUpgradeButton" class="stats-toggle-button" type="button">
-						Upgrades
-					</button>
-				</div>
+      <div class="shop-topbar-mark">✦</div>
+    </header>
 
-				<div id="statsFlipCard" class="stats-flip-card">
-					<div class="stats-face stats-front">
-						<div class="stat-row">
-							<span>HP</span>
-							<strong id="statHp">-</strong>
-						</div>
+    <section class="shop-hero">
+      <header class="shop-title">
+        <h1 data-i18n="shop">Shop</h1>
+        <p id="moneyText" class="money-text">Money: 0</p>
+      </header>
 
-						<div class="stat-row">
-							<span>Speed</span>
-							<strong id="statSpeed">-</strong>
-						</div>
+      <aside class="stats-card">
+        <div class="stats-card-header">
+          <h2 id="statsPanelTitle" data-i18n="aircraftStats">Aircraft Stats</h2>
 
-						<div class="stat-row">
-							<span>Fire Rate</span>
-							<strong id="statFireRate">-</strong>
-						</div>
+          <button
+            id="toggleUpgradeButton"
+            class="stats-toggle-button"
+            type="button"
+            data-i18n="upgrades"
+          >
+            Upgrades
+          </button>
+        </div>
 
-						<div class="stat-row">
-							<span>Damage</span>
-							<strong id="statDamage">-</strong>
-						</div>
+        <div id="statsFlipCard" class="stats-flip-card">
+          <div class="stats-face stats-front">
+            <div class="stat-row">
+              <span data-i18n="hp">HP</span>
+              <strong id="statHp">5 x1.00</strong>
+            </div>
 
-						<div class="stat-row">
-							<span>Status</span>
-							<strong id="statStatus">-</strong>
-						</div>
-					</div>
+            <div class="stat-row">
+              <span data-i18n="speed">Speed</span>
+              <strong id="statSpeed">6 x1.00</strong>
+            </div>
 
-					<div class="stats-face stats-back">
-						<div class="upgrade-panel">
-							<h3>Upgrade Multipliers</h3>
-							<div id="upgradeRows" class="upgrade-rows"></div>
-						</div>
-					</div>
-				</div>
-			</aside>
+            <div class="stat-row">
+              <span data-i18n="fireRate">Fire Rate</span>
+              <strong id="statFireRate">x1.00</strong>
+            </div>
+
+            <div class="stat-row">
+              <span data-i18n="damage">Damage</span>
+              <strong id="statDamage">1 x1.00</strong>
+            </div>
+
+            <div class="stat-row">
+              <span data-i18n="status">Status</span>
+              <strong id="statStatus">Selected</strong>
+            </div>
+          </div>
+
+          <div class="stats-face stats-back">
+            <div class="upgrade-panel">
+              <h3 data-i18n="upgradeMultipliers">Upgrade Multipliers</h3>
+              <div id="upgradeRows" class="upgrade-rows"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
 
 			<section class="main-showcase">
 				<div class="showcase-bg-rings"></div>
 
-				<div class="showcase-plane">
-					<img id="previewImage" src="./static/assets/planes/player_fighter1.png" alt="Selected plane preview" />
-				</div>
+        <div class="showcase-plane">
+          <img
+            id="previewImage"
+            src="./static/assets/planes/player_fighter1.png"
+            alt="Selected plane preview"
+          />
+        </div>
 
-				<div class="showcase-text">
-					<h2 id="previewName">Loading...</h2>
-					<p id="previewDescription">Loading aircraft data...</p>
-				</div>
-			</section>
-		</section>
+        <div class="showcase-text">
+          <h2 id="previewName">Hawk Fighter</h2>
+          <p id="previewDescription">Balanced starter fighter.</p>
+        </div>
+      </section>
+    </section>
 
-		<section class="bottom-shop">
-			<div id="planeCards" class="plane-cards"></div>
-		</section>
-	</main>
+    <section class="bottom-shop">
+      <div class="shop-divider"><span>✦</span></div>
+      <div id="planeCards" class="plane-cards"></div>
+    </section>
 
-	<script src="./static/js/loading.js" defer></script>
-	<script src="./static/js/settingsManager.js" defer></script>
-	<script src="./static/js/state.js" defer></script>
-	<script src="./static/js/planes.js" defer></script>
-	<script type="module" src="./static/js/shop.js" defer></script>
-	<script src="./static/js/shopmusic.js" defer></script>
+    <button id="resetButton" class="reset-button" data-i18n="resetTestSave">
+      Reset test save
+    </button>
+  </main>
 
-	<script>
-		function goToSettings() {
-			sessionStorage.setItem("settingsReturnTo", window.location.href)
-			window.location.href = "settings.html"
-		}
-	</script>
+  <script src="./static/js/loading.js" defer></script>
+  <script src="./static/js/settingsManager.js" defer></script>
+  <script src="./static/js/languageManager.js" defer></script>
+  <script src="./static/js/state.js" defer></script>
+  <script src="./static/js/planes.js" defer></script>
+  <script src="./static/js/shop.js" defer></script>
+  <script src="./static/js/shopmusic.js" defer></script>
+
+  <script>
+    function goToSettings() {
+      sessionStorage.setItem("settingsReturnTo", window.location.href);
+      window.location.href = "settings.html";
+    }
+  </script>
 </body>
 
 </html>

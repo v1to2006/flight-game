@@ -1,83 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Iron Skies - Main Menu</title>
+  <title>Iron Skies - Main Menu</title>
 
-  <link rel="stylesheet" href="static/css/variables.css" />
-  <link rel="stylesheet" href="static/css/mainMenu.css" />
-  <link rel="stylesheet" href="static/css/loading.css" />
+  <link rel="stylesheet" href="./static/css/variables.css" />
+  <link rel="stylesheet" href="./static/css/mainMenu.css" />
+  <link rel="stylesheet" href="./static/css/loading.css" />
 
-  <script type="module" src="./static/js/auth/pageGuard.js"></script>
+  <script type="module" src="./static/js/auth/pageGuard.js" defer></script>
 </head>
 
 <body>
   <div class="background-layer">
     <video autoplay muted playsinline id="bgVideo1">
-      <source src="static/assets/videos/PlaneGray.mp4" type="video/mp4" />
+      <source src="./static/assets/videos/PlaneGray.mp4" type="video/mp4" />
     </video>
 
     <video autoplay muted playsinline id="bgVideo2">
-      <source src="static/assets/videos/PlaneGray.mp4" type="video/mp4" />
+      <source src="./static/assets/videos/PlaneGray.mp4" type="video/mp4" />
     </video>
 
+    <canvas id="backgroundCanvas"></canvas>
     <canvas id="backgroundCanvas"></canvas>
 
     <div class="dark-overlay"></div>
     <div class="vignette"></div>
     <div class="flicker"></div>
   </div>
+    <div class="dark-overlay"></div>
+    <div class="vignette"></div>
+    <div class="flicker"></div>
+  </div>
 
   <audio id="bgMusic" loop>
-    <source src="static/assets/audio/Ambient.wav" type="audio/wav" />
+    <source src="./static/assets/audio/Ambient.wav" type="audio/wav" />
   </audio>
 
-  <div id="audioHint">Click anywhere to enable sound</div>
+  <div id="audioHint" data-i18n="enableSound">Click anywhere to enable sound</div>
 
   <main class="main-menu">
     <section class="title-area">
-      <p class="small-title">Flight-Game</p>
+      <p class="small-title" data-i18n="flightGame">Flight-Game</p>
 
-      <h1 class="game-title">IRON SKIES</h1>
+      <h1 class="game-title" data-i18n="ironSkies">IRON SKIES</h1>
 
-      <p class="subtitle">
-        "You are about to embark upon the Great Crusade, toward which we have striven these many months"
-      </p>
-
-      <p class="subtitle" data-menu-status>
-        Checking command status...
+      <p class="subtitle" data-i18n="mainMenuSubtitle">
+		"You are about to embark upon the Great Crusade, toward which we have striven these many months"
       </p>
     </section>
 
     <section class="menu-buttons">
-      <button class="menu-btn" type="button" onclick="continueGame()">
+      <button class="menu-btn" onclick="continueGame()" data-i18n="continue">
         Continue
       </button>
 
-      <button class="menu-btn primary" type="button" onclick="newGame()">
+      <button class="menu-btn primary" onclick="newGame()" data-i18n="newGame">
         New Game
       </button>
 
-      <button class="menu-btn" type="button" onclick="goToPage('settings.html')">
+      <button class="menu-btn" onclick="goToSettings()" data-i18n="settings">
         Settings
       </button>
 
-      <button class="menu-btn danger" type="button" onclick="signOut()">
+      <button class="menu-btn danger" onclick="signOut()" data-i18n="signOut">
         Sign Out
       </button>
 
-      <button class="menu-btn" type="button" onclick="goToPage('credits.html')">
+      <button class="menu-btn" onclick="goToPage('credits.html')" data-i18n="credits">
         Credits
       </button>
     </section>
   </main>
 
-  <script src="static/js/loading.js" defer></script>
-  <script src="static/js/settingsManager.js" defer></script>
-  <script type="module" src="static/js/mainMenu.js"></script>
-</body>
+  <script src="./static/js/loading.js" defer></script>
+  <script src="./static/js/settingsManager.js" defer></script>
+  <script src="./static/js/languageManager.js" defer></script>
+  <script type="module" src="./static/js/mainMenu.js" defer></script>
 
+  <script>
+    function goToSettings() {
+      sessionStorage.setItem("settingsReturnTo", window.location.href);
+      window.location.href = "settings.html";
+    }
+  </script>
+</body>
 </html>
